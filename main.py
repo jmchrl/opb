@@ -146,9 +146,10 @@ class Main():
 		####################
 		
 		#ajout d'un cadre conteneur du treeview
-		self.cadreTreeview = tkinter.Frame(self.root, height=700, width=1200)
-		self.cadreTreeview.grid(row=2, column=0, sticky='WN', padx=5, pady=5)
-		self.cadreTreeview.grid_propagate(0)
+		#self.cadreTreeview = tkinter.Frame(self.root, height=700, width=1200)
+		self.cadreTreeview = tkinter.Frame(self.root)
+		self.cadreTreeview.grid(row=2, column=0, sticky='WENS', padx=5, pady=5)
+		#self.cadreTreeview.grid_propagate(0)
 		self.cadreTreeview.rowconfigure(0, weight=1)
 		self.cadreTreeview.columnconfigure(0, weight=1)
 		
