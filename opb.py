@@ -24,6 +24,7 @@ import xml.etree.ElementTree as ET
 import math
 import decimal
 import os.path
+import zipfile
 import constantes
 
 def emplacementFichier(urlFichier):
@@ -41,7 +42,13 @@ class Affaire():
 		if self.url == None:
 			self.xml = ET.ElementTree(ET.fromstring(constantes.XMLTEMPLATE))
 		else :
-			self.xml = ET.parse(self.url)
+			#self.xml = ET.parse(self.url)
+			fichierZip = zipfile.ZipFile(self.url,"r")
+			#contenuXML = fichierZip.open("data.xml","r")
+			contenuXML = fichierZip.read("data.xml")
+			print(contenuXML)
+			
+			self.xml = ET.ElementTree(ET.fromstring(contenuXML))
 		
 		self.lots = []
 		self.ouvrages = []
