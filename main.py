@@ -200,9 +200,10 @@ class Main():
 	
 	def ouvrirAffaire(self):
 		"""Lancement de la methode ouvrirAffaire de la classe ArbreAffaire"""
-		url = tkinter.filedialog.askopenfilename(filetypes=[('Fichier xml','*.xml')], title="Fichier de sauvegarde ...")
+				
+		url = tkinter.filedialog.askopenfilename(filetypes=[('Fichier zip','*.zip')], title="Fichier de sauvegarde ...")
+		
 		self.arbreAffaire.remiseZeroTreeview()
-		#self.arbreAffaire.ouvrirAffaire(url)
 		self.root.title("opb - %s" %(url))
 		
 		# Creation d une nouvelle instance affaire du module opb
