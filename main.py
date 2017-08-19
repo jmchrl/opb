@@ -177,7 +177,19 @@ class Main():
 		self.arbreAffaire.bind("<Control-KeyPress-KP_8>", self.monterItemEvent)
 		self.arbreAffaire.bind("<Control-KeyPress-KP_2>", self.descendreItemEvent)
 		self.arbreAffaire.bind("<Control-KeyPress-KP_6>", self.indenterItemEvent)
-		self.arbreAffaire.bind("<Control-KeyPress-KP_4>", self.desindenterItemEvent)		
+		self.arbreAffaire.bind("<Control-KeyPress-KP_4>", self.desindenterItemEvent)
+		
+		###################
+		# barre de status #
+		###################
+		
+		# ajout d un cadre conteneur des notifications de status
+		
+		cadreStatus = tkinter.Frame(self.root)
+		cadreStatus.grid(row=3, column=0, sticky='WN', padx=5, pady=5)
+		
+		texteStatus = tkinter.Label(cadreStatus, text="Status")
+		texteStatus.grid(row=0, column=0, sticky='WENS')
 	
 	def nouvelleAffaire(self):
 		"""Lancement de la methode nouvelleAffaire de la classe ArbreAffaire"""
@@ -845,6 +857,7 @@ if __name__ == '__main__':
 # implementer la lecture des fichiers dxf dans l evaluation des quantites
 # voir pour creation d une pile undo/redo
 # ajouter une fonction pour connaitre l etat d enregistrement afin de proposer l enregistrement avant de quitter, creer un nouveau document ou ouvrir un autre document
+# bug : lorsque qu'un nouveau fichier est créé puis enregistré sous, lors des enregistrements suivants c'est la fenêtre enregistrer sous qui s'ouvre, le programme ne dois pas savoir quel est le nom de fichier à enregistrer, à voir...
 # voir pour ajouter dans data.xml la possibilite d ajouter des varaintes par lot
 # voir pour ajouter dans data.xml le coefficient de marge pour les estimations
 # voir pour fichier base de donnee configuration de l application
