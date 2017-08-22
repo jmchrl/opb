@@ -199,10 +199,9 @@ class Main():
 		self.root.title("opb - sans nom")
 	
 	def ouvrirAffaire(self):
-		"""Lancement de la methode ouvrirAffaire de la classe ArbreAffaire"""
+		"""Ouverture d'un fichier zip et retranscription du fichier data.xml dans le treeview"""
 				
 		url = tkinter.filedialog.askopenfilename(filetypes=[('Fichier zip','*.zip')], title="Fichier de sauvegarde ...")
-		
 		self.arbreAffaire.remiseZeroTreeview()
 		self.root.title("opb - %s" %(url))
 		
@@ -321,17 +320,20 @@ class Main():
 								self.affaire.ajouterOuvrage(ouvrage)
 	
 	def enregistrerAffaire(self):
-		"""Lancement de la methode miseAjourXML de la classe ArbreAffaire"""
+		"""Création d'une image xml de l'arbre de l'affaire et lancement des méthodes de création ou mise à jour du fichier zip de la classe affaire"""
+		
+		# lancement du dialogue enregistrer sous si le fichier de sauvegarde n'existe pas
 		if self.affaire.url == None:
-			url = tkinter.filedialog.asksaveasfilename(filetypes=[('Fichier xml','*.xml')], title="Fichier de sauvegarde ...")
-		else:
-			url = self.affaire.url
+			self.affaire.url = tkinter.filedialog.asksaveasfilename(filetypes=[('Fichier zip','*.zip')], title="Fichier de sauvegarde ...")
 				
+		# création de l'objet xml à partir du modèle présent dans le module constantes
 		xml = ET.ElementTree(ET.fromstring(constantes.XMLTEMPLATE))
 		root = xml.getroot()
 		
+		# récupération de la liste des lots dans l'arbre de l'affaire
 		lots = self.arbreAffaire.get_children()
 		
+		# parcours de l'arbre de l'affaire et mise à jour de l'objet xml au fur et à mesure
 		for i in lots :
 			lot = ET.SubElement(root, "lot", name=self.arbreAffaire.item(i)['text'])
 			t1 = self.arbreAffaire.get_children(i)
@@ -371,9 +373,14 @@ class Main():
 								if ouv.iid == m:
 									n5 = ET.SubElement(n4, "element", id = "ouvrage", name=self.arbreAffaire.item(m)['text'], ref=ouv.ref, unite=ouv.unite, prix=str(ouv.prix), desclien=ouv.desclien, loclien=ouv.loclien, bt=ouv.bt, quant=ouv.quant)
 		
+		# indentation du fichier data.xml
 		fonctions.indent(root)
-		xml.write(url, encoding="UTF-8", xml_declaration=True)
-		self.root.title("opb - %s" %(url))
+		# mise à jour du fichier xml de l'affaire
+		self.affaire.xml = xml
+		# création ou mise à jour du fichier zip de sauvegarde
+		self.affaire.zipSauvegarde()
+		# mise à jour du titre de la fenêtre principale
+		self.root.title("opb - %s" %(self.affaire.url))
 	
 	def enregisterAffaireSous(self):
 		"""Lancement de la methode miseAjourXML de la classe ArbreAffaire"""
@@ -847,7 +854,7 @@ class DialogQt(tkinter.Frame):
 
 if __name__ == '__main__':
 	Application = Main()
-	Application.nouvelleAffaire()
+	#Application.nouvelleAffaire()
 	#Application.root.option_readfile("gui.cfg", priority=40)
 	Application.root.mainloop()
 
@@ -862,5 +869,6 @@ if __name__ == '__main__':
 # voir pour ajouter dans data.xml la possibilite d ajouter des varaintes par lot
 # voir pour ajouter dans data.xml le coefficient de marge pour les estimations
 # voir pour fichier base de donnee configuration de l application
+# rendre impossible l'indentation d'un titre après un ouvrage
 
 

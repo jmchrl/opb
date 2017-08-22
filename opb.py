@@ -23,7 +23,7 @@
 import xml.etree.ElementTree as ET
 import math
 import decimal
-import os.path
+import os
 import zipfile
 import constantes
 
@@ -46,9 +46,9 @@ class Affaire():
 			fichierZip = zipfile.ZipFile(self.url,"r")
 			#contenuXML = fichierZip.open("data.xml","r")
 			contenuXML = fichierZip.read("data.xml")
-			print(contenuXML)
-			
 			self.xml = ET.ElementTree(ET.fromstring(contenuXML))
+			fichierZip.close()
+			
 		
 		self.lots = []
 		self.ouvrages = []
@@ -65,6 +65,18 @@ class Affaire():
 				ouv = ouvrage				
 				break
 		return ouv
+	
+	def zipSauvegarde(self):
+		"""Création d'un fichier de sauvegarde au format zip et enregistrement du fichier data.xml"""
+		try:
+			fichierZip = zipfile.ZipFile(self.url, mode='w') # création de l'archive zip !!!!! A revoir car cela écrase l'archive existante si elle existe
+			self.xml.write("data.xml", encoding="UTF-8", xml_declaration=True) # création du fichier data.xml dans le répertoire de main.py
+			fichierZip.write("data.xml") # ajout du fichier créé à l'archive zip
+			fichierZip.close() # fermeture de l'archive zip
+			os.remove("data.xml") # suppression du fichier xml temporaire
+			print("Enregistrement réalisé avec succès")
+		except:
+			print("Erreur lors de la création du fichier zip")
 		
 		
 
