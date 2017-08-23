@@ -24,6 +24,7 @@ import xml.etree.ElementTree as ET
 import math
 import decimal
 import os
+import shutil
 import zipfile
 import constantes
 
@@ -42,14 +43,12 @@ class Affaire():
 		if self.url == None:
 			self.xml = ET.ElementTree(ET.fromstring(constantes.XMLTEMPLATE))
 		else :
-			#self.xml = ET.parse(self.url)
+			# extraction de l'archive dans le dossier temp
 			fichierZip = zipfile.ZipFile(self.url,"r")
-			#contenuXML = fichierZip.open("data.xml","r")
-			contenuXML = fichierZip.read("data.xml")
-			self.xml = ET.ElementTree(ET.fromstring(contenuXML))
+			fichierZip.extractall("./temp")
 			fichierZip.close()
+			self.xml = ET.parse("./temp/data.xml")
 			
-		
 		self.lots = []
 		self.ouvrages = []
 	
@@ -69,9 +68,18 @@ class Affaire():
 	def zipSauvegarde(self):
 		"""Création d'un fichier de sauvegarde au format zip et enregistrement du fichier data.xml"""
 		try:
-			fichierZip = zipfile.ZipFile(self.url, mode='w') # création de l'archive zip !!!!! A revoir car cela écrase l'archive existante si elle existe
+			fichierZip = zipfile.ZipFile(self.url, mode='w')
 			self.xml.write("data.xml", encoding="UTF-8", xml_declaration=True) # création du fichier data.xml dans le répertoire de main.py
 			fichierZip.write("data.xml") # ajout du fichier créé à l'archive zip
+			# ajout du contenu du dossier ref situé dans le dossier temporaire à l'archive
+			try:
+				#fichiers = os.listdir("./temp/ref")
+				# création d'un dossier ref dans le répertoire de travail
+				#os.mkdir('./ref')
+				# copie de chaque fichier dans le dossier ref du répertoire de travail qui vient d'être créé
+				shutil.copytree("./temp/ref","./ref")
+			except:
+				print("erreur")
 			fichierZip.close() # fermeture de l'archive zip
 			os.remove("data.xml") # suppression du fichier xml temporaire
 			print("Enregistrement réalisé avec succès")
