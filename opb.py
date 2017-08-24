@@ -65,28 +65,33 @@ class Affaire():
 				break
 		return ouv
 	
-	def zipSauvegarde(self):
+	def sauvegardeZip(self):
 		"""Création d'un fichier de sauvegarde au format zip et enregistrement du fichier data.xml"""
+		
 		try:
 			fichierZip = zipfile.ZipFile(self.url, mode='w')
 			self.xml.write("data.xml", encoding="UTF-8", xml_declaration=True) # création du fichier data.xml dans le répertoire de main.py
 			fichierZip.write("data.xml") # ajout du fichier créé à l'archive zip
-			# ajout du contenu du dossier ref situé dans le dossier temporaire à l'archive
+			os.remove("data.xml") # suppression du fichier xml créé dans le répertoire de travail
+			os.remove(os.getcwd() + "/temp/data.xml") # suppression du fichier xml créé dans le répertoire temp
+			
 			try:
-				#fichiers = os.listdir("./temp/ref")
-				# création d'un dossier ref dans le répertoire de travail
-				#os.mkdir('./ref')
-				# copie de chaque fichier dans le dossier ref du répertoire de travail qui vient d'être créé
+				# copie du dossier ref situé dans temp vers le répertoire de travail
 				shutil.copytree("./temp/ref","./ref")
+				
+				for fichier in os.listdir("ref"):
+					fichierZip.write("ref/" + fichier) # ajout de chaque fichier contenu dans ref à l'archive
+				
+				shutil.rmtree(os.getcwd() + "/ref") # suppression du dossier ref copié dans le répertoire de travail
+				shutil.rmtree(os.getcwd() + "/temp/ref") # Suppression des fichiers situés dans le dossier temp
+			
 			except:
-				print("erreur")
-			fichierZip.close() # fermeture de l'archive zip
-			os.remove("data.xml") # suppression du fichier xml temporaire
+				pass
+				
+		finally :
 			print("Enregistrement réalisé avec succès")
-		except:
-			print("Erreur lors de la création du fichier zip")
-		
-		
+			fichierZip.close() # fermeture de l'archive zip
+
 
 class Ouvrage():
 	"""Classe définissant un ouvrage"""

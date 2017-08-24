@@ -242,7 +242,6 @@ class Main():
 					self.arbreAffaire.items.append(n2)
 					ouvrage = opb.Ouvrage(n2, ref, unite, t2.get('quant'), prix, desclien, loclien, bt)
 					self.affaire.ajouterOuvrage(ouvrage)
-					
 				
 				for t3 in t2.findall('element'):
 					if t3.get('id') == "chapitre":
@@ -338,6 +337,7 @@ class Main():
 			lot = ET.SubElement(root, "lot", name=self.arbreAffaire.item(i)['text'])
 			t1 = self.arbreAffaire.get_children(i)
 			test = False
+			
 			for j in t1 :
 				for ouv in self.affaire.ouvrages:
 					if ouv.iid == j:
@@ -348,6 +348,7 @@ class Main():
 				else :
 					n2 = ET.SubElement(lot, "element", id = "chapitre", name=self.arbreAffaire.item(j)['text'])
 				t2 = self.arbreAffaire.get_children(j)
+				
 				for k in t2 :
 					for ouv in self.affaire.ouvrages:
 						if ouv.iid == k:
@@ -358,6 +359,7 @@ class Main():
 					else :
 						n3 = ET.SubElement(n2, "element", id = "chapitre", name=self.arbreAffaire.item(k)['text'])
 					t3 = self.arbreAffaire.get_children(k)
+					
 					for l in t3 :
 						for ouv in self.affaire.ouvrages:
 							if ouv.iid == l:
@@ -368,6 +370,7 @@ class Main():
 						else :
 							n4 = ET.SubElement(n3, "element", id = "chapitre", name=self.arbreAffaire.item(l)['text'])
 						t4 = self.arbreAffaire.get_children(l)
+						
 						for m in t4 :
 							for ouv in self.affaire.ouvrages:
 								if ouv.iid == m:
@@ -375,10 +378,13 @@ class Main():
 		
 		# indentation du fichier data.xml
 		fonctions.indent(root)
+		
 		# mise à jour du fichier xml de l'affaire
 		self.affaire.xml = xml
+		
 		# création ou mise à jour du fichier zip de sauvegarde
-		self.affaire.zipSauvegarde()
+		self.affaire.sauvegardeZip()
+		
 		# mise à jour du titre de la fenêtre principale
 		self.root.title("opb - %s" %(self.affaire.url))
 	
