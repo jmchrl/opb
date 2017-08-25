@@ -43,6 +43,8 @@ class Affaire():
 		if self.url == None:
 			self.xml = ET.ElementTree(ET.fromstring(constantes.XMLTEMPLATE))
 		else :
+			# nettoyage du dossier temp
+			self.cleanDirTemp()
 			# extraction de l'archive dans le dossier temp
 			fichierZip = zipfile.ZipFile(self.url,"r")
 			fichierZip.extractall("./temp")
@@ -65,32 +67,46 @@ class Affaire():
 				break
 		return ouv
 	
-	def sauvegardeZip(self):
-		"""Création d'un fichier de sauvegarde au format zip et enregistrement du fichier data.xml"""
+	def cleanDirTemp(self):
+		"""Clean tempory files in temp directory"""
 		
 		try:
-			fichierZip = zipfile.ZipFile(self.url, mode='w')
-			self.xml.write("data.xml", encoding="UTF-8", xml_declaration=True) # création du fichier data.xml dans le répertoire de main.py
-			fichierZip.write("data.xml") # ajout du fichier créé à l'archive zip
-			os.remove("data.xml") # suppression du fichier xml créé dans le répertoire de travail
-			os.remove(os.getcwd() + "/temp/data.xml") # suppression du fichier xml créé dans le répertoire temp
+			os.remove(os.getcwd() + "/temp/data.xml") # deleting the xml file created into the temporary directory
+		
+		except:
+			pass
+		
+		try:
+			shutil.rmtree(os.getcwd() + "/temp/ref") # deleting the files located into the temporary directory
+		
+		except:
+			pass
+		
+	
+	def saveZip(self):
+		"""Create a backup file in zip format containing data.xml and ref directory"""
+		
+		try:
+			fileZip = zipfile.ZipFile(self.url, mode='w')
+			self.xml.write("data.xml", encoding="UTF-8", xml_declaration=True) # creating the data.xml file into the working directory
+			fileZip.write("data.xml") # adding the file data.xml into the backup file in zip format
+			os.remove("data.xml") # deleting the data.xml file created into the working directory
 			
 			try:
-				# copie du dossier ref situé dans temp vers le répertoire de travail
+				# copying the ref folder located in temporary directory to the working directory
 				shutil.copytree("./temp/ref","./ref")
+								
+				for file in os.listdir("ref"):
+					fileZip.write("ref/" + file) # adding each file contained in the ref folder into the backup file in zip format
 				
-				for fichier in os.listdir("ref"):
-					fichierZip.write("ref/" + fichier) # ajout de chaque fichier contenu dans ref à l'archive
-				
-				shutil.rmtree(os.getcwd() + "/ref") # suppression du dossier ref copié dans le répertoire de travail
-				shutil.rmtree(os.getcwd() + "/temp/ref") # Suppression des fichiers situés dans le dossier temp
-			
+				shutil.rmtree(os.getcwd() + "/ref") # deleting the ref folder copied into the working directory
+							
 			except:
 				pass
 				
 		finally :
-			print("Enregistrement réalisé avec succès")
-			fichierZip.close() # fermeture de l'archive zip
+			print("The backup file %s was succefully saved" %(self.url))
+			fileZip.close() # closing backup file in zip format
 
 
 class Ouvrage():

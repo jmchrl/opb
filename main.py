@@ -383,7 +383,7 @@ class Main():
 		self.affaire.xml = xml
 		
 		# création ou mise à jour du fichier zip de sauvegarde
-		self.affaire.sauvegardeZip()
+		self.affaire.saveZip()
 		
 		# mise à jour du titre de la fenêtre principale
 		self.root.title("opb - %s" %(self.affaire.url))
