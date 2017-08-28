@@ -225,7 +225,7 @@ class Main():
 					self.arbreAffaire.items.append(n2)
 				if t2.get('id') == "ouvrage":
 					name = t2.get('name')
-					ref = t2.get('ref')
+					status = t2.get('status')
 					unite = t2.get('unite')
 					try:
 						quant = float(fonctions.evalQuantite(t2.get('quant')))
@@ -235,12 +235,13 @@ class Main():
 						prix = float(t2.get('prix'))
 					except:
 						prix = 0.0
-					desclien = t2.get('desclien')
-					loclien = t2.get('loclien')
+					descId = t2.get('descId')
+					loc = t2.get('loc')
+					tva = t2.get('tva')
 					bt = t2.get('bt')
-					n2 = self.arbreAffaire.insert(n1,"end", text= name, values=(ref, unite, quant, prix, quant*prix))
+					n2 = self.arbreAffaire.insert(n1,"end", text= name, values=(descId, unite, quant, prix, quant*prix))
 					self.arbreAffaire.items.append(n2)
-					ouvrage = opb.Ouvrage(n2, ref, unite, t2.get('quant'), prix, desclien, loclien, bt)
+					ouvrage = opb.Ouvrage(n2, name, status, unite, t2.get('quant'), prix, descId, loc, tva, bt)
 					self.affaire.ajouterOuvrage(ouvrage)
 				
 				for t3 in t2.findall('element'):
@@ -250,7 +251,7 @@ class Main():
 						self.arbreAffaire.items.append(n3)
 					if t3.get('id') == "ouvrage":
 						name = t3.get('name')
-						ref = t3.get('ref')
+						status = t3.get('status')
 						unite = t3.get('unite')
 						try:
 							quant = float(fonctions.evalQuantite(t3.get('quant')))
@@ -260,12 +261,13 @@ class Main():
 							prix = float(t3.get('prix'))
 						except:
 							prix = 0.0
-						desclien = t3.get('desclien')
-						loclien = t3.get('loclien')
+						descId = t3.get('descId')
+						loc = t3.get('loc')
+						tva = t3.get('tva')
 						bt = t3.get('bt')
-						n3 = self.arbreAffaire.insert(n2,"end", text= name, values=(ref, unite, quant, prix, quant*prix))
+						n3 = self.arbreAffaire.insert(n2,"end", text= name, values=(descId, unite, quant, prix, quant*prix))
 						self.arbreAffaire.items.append(n3)
-						ouvrage = opb.Ouvrage(n3, ref, unite, t3.get('quant'), prix, desclien, loclien, bt)
+						ouvrage = opb.Ouvrage(n3, name, status, unite, t3.get('quant'), prix, descId, loc, tva, bt)
 						self.affaire.ajouterOuvrage(ouvrage)
 				
 					for t4 in t3.findall('element'):
@@ -275,7 +277,7 @@ class Main():
 							self.arbreAffaire.items.append(n4)
 						if t4.get('id') == "ouvrage":
 							name = t4.get('name')
-							ref = t4.get('ref')
+							status = t4.get('status')
 							unite = t4.get('unite')
 							try:
 								quant = float(fonctions.evalQuantite(t4.get('quant')))
@@ -285,12 +287,13 @@ class Main():
 								prix = float(t4.get('prix'))
 							except:
 								prix = 0.0
-							desclien = t4.get('desclien')
-							loclien = t4.get('loclien')
+							descId = t4.get('descId')
+							loc = t4.get('loc')
+							tva = t4.get('tva')
 							bt = t4.get('bt')
-							n4 = self.arbreAffaire.insert(n3,"end", text= name, values=(ref, unite, quant, prix, quant*prix))
+							n4 = self.arbreAffaire.insert(n3,"end", text= name, values=(descId, unite, quant, prix, quant*prix))
 							self.arbreAffaire.items.append(n4)
-							ouvrage = opb.Ouvrage(n4, ref, unite, t4.get('quant'), prix, desclien, loclien, bt)
+							ouvrage = opb.Ouvrage(n4, name, status, unite, t4.get('quant'), prix, descId, loc, tva, bt)
 							self.affaire.ajouterOuvrage(ouvrage)
 						
 						for t5 in t4.findall('element'):
@@ -300,7 +303,7 @@ class Main():
 								self.arbreAffaire.items.append(n5)
 							if t5.get('id') == "ouvrage":
 								name = t5.get('name')
-								ref = t5.get('ref')
+								status = t5.get('status')
 								unite = t5.get('unite')
 								try:
 									quant = float(fonctions.evalQuantite(t5.get('quant')))
@@ -310,12 +313,13 @@ class Main():
 									prix = float(t5.get('prix'))
 								except:
 									prix = 0.0
-								desclien = t5.get('desclien')
-								loclien = t5.get('loclien')
+								descId = t5.get('descId')
+								loc = t5.get('loc')
+								tva = t5.get('tva')
 								bt = t5.get('bt')
-								n5 = self.arbreAffaire.insert(n4,"end", text= name, values=(ref, unite, quant, prix, quant*prix))
+								n5 = self.arbreAffaire.insert(n4,"end", text= name, values=(descId, unite, quant, prix, quant*prix))
 								self.arbreAffaire.items.append(n5)
-								ouvrage = opb.Ouvrage(n5, ref, unite, t5.get('quant'), prix, desclien, loclien, bt)
+								ouvrage = opb.Ouvrage(n5, name, status, unite, t5.get('quant'), prix, descId, loc, tva, bt)
 								self.affaire.ajouterOuvrage(ouvrage)
 	
 	def enregistrerAffaire(self):
@@ -342,7 +346,7 @@ class Main():
 				for ouv in self.affaire.ouvrages:
 					if ouv.iid == j:
 						test = True
-						n2 = ET.SubElement(lot, "element", id = "ouvrage", name=self.arbreAffaire.item(j)['text'], ref=ouv.ref, unite=ouv.unite, prix=str(ouv.prix), desclien=ouv.desclien, loclien=ouv.loclien, bt=ouv.bt, quant=ouv.quant)
+						n2 = ET.SubElement(lot, "element", id = "ouvrage", name=self.arbreAffaire.item(j)['text'], status=ouv.status, unite=ouv.unite, prix=str(ouv.prix), descId=ouv.descId, loc=ouv.loc, bt=ouv.bt, quant=ouv.quant, tva=ouv.tva)
 				if test == True :
 					test = False
 				else :
@@ -353,7 +357,7 @@ class Main():
 					for ouv in self.affaire.ouvrages:
 						if ouv.iid == k:
 							test = True
-							n3 = ET.SubElement(n2, "element", id = "ouvrage", name=self.arbreAffaire.item(k)['text'], ref=ouv.ref, unite=ouv.unite, prix=str(ouv.prix), desclien=ouv.desclien, loclien=ouv.loclien, bt=ouv.bt, quant=ouv.quant)
+							n3 = ET.SubElement(n2, "element", id = "ouvrage", name=self.arbreAffaire.item(k)['text'], status=ouv.status, unite=ouv.unite, prix=str(ouv.prix), descId=ouv.descId, loc=ouv.loc, bt=ouv.bt, quant=ouv.quant, tva=ouv.tva)
 					if test == True :
 						test = False
 					else :
@@ -364,7 +368,7 @@ class Main():
 						for ouv in self.affaire.ouvrages:
 							if ouv.iid == l:
 								test = True
-								n4 = ET.SubElement(n3, "element", id = "ouvrage", name=self.arbreAffaire.item(l)['text'], ref=ouv.ref, unite=ouv.unite, prix=str(ouv.prix), desclien=ouv.desclien, loclien=ouv.loclien, bt=ouv.bt, quant=ouv.quant)
+								n4 = ET.SubElement(n3, "element", id = "ouvrage", name=self.arbreAffaire.item(l)['text'], status=ouv.status, unite=ouv.unite, prix=str(ouv.prix), descId=ouv.descId, loc=ouv.loc, bt=ouv.bt, quant=ouv.quant, tva=ouv.tva)
 						if test == True:
 							test = False
 						else :
@@ -374,7 +378,7 @@ class Main():
 						for m in t4 :
 							for ouv in self.affaire.ouvrages:
 								if ouv.iid == m:
-									n5 = ET.SubElement(n4, "element", id = "ouvrage", name=self.arbreAffaire.item(m)['text'], ref=ouv.ref, unite=ouv.unite, prix=str(ouv.prix), desclien=ouv.desclien, loclien=ouv.loclien, bt=ouv.bt, quant=ouv.quant)
+									n5 = ET.SubElement(n4, "element", id = "ouvrage", name=self.arbreAffaire.item(m)['text'], status=ouv.status, unite=ouv.unite, prix=str(ouv.prix), descId=ouv.descId, loc=ouv.loc, bt=ouv.bt, quant=ouv.quant, tva=ouv.tva)
 		
 		# indentation du fichier data.xml
 		fonctions.indent(root)
@@ -531,14 +535,14 @@ class ArbreAffaire(tkinter.ttk.Treeview):
 		self.enfants = []
 		self.items = []
 		
-		self["columns"]=("ref","U" , "Q", "PU", "PT")
+		self["columns"]=("IdCCTP","U" , "Q", "PU", "PT")
 		self.column("#1", width=150, stretch=False)
 		self.column("#2", width=100, stretch=False)
 		self.column("#3", width=100, stretch=False)
 		self.column("#4", width=100, stretch=False)
 		self.column("#5", width=100, stretch=False)
 		
-		self.heading("#1", text="ref")
+		self.heading("#1", text="IdCCTP")
 		self.heading("#2", text="U")
 		self.heading("#3", text="Q")
 		self.heading("#4", text="PU")
@@ -585,12 +589,12 @@ class ArbreBase(tkinter.ttk.Treeview):
 		self.enfants = []
 		self.items = []
 		
-		self["columns"]=("ref","U", "PU")
+		self["columns"]=("IdCCTP","U", "PU")
 		self.column("#1", width=150, stretch=False)
 		self.column("#2", width=100, stretch=False)
 		self.column("#3", width=100, stretch=False)
 		
-		self.heading("#1", text="ref")
+		self.heading("#1", text="IdCCTP")
 		self.heading("#2", text="U")
 		self.heading("#3", text="PU")
 	
@@ -646,11 +650,13 @@ class EntryTreeview(tkinter.Entry):
 		valeur = self.texteVar.get()
 		if self.colonne == "#0":
 			self.parent.item(self.select, text= valeur)
+			if self.ouvrage != None:
+				self.ouvrage.name = valeur
 		else:
 			if self.colonne == "#1":
 				self.parent.set(self.select, column=self.colonne, value=valeur)
 				if self.ouvrage != None:
-					self.ouvrage.ref = valeur
+					self.ouvrage.descId = valeur
 			if self.colonne == "#2":
 				self.parent.set(self.select, column=self.colonne, value=valeur)
 				if self.ouvrage != None:
@@ -742,25 +748,27 @@ class DialogDesc(tkinter.Frame):
 		self.ouvrage = ouvrage
 		self.parent = parent
 		self.select = select
-		self.texteVarTitre = tkinter.StringVar()
-		self.texteVarId = tkinter.StringVar()
+		self.textVarTitle = tkinter.StringVar()
+		self.textVarTitle.set(self.ouvrage.name)
+		self.textVarId = tkinter.StringVar()
+		self.textVarId.set(self.ouvrage.descId)
 		
 		tkinter.Frame.__init__(self, self.parent, padx=2, pady=2)
 		self.grid(row=0, column=0, sticky="WNES", padx=5, pady=5)
 		
-		self.labelTitre = tkinter.Label(self, text= "Titre", justify="left")
-		self.labelTitre.grid(row=0, column=0, padx=5, pady=10, sticky="W")
+		self.labelTitle = tkinter.Label(self, text= "Titre", justify="left")
+		self.labelTitle.grid(row=0, column=0, padx=5, pady=10, sticky="W")
 		
-		self.entryTitre = tkinter.Entry(self, textvariable=self.texteVarTitre, selectborderwidth=0)
-		self.entryTitre.grid(row=1, column=0, columnspan=3, sticky="WE")
+		self.entryTitle = tkinter.Entry(self, textvariable=self.textVarTitle, selectborderwidth=0)
+		self.entryTitle.grid(row=1, column=0, columnspan=3, sticky="WE")
 		
-		self.boutonCCTP = tkinter.Button(self, text="CCTP", height=1, width=10, command = self.ouvrirCCTP)
-		self.boutonCCTP.grid(row=1, column=3, columnspan=2, padx=10, sticky="WE")
+		self.buttonCCTP = tkinter.Button(self, text="CCTP", height=1, width=10, command = self.openCCTP)
+		self.buttonCCTP.grid(row=1, column=3, columnspan=2, padx=10, sticky="WE")
 		
 		self.labelId = tkinter.Label(self, text= "Identifiant", justify="center")
 		self.labelId.grid(row=2, column=0, padx=5, pady=10, sticky="WE")
 		
-		self.entryId = tkinter.Entry(self, textvariable=self.texteVarId, selectborderwidth=0, width=10)
+		self.entryId = tkinter.Entry(self, textvariable=self.textVarId, selectborderwidth=0, width=10)
 		self.entryId.grid(row=3, column=0, sticky="WE")
 		
 		self.labelOption = tkinter.Label(self, text= "Base/Option", justify="center")
@@ -769,6 +777,10 @@ class DialogDesc(tkinter.Frame):
 		self.choixBaseOption = tkinter.StringVar()
 		self.tupleBaseOption = ("Base", "Option")
 		self.comboBaseOption = tkinter.ttk.Combobox(self, textvariable = self.choixBaseOption, values = self.tupleBaseOption, width=10, state = "readonly")
+		if self.ouvrage.status == "" or self.ouvrage.status != self.tupleBaseOption[0] or self.ouvrage.status != self.tupleBaseOption[0]:
+			self.choixBaseOption.set("Base")
+		else:
+			self.choixBaseOption.set(self.ouvrage.status)
 		self.comboBaseOption.grid(row =3, column =1, padx=5, pady=5, sticky="EW")
 		
 		self.labelTVA = tkinter.Label(self, text= "TVA", justify="center")
@@ -777,6 +789,10 @@ class DialogDesc(tkinter.Frame):
 		self.choixTVA = tkinter.StringVar()
 		self.comboTVA = tkinter.ttk.Combobox(self, textvariable = self.choixTVA, width=10, values = constantes.TVA, state = "readonly")
 		self.comboTVA.grid(row =3, column =2, padx=5, pady=5, sticky="EW")
+		if self.ouvrage.tva == "" or self.ouvrage.tva != constantes.TVA[0] or self.ouvrage.tva != constantes.TVA[1] or self.ouvrage.tva != constantes.TVA[2] :
+			self.choixTVA.set(constantes.TVA[2])
+		else:
+			self.choixTVA.set(self.ouvrage.tva)		
 		
 		self.labelIndexBT = tkinter.Label(self, text= "Index BT", justify="center")
 		self.labelIndexBT.grid(row=2, column=3, columnspan=2, padx=5, pady=10, sticky="WE")
@@ -784,17 +800,26 @@ class DialogDesc(tkinter.Frame):
 		self.choixIndexBT = tkinter.StringVar()
 		self.comboIndexBT = tkinter.ttk.Combobox(self, textvariable = self.choixIndexBT, values = constantes.INDEXBT, width=10, state = "readonly")
 		self.comboIndexBT.grid(row =3, column =3, columnspan=2, padx=5, pady=5, sticky="EW")
+		if self.ouvrage.bt == "" :
+			self.choixIndexBT.set(constantes.INDEXBT[0])
+		else :
+			for bt in constantes.INDEXBT:
+				if self.ouvrage.bt == bt:
+					self.choixIndexBT.set(bt)
+					break
+				else:
+					self.choixIndexBT.set(constantes.INDEXBT[0])
 		
 		self.labelLocalisation = tkinter.Label(self, text= "Localisation", justify="left")
 		self.labelLocalisation.grid(row=4, column=0, padx=5, pady=15, sticky="W")
 			
-		self.zoneTexte = tkinter.Text(self, padx=2, pady=2, height=12, relief= "flat", highlightthickness= 0)
-		self.zoneTexte_scroll = tkinter.Scrollbar(self, command = self.zoneTexte.yview, relief="flat")
-		self.zoneTexte.configure(yscrollcommand =self.zoneTexte_scroll.set)
-		self.zoneTexte.grid(row=5, column=0, columnspan=4, sticky="WNES")
-		self.zoneTexte_scroll.grid(row=5, column=4, sticky="NS")
+		self.zoneText = tkinter.Text(self, padx=2, pady=2, height=12, relief= "flat", highlightthickness= 0)
+		self.zoneText_scroll = tkinter.Scrollbar(self, command = self.zoneText.yview, relief="flat")
+		self.zoneText.configure(yscrollcommand =self.zoneText_scroll.set)
+		self.zoneText.grid(row=5, column=0, columnspan=4, sticky="WNES")
+		self.zoneText_scroll.grid(row=5, column=4, sticky="NS")
 	
-	def ouvrirCCTP(self):
+	def openCCTP(self):
 		chemin = os.path.dirname(self.affaire.url) + "/bibli/essai.odt" #attention, ne fonctionne pour le moment que si une afaire est créé
 		print(chemin)
 		cctp = os.system('soffice %s' %(chemin))
