@@ -489,7 +489,7 @@ class Main():
 		if ouvrage == None :
 			pass
 		else :
-			dialog = DialogInfos(self.arbreAffaire, select, self.affaire, ouvrage)
+			dialog = DialogWorkInfos(self.arbreAffaire, select, self.affaire, ouvrage)
 	
 	def widgetPourModification(self, event):
 		"""Positionnement d un entry sur le treeview pour modifier une valeur ou creation d un dialogue pour modifier la colonne quantite"""
@@ -681,14 +681,14 @@ class EntryTreeview(tkinter.Entry):
 					tkinter.messagebox.showwarning("Erreur de saisie", "La valeur saisie doit être un nombre")
 		self.destroy()
 
-class DialogInfos(tkinter.Toplevel):
+class DialogWorkInfos(tkinter.Toplevel):
 	
-	def __init__(self, parent, indexItem, affaire, ouvrage):
+	def __init__(self, parent, indexItem, project, work):
 		
-		self.affaire = affaire
-		self.ouvrage = ouvrage
-		self.parent = parent
-		self.indexItem = indexItem
+		self.project = project
+		self.work = work
+		self.parent = parent # It's the treeview
+		self.indexItem = indexItem #It's the index of the item selected in the treeview
 		
 		tkinter.Toplevel.__init__(self, self.parent)
 		self.resizable(width=False, height=False)
@@ -698,46 +698,84 @@ class DialogInfos(tkinter.Toplevel):
 		self.rowconfigure(0, weight=1)
 		self.columnconfigure(0, weight=1)
 		
-		self.notebook = tkinter.ttk.Notebook(self)
-		self.notebook.grid(row=0, column=0, sticky="WNES", padx=5, pady=5)
+		notebook = tkinter.ttk.Notebook(self)
+		notebook.grid(row=0, column=0, sticky="WNES", padx=5, pady=5)
 		
-		self.pageDescription = DialogDesc(self, indexItem, self.affaire, self.ouvrage)
-		self.pageQuantite = DialogQt(self, indexItem, self.ouvrage)
+		self.pageWorkInfos = DialogDesc(self, indexItem, self.project, self.work)
+		self.pageWorkQuantity = DialogQt(self, indexItem, self.work)
 		
-		self.notebook.add(self.pageDescription, text = 'Description')
-		self.notebook.add(self.pageQuantite, text = 'Quantité')
+		notebook.add(self.pageWorkInfos, text = 'Description')
+		notebook.add(self.pageWorkQuantity, text = 'Quantité')
 		
-		frameBas = tkinter.Frame(self, padx=2, pady=2)
-		frameBas.grid(row=1, column=0, columnspan=2, sticky="EW")
+		bottomFrame = tkinter.Frame(self, padx=2, pady=2)
+		bottomFrame.grid(row=1, column=0, columnspan=2, sticky="EW")
 		
-		self.boutonValider = tkinter.Button(frameBas, text="Valider", height=1, width=10, command = self.valider)
-		self.boutonValider.pack(side="right")
+		buttonValidate = tkinter.Button(bottomFrame, text="Valider", height=1, width=10, command = self.validate)
+		buttonValidate.pack(side="right")
 		
-		self.boutonAnnuler = tkinter.Button(frameBas, text="Annuler", height=1, width=10, command = self.annuler)
-		self.boutonAnnuler.pack(side="right")
+		buttonCancel = tkinter.Button(bottomFrame, text="Annuler", height=1, width=10, command = self.cancel)
+		buttonCancel.pack(side="right")
 	
-	def miseAjourQuant(self):
-		texte = self.pageQuantite.zoneTexte.get('0.0', 'end')
-		liste = texte.split("\n")
-		quantite = ""
-		for ligne in liste:
-			if ligne == "":
+	def updateWorkQuantity(self):
+		text = self.pageWorkQuantity.zoneTexte.get('0.0', 'end')
+		list = text.split("\n")
+		quantity = ""
+		for line in list:
+			if line == "":
 				pass
 			else:
-				quantite = quantite + "%s;" %(ligne)
-		# suppression du dernier ;
-		quantite = quantite[:len(quantite)-1]
+				quantity = quantity + "%s$" %(line)
+		# deleting the last character ;
+		quantity = quantity[:len(quantity)-1]
 		
-		total = fonctions.evalQuantite(quantite)
-		self.ouvrage.quant = quantite
-		self.parent.set(self.indexItem, column="#3", value=float(total))
-		self.parent.set(self.indexItem, column="#5", value = float(total) * float(self.parent.item(self.indexItem)['values'][3]))
+		result = fonctions.evalQuantite(quantity)
+		self.work.quant = quantity
+		self.parent.set(self.indexItem, column="#3", value=float(result))
+		self.parent.set(self.indexItem, column="#5", value = float(result) * float(self.parent.item(self.indexItem)['values'][3]))
 	
-	def valider(self):
-		self.miseAjourQuant()
+	def updateWorkInfos(self):
+		
+		#update the name of work
+		name = self.pageWorkInfos.textVarTitle.get()
+		self.work.name = name
+		self.parent.item(self.indexItem, text=name)
+		
+		#update the description Id of work
+		descId = self.pageWorkInfos.textVarId.get()
+		self.work.descId = descId
+		self.parent.set(self.indexItem, column="#1", value=descId)
+		
+		#update the status of work
+		status = self.pageWorkInfos.choiceBaseOption.get()
+		self.work.status = status
+		
+		# update the VAT rate of work
+		vatRate = self.pageWorkInfos.choiceVATrate.get()
+		self.work.tva = vatRate
+		
+		#update the index BT of work
+		bt = self.pageWorkInfos.choiceIndexBT.get()
+		self.work.bt = bt
+		
+		#update the localisation of work
+		
+		text = self.pageWorkInfos.zoneText.get('0.0', 'end')
+		list = text.split("\n")
+		localisation = ""
+		for line in list:
+			if line == "":
+				pass
+			else:
+				localisation = localisation + "%s$" %(line)
+		localisation = localisation[:len(localisation)-1] # deleting the last character $ of the string localisation
+		self.work.loc = localisation
+		
+	def validate(self):
+		self.updateWorkQuantity()
+		self.updateWorkInfos()
 		self.destroy()
 		
-	def annuler(self):
+	def cancel(self):
 		self.destroy()
 
 class DialogDesc(tkinter.Frame):
@@ -774,41 +812,41 @@ class DialogDesc(tkinter.Frame):
 		self.labelOption = tkinter.Label(self, text= "Base/Option", justify="center")
 		self.labelOption.grid(row=2, column=1, padx=5, pady=10, sticky="WE")
 		
-		self.choixBaseOption = tkinter.StringVar()
+		self.choiceBaseOption = tkinter.StringVar()
 		self.tupleBaseOption = ("Base", "Option")
-		self.comboBaseOption = tkinter.ttk.Combobox(self, textvariable = self.choixBaseOption, values = self.tupleBaseOption, width=10, state = "readonly")
+		self.comboBaseOption = tkinter.ttk.Combobox(self, textvariable = self.choiceBaseOption, values = self.tupleBaseOption, width=10, state = "readonly")
 		if self.ouvrage.status == "" or self.ouvrage.status != self.tupleBaseOption[0] or self.ouvrage.status != self.tupleBaseOption[0]:
-			self.choixBaseOption.set("Base")
+			self.choiceBaseOption.set("Base")
 		else:
-			self.choixBaseOption.set(self.ouvrage.status)
+			self.choiceBaseOption.set(self.ouvrage.status)
 		self.comboBaseOption.grid(row =3, column =1, padx=5, pady=5, sticky="EW")
 		
 		self.labelTVA = tkinter.Label(self, text= "TVA", justify="center")
 		self.labelTVA.grid(row=2, column=2, padx=5, pady=10, sticky="WE")
 		
-		self.choixTVA = tkinter.StringVar()
-		self.comboTVA = tkinter.ttk.Combobox(self, textvariable = self.choixTVA, width=10, values = constantes.TVA, state = "readonly")
+		self.choiceVATrate = tkinter.StringVar()
+		self.comboTVA = tkinter.ttk.Combobox(self, textvariable = self.choiceVATrate, width=10, values = constantes.TVA, state = "readonly")
 		self.comboTVA.grid(row =3, column =2, padx=5, pady=5, sticky="EW")
 		if self.ouvrage.tva == "" or self.ouvrage.tva != constantes.TVA[0] or self.ouvrage.tva != constantes.TVA[1] or self.ouvrage.tva != constantes.TVA[2] :
-			self.choixTVA.set(constantes.TVA[2])
+			self.choiceVATrate.set(constantes.TVA[2])
 		else:
-			self.choixTVA.set(self.ouvrage.tva)		
+			self.choiceVATrate.set(self.ouvrage.tva)		
 		
 		self.labelIndexBT = tkinter.Label(self, text= "Index BT", justify="center")
 		self.labelIndexBT.grid(row=2, column=3, columnspan=2, padx=5, pady=10, sticky="WE")
 		
-		self.choixIndexBT = tkinter.StringVar()
-		self.comboIndexBT = tkinter.ttk.Combobox(self, textvariable = self.choixIndexBT, values = constantes.INDEXBT, width=10, state = "readonly")
+		self.choiceIndexBT = tkinter.StringVar()
+		self.comboIndexBT = tkinter.ttk.Combobox(self, textvariable = self.choiceIndexBT, values = constantes.INDEXBT, width=10, state = "readonly")
 		self.comboIndexBT.grid(row =3, column =3, columnspan=2, padx=5, pady=5, sticky="EW")
 		if self.ouvrage.bt == "" :
-			self.choixIndexBT.set(constantes.INDEXBT[0])
+			self.choiceIndexBT.set(constantes.INDEXBT[0])
 		else :
 			for bt in constantes.INDEXBT:
 				if self.ouvrage.bt == bt:
-					self.choixIndexBT.set(bt)
+					self.choiceIndexBT.set(bt)
 					break
 				else:
-					self.choixIndexBT.set(constantes.INDEXBT[0])
+					self.choiceIndexBT.set(constantes.INDEXBT[0])
 		
 		self.labelLocalisation = tkinter.Label(self, text= "Localisation", justify="left")
 		self.labelLocalisation.grid(row=4, column=0, padx=5, pady=15, sticky="W")
@@ -818,11 +856,20 @@ class DialogDesc(tkinter.Frame):
 		self.zoneText.configure(yscrollcommand =self.zoneText_scroll.set)
 		self.zoneText.grid(row=5, column=0, columnspan=4, sticky="WNES")
 		self.zoneText_scroll.grid(row=5, column=4, sticky="NS")
+		
+		if self.ouvrage.loc == None:
+			pass
+		else:
+			s = self.ouvrage.loc.split("$")
+			for line in s:
+				self.zoneText.insert("end", "%s\n" %(line))
+				self.zoneText.yview("moveto", 1)
 	
 	def openCCTP(self):
 		chemin = os.path.dirname(self.affaire.url) + "/bibli/essai.odt" #attention, ne fonctionne pour le moment que si une afaire est créé
 		print(chemin)
 		cctp = os.system('soffice %s' %(chemin))
+		
 		
 
 class DialogQt(tkinter.Frame):
@@ -846,7 +893,7 @@ class DialogQt(tkinter.Frame):
 		if self.ouvrage.quant == None:
 			pass
 		else:
-			s = self.ouvrage.quant.split(";")
+			s = self.ouvrage.quant.split("$")
 			for ligne in s:
 				self.zoneTexte.insert("end", "%s\n" %(ligne))
 				self.zoneTexte.yview("moveto", 1)
@@ -877,7 +924,7 @@ class DialogQt(tkinter.Frame):
 		liste = texte.split("\n")
 		quantite = ""
 		for ligne in liste:
-			quantite = quantite + "%s;" %(ligne)
+			quantite = quantite + "%s$" %(ligne)
 		total = fonctions.evalQuantite(quantite)
 		self.texteVar.set("Total = %s %s" % (total, self.ouvrage.unite))
 		

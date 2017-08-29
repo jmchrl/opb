@@ -27,7 +27,7 @@ def evalQuantite(texte):
 	# definition des variables mathematiques pour interpretation par eval
 	pi = math.pi
 	# calcul de la quantite
-	s = texte.split(";")
+	s = texte.split("$")
 	total = 0.0
 	for ligne in s:
 		if ligne == "":
