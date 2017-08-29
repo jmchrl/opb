@@ -112,7 +112,7 @@ class Affaire():
 class Ouvrage():
 	"""Classe définissant un ouvrage"""
 	
-	def __init__(self, iid, name, status="", unite="", quant="", prix="0.0", descId="", loc="", tva="", bt=""):
+	def __init__(self, iid, name="_Ouvrage_", status="", unite="", quant="", prix="0.0", descId="", loc="", tva="", bt=""):
 		
 		self.iid = iid
 		self.name = name

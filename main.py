@@ -892,6 +892,7 @@ if __name__ == '__main__':
 
 
 # to do
+# copier/coller, couper/coller
 # documenter et nettoyer le code
 # implementer la lecture des fichiers dxf dans l evaluation des quantites
 # voir pour creation d une pile undo/redo
