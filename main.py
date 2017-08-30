@@ -48,6 +48,8 @@ class Main():
 		self.affaire.xml.getroot()
 		self.root.title("opb - sans nom")
 		
+		self.clipboard = []
+		
 		################
 		#ajout du menu #
 		################
@@ -90,6 +92,7 @@ class Main():
 		# ajout des commandes
 		deroul_menu_edition.add_command(label="Annuler", underline=0, command = self.annuler)
 		deroul_menu_edition.add_command(label="Rétablir", underline=0, command = self.retablir)
+		deroul_menu_edition.add_command(label="Copier", underline=0, command=self.copy)
 		
 		################
 		# menu canevas #
@@ -173,11 +176,11 @@ class Main():
 		#pour rendre le treeview etirable sur l'ensemble de la fenêtre
 		self.arbreBase.grid(row=0, column=1, sticky='WENS')
 		
-		self.arbreAffaire.bind("<Double-Button-1>", self.widgetPourModification)
-		self.arbreAffaire.bind("<Control-KeyPress-KP_8>", self.monterItemEvent)
-		self.arbreAffaire.bind("<Control-KeyPress-KP_2>", self.descendreItemEvent)
-		self.arbreAffaire.bind("<Control-KeyPress-KP_6>", self.indenterItemEvent)
-		self.arbreAffaire.bind("<Control-KeyPress-KP_4>", self.desindenterItemEvent)
+		#self.arbreAffaire.bind("<Double-Button-1>", self.widgetPourModification)
+		#self.arbreAffaire.bind("<Control-KeyPress-KP_8>", self.monterItemEvent)
+		#self.arbreAffaire.bind("<Control-KeyPress-KP_2>", self.descendreItemEvent)
+		#self.arbreAffaire.bind("<Control-KeyPress-KP_6>", self.indenterItemEvent)
+		#self.arbreAffaire.bind("<Control-KeyPress-KP_4>", self.desindenterItemEvent)
 		
 		###################
 		# barre de status #
@@ -207,206 +210,96 @@ class Main():
 		
 		# Creation d une nouvelle instance affaire du module opb
 		self.affaire = opb.Affaire(url)
-		racine = self.affaire.xml.getroot()
+		root = self.affaire.xml.getroot()
 		
 		# Creation d une liste d items (verifier l utilite)
 		self.arbreAffaire.items = []
 		
 		# Parcours du fichier xml pour representation dans le treeview
-		for lot in racine.findall("lot"):
-			name = lot.get('name')
-			n1 = self.arbreAffaire.insert("","end", text= name)
-			self.arbreAffaire.items.append(n1)
-			
-			for t2 in lot.findall('element'):
-				if t2.get('id') == "chapitre":
-					name = t2.get('name')
-					n2 = self.arbreAffaire.insert(n1,"end", text= name)
-					self.arbreAffaire.items.append(n2)
-				if t2.get('id') == "ouvrage":
-					name = t2.get('name')
-					status = t2.get('status')
-					unite = t2.get('unite')
+		self.browseXmlBranch(root.findall("element"), "")
+	
+	def browseXmlBranch(self, childrensXML, parentTreeview):
+		
+		if childrensXML != []:
+			for children in childrensXML:
+				if children.get("id") == "lot":
+					item = self.arbreAffaire.insert(parentTreeview,"end", text= children.get("name"))
+					self.arbreAffaire.items.append(item)
+					self.browseXmlBranch(children.findall("element"), item)
+				if children.get("id") == "chapitre":
+					item = self.arbreAffaire.insert(parentTreeview,"end", text= children.get("name"))
+					self.arbreAffaire.items.append(item)
+					self.browseXmlBranch(children.findall("element"), item)
+				if children.get("id") == "ouvrage":
+					quant = float(fonctions.evalQuantite(children.get('quant')))
 					try:
-						quant = float(fonctions.evalQuantite(t2.get('quant')))
-					except:
-						quant = 0.0
-					try:
-						prix = float(t2.get('prix'))
+						prix = float(children.get('prix'))
 					except:
 						prix = 0.0
-					descId = t2.get('descId')
-					loc = t2.get('loc')
-					tva = t2.get('tva')
-					bt = t2.get('bt')
-					n2 = self.arbreAffaire.insert(n1,"end", text= name, values=(descId, unite, quant, prix, quant*prix))
-					self.arbreAffaire.items.append(n2)
-					ouvrage = opb.Ouvrage(n2, name, status, unite, t2.get('quant'), prix, descId, loc, tva, bt)
+					item = self.arbreAffaire.insert(parentTreeview,"end", text= children.get('name'), values=(children.get('descId'), children.get('unite'), quant, prix, quant*prix))
+					self.arbreAffaire.items.append(item)
+					ouvrage = opb.Ouvrage(item, children.get('name'), children.get('status'), children.get('unite'), children.get('quant'), prix, children.get('descId'), children.get('loc'), children.get('tva'), children.get('bt'))
 					self.affaire.ajouterOuvrage(ouvrage)
-				
-				for t3 in t2.findall('element'):
-					if t3.get('id') == "chapitre":
-						name = t3.get('name')
-						n3 = self.arbreAffaire.insert(n2,"end", text= name)
-						self.arbreAffaire.items.append(n3)
-					if t3.get('id') == "ouvrage":
-						name = t3.get('name')
-						status = t3.get('status')
-						unite = t3.get('unite')
-						try:
-							quant = float(fonctions.evalQuantite(t3.get('quant')))
-						except:
-							quant = 0.0
-						try:
-							prix = float(t3.get('prix'))
-						except:
-							prix = 0.0
-						descId = t3.get('descId')
-						loc = t3.get('loc')
-						tva = t3.get('tva')
-						bt = t3.get('bt')
-						n3 = self.arbreAffaire.insert(n2,"end", text= name, values=(descId, unite, quant, prix, quant*prix))
-						self.arbreAffaire.items.append(n3)
-						ouvrage = opb.Ouvrage(n3, name, status, unite, t3.get('quant'), prix, descId, loc, tva, bt)
-						self.affaire.ajouterOuvrage(ouvrage)
-				
-					for t4 in t3.findall('element'):
-						if t4.get('id') == "chapitre":
-							name = t4.get('name')
-							n4 = self.arbreAffaire.insert(n3,"end", text= name)
-							self.arbreAffaire.items.append(n4)
-						if t4.get('id') == "ouvrage":
-							name = t4.get('name')
-							status = t4.get('status')
-							unite = t4.get('unite')
-							try:
-								quant = float(fonctions.evalQuantite(t4.get('quant')))
-							except:
-								quant = 0.0
-							try:
-								prix = float(t4.get('prix'))
-							except:
-								prix = 0.0
-							descId = t4.get('descId')
-							loc = t4.get('loc')
-							tva = t4.get('tva')
-							bt = t4.get('bt')
-							n4 = self.arbreAffaire.insert(n3,"end", text= name, values=(descId, unite, quant, prix, quant*prix))
-							self.arbreAffaire.items.append(n4)
-							ouvrage = opb.Ouvrage(n4, name, status, unite, t4.get('quant'), prix, descId, loc, tva, bt)
-							self.affaire.ajouterOuvrage(ouvrage)
-						
-						for t5 in t4.findall('element'):
-							if t5.get('id') == "chapitre":
-								name = t4.get('name')
-								n5 = self.arbreAffaire.insert(n4,"end", text= name)
-								self.arbreAffaire.items.append(n5)
-							if t5.get('id') == "ouvrage":
-								name = t5.get('name')
-								status = t5.get('status')
-								unite = t5.get('unite')
-								try:
-									quant = float(fonctions.evalQuantite(t5.get('quant')))
-								except:
-									quant = 0.0
-								try:
-									prix = float(t5.get('prix'))
-								except:
-									prix = 0.0
-								descId = t5.get('descId')
-								loc = t5.get('loc')
-								tva = t5.get('tva')
-								bt = t5.get('bt')
-								n5 = self.arbreAffaire.insert(n4,"end", text= name, values=(descId, unite, quant, prix, quant*prix))
-								self.arbreAffaire.items.append(n5)
-								ouvrage = opb.Ouvrage(n5, name, status, unite, t5.get('quant'), prix, descId, loc, tva, bt)
-								self.affaire.ajouterOuvrage(ouvrage)
 	
+
 	def enregistrerAffaire(self):
-		"""Création d'une image xml de l'arbre de l'affaire et lancement des méthodes de création ou mise à jour du fichier zip de la classe affaire"""
+		"""Enregistrement de l'affaire dans un fichier au format zip"""
 		
-		# lancement du dialogue enregistrer sous si le fichier de sauvegarde n'existe pas
 		if self.affaire.url == None:
 			self.affaire.url = tkinter.filedialog.asksaveasfilename(filetypes=[('Fichier zip','*.zip')], title="Fichier de sauvegarde ...")
-				
-		# création de l'objet xml à partir du modèle présent dans le module constantes
-		xml = ET.ElementTree(ET.fromstring(constantes.XMLTEMPLATE))
-		root = xml.getroot()
-		
-		# récupération de la liste des lots dans l'arbre de l'affaire
-		lots = self.arbreAffaire.get_children()
-		
-		# parcours de l'arbre de l'affaire et mise à jour de l'objet xml au fur et à mesure
-		for i in lots :
-			lot = ET.SubElement(root, "lot", name=self.arbreAffaire.item(i)['text'])
-			t1 = self.arbreAffaire.get_children(i)
-			test = False
-			
-			for j in t1 :
-				for ouv in self.affaire.ouvrages:
-					if ouv.iid == j:
-						test = True
-						n2 = ET.SubElement(lot, "element", id = "ouvrage", name=self.arbreAffaire.item(j)['text'], status=ouv.status, unite=ouv.unite, prix=str(ouv.prix), descId=ouv.descId, loc=ouv.loc, bt=ouv.bt, quant=ouv.quant, tva=ouv.tva)
-				if test == True :
-					test = False
-				else :
-					n2 = ET.SubElement(lot, "element", id = "chapitre", name=self.arbreAffaire.item(j)['text'])
-				t2 = self.arbreAffaire.get_children(j)
-				
-				for k in t2 :
-					for ouv in self.affaire.ouvrages:
-						if ouv.iid == k:
-							test = True
-							n3 = ET.SubElement(n2, "element", id = "ouvrage", name=self.arbreAffaire.item(k)['text'], status=ouv.status, unite=ouv.unite, prix=str(ouv.prix), descId=ouv.descId, loc=ouv.loc, bt=ouv.bt, quant=ouv.quant, tva=ouv.tva)
-					if test == True :
-						test = False
-					else :
-						n3 = ET.SubElement(n2, "element", id = "chapitre", name=self.arbreAffaire.item(k)['text'])
-					t3 = self.arbreAffaire.get_children(k)
-					
-					for l in t3 :
-						for ouv in self.affaire.ouvrages:
-							if ouv.iid == l:
-								test = True
-								n4 = ET.SubElement(n3, "element", id = "ouvrage", name=self.arbreAffaire.item(l)['text'], status=ouv.status, unite=ouv.unite, prix=str(ouv.prix), descId=ouv.descId, loc=ouv.loc, bt=ouv.bt, quant=ouv.quant, tva=ouv.tva)
-						if test == True:
-							test = False
-						else :
-							n4 = ET.SubElement(n3, "element", id = "chapitre", name=self.arbreAffaire.item(l)['text'])
-						t4 = self.arbreAffaire.get_children(l)
-						
-						for m in t4 :
-							for ouv in self.affaire.ouvrages:
-								if ouv.iid == m:
-									n5 = ET.SubElement(n4, "element", id = "ouvrage", name=self.arbreAffaire.item(m)['text'], status=ouv.status, unite=ouv.unite, prix=str(ouv.prix), descId=ouv.descId, loc=ouv.loc, bt=ouv.bt, quant=ouv.quant, tva=ouv.tva)
-		
-		# indentation du fichier data.xml
-		fonctions.indent(root)
-		
 		# mise à jour du fichier xml de l'affaire
-		self.affaire.xml = xml
-		
+		self.affaire.xml = self.projectPlanToXmlObject()
 		# création ou mise à jour du fichier zip de sauvegarde
 		self.affaire.saveZip()
-		
 		# mise à jour du titre de la fenêtre principale
 		self.root.title("opb - %s" %(self.affaire.url))
 	
+
+	def projectPlanToXmlObject(self):
+		"""Create an image of the treeview to an xml object"""
+		
+		xml = ET.ElementTree(ET.fromstring(constantes.XMLTEMPLATE)) #to do : try to built an xml object with an addition of some another xml object
+		root = xml.getroot()
+		self.browseTreeviewBranch(self.arbreAffaire.get_children(), root)
+		fonctions.indent(root)
+		return xml
+	
+
+	def browseTreeviewBranch(self, childrens, parent):
+		
+		if childrens != []:
+			for children in childrens:
+				work = self.affaire.retourneOuvrage(children)
+				if work == None :
+					if len(self.arbreAffaire.parentsItem(children)) != 0:
+						node = ET.SubElement(parent, "element", id = "chapitre", name=self.arbreAffaire.item(children)['text'])
+					else:
+						node = ET.SubElement(parent, "element", id = "lot", name=self.arbreAffaire.item(children)['text'])
+					self.browseTreeviewBranch(self.arbreAffaire.get_children(children), node)
+				else:
+					node = ET.SubElement(parent, "element", id = "ouvrage", name=work.name, status=work.status, unite=work.unite, prix=str(work.prix), descId=work.descId, loc=work.loc, bt=work.bt, quant=work.quant, tva=work.tva)
+	
+
 	def enregisterAffaireSous(self):
 		"""Lancement de la methode miseAjourXML de la classe ArbreAffaire"""
+		
 		self.affaire.url = None
 		self.enregistrerAffaire()
 		
+
 	def ajouterTitre(self):
 		"""Ajoute un nouveau titre sous l item qui a le focus"""
+		
 		select = self.arbreAffaire.focus()
 		parent = self.arbreAffaire.parent(select)
 		position = self.arbreAffaire.index(select)+1
 		item = self.arbreAffaire.insert(parent, position, text= "_Titre_")
 		self.arbreAffaire.items.append(item)
 		
+
 	def ajouterOuvrage(self):
 		"""Ajoute un nouvel ouvrage sous l item qui a le focus"""
+		
 		select = self.arbreAffaire.focus()
 		parent = self.arbreAffaire.parent(select)
 		position = self.arbreAffaire.index(select)+1
@@ -415,30 +308,40 @@ class Main():
 		ouvrage = opb.Ouvrage(item)
 		self.affaire.ajouterOuvrage(ouvrage)
 	
+
 	def descendreItem(self):
 		"""Descendre l item qui a le focus lors de l action du bouton dans la barre d outils"""
+		
 		select = self.arbreAffaire.focus()
 		parent = self.arbreAffaire.parent(select)
 		position = self.arbreAffaire.index(select)
 		self.arbreAffaire.move(select, parent, position+1)
 	
+
 	def descendreItemEvent(self, event):
 		"""Descendre l item qui a le focus lors de l evennement ctrl+2"""
+		
 		self.descendreItem()
 	
+
 	def monterItem(self):
 		"""Monter l item qui a le focus lors de l action du bouton dans la barre d outils"""
+		
 		select = self.arbreAffaire.focus()
 		parent = self.arbreAffaire.parent(select)
 		position = self.arbreAffaire.index(select)
 		self.arbreAffaire.move(select, parent, position-1)
 	
+
 	def monterItemEvent(self, event):
 		"""Monter l item qui a le focus lors de l evennement ctrl+8"""
+		
 		self.monterItem()
 	
+
 	def indenterItem(self):
 		"""Indenter l item qui a le focus lors de l action du bouton dans la barre d outils"""
+		
 		select = self.arbreAffaire.focus()
 		# si l'item est un ouvrage, indentation maxi = 5
 		if self.affaire.retourneOuvrage(select) == None:
@@ -453,37 +356,76 @@ class Main():
 				enfants_precedents = self.arbreAffaire.get_children(precedent)
 				self.arbreAffaire.move(select, precedent, len(enfants_precedents))
 	
+
 	def indenterItemEvent(self, event):
 		"""Indenter l item qui a le focus lors de l evennement ctrl+6"""
+		
 		self.indenterItem()
 	
+
 	def desindenterItem(self):
 		"""Desindenter l item qui a le focus lors de l action du bouton dans la barre d outils"""
+		
 		select = self.arbreAffaire.focus()
 		parent = self.arbreAffaire.parent(select)
 		grand_parent = self.arbreAffaire.parent(parent)
 		position = self.arbreAffaire.index(parent)
 		self.arbreAffaire.move(select, grand_parent, position+1)
 		
+
 	def desindenterItemEvent(self, event):
 		"""Desindenter l item qui a le focus lors de l evennement ctrl+4"""
+		
 		self.desindenterItem()
 	
+
 	def supprimerItem(self):
 		"""Supprime l item qui a le focus"""
+		
 		select = self.arbreAffaire.focus()
 		self.arbreAffaire.delete(select)
 		self.arbreAffaire.items.remove(select)
 
+
 	def annuler(self):
+		
 		pass
 		# TO DO
 		
+
 	def retablir(self):
+		
 		pass
 		# TO DO
 	
+
+	def copy(self):
+		
+		self.emptyClipboard()
+		selection = self.arbreAffaire.selection()
+		for item in selection:
+			self.clipboard.append(item)
+	
+
+	def paste(self):
+		
+		select = self.arbreAffaire.focus()
+		parent = self.arbreAffaire.parent(select)
+		position = self.arbreAffaire.index(select)+1
+		for item in self.clipboard:
+			if opb.retourneOuvrage(item) != None:
+				work = opb.retourneOuvrage(item)
+				newWork = "en attente"
+	
+
+	def emptyClipboard(self):
+		
+		while len(self.clipboard) != 0:
+			del self.clipboard[len(self.clipboard)-1]
+	
+
 	def infos(self):
+		
 		select = self.arbreAffaire.focus()
 		ouvrage = self.affaire.retourneOuvrage(select)
 		if ouvrage == None :
@@ -491,8 +433,10 @@ class Main():
 		else :
 			dialog = DialogWorkInfos(self.arbreAffaire, select, self.affaire, ouvrage)
 	
+
 	def widgetPourModification(self, event):
 		"""Positionnement d un entry sur le treeview pour modifier une valeur ou creation d un dialogue pour modifier la colonne quantite"""
+		
 		if self.arbreAffaire.winfo_children() == []:
 			pass
 		else : # suppression des widgets enfant pour qu un seul soit actif
@@ -524,6 +468,8 @@ class Main():
 				texte = item["values"][3]
 				entry = EntryTreeview(self.arbreAffaire, position, texte, colonne, select, ouvrage)
 				self.arbreAffaire.enfants.append(entry)
+
+
 
 class ArbreAffaire(tkinter.ttk.Treeview):
 	"""Treeview de l affaire et methodes associees"""
@@ -558,9 +504,10 @@ class ArbreAffaire(tkinter.ttk.Treeview):
 				except:
 					pass
 	
-	def parentsItem(self):
+	def parentsItem(self, select=None):
 		"""Retourne la liste des parents d un item selectionne"""
-		select = self.focus()
+		if select == None:
+			select = self.focus()
 		liste = self.get_children() # creation de la liste des enfants de root
 		# creation d un arbre des parents
 		arbre_parent = []
@@ -607,27 +554,8 @@ class ArbreBase(tkinter.ttk.Treeview):
 					self.delete(item)
 				except:
 					pass
-	
-	def parentsItem(self):
-		"""Retourne la liste des parents d un item selectionne"""
-		select = self.focus()
-		liste = self.get_children() # creation de la liste des enfants de root
-		# creation d un arbre des parents
-		arbre_parent = []
-		test = False
-		# on verifie si le focus est un enfant de root
-		for enfant in liste:
-			if enfant == select :
-				test = True
-		while test == False:
-			parent = self.parent(select)
-			# on verifie si le parent est un enfant de root
-			for enfant in liste:
-				if enfant == parent:
-					test = True
-			select = parent
-			arbre_parent.append(parent)
-		return arbre_parent
+
+
 
 class EntryTreeview(tkinter.Entry):
 	
