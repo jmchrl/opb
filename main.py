@@ -93,6 +93,7 @@ class Main():
 		deroul_menu_edition.add_command(label="Annuler", underline=0, command = self.annuler)
 		deroul_menu_edition.add_command(label="Rétablir", underline=0, command = self.retablir)
 		deroul_menu_edition.add_command(label="Copier", underline=0, command=self.copy)
+		deroul_menu_edition.add_command(label="Coller", underline=0, command=self.paste)
 		
 		################
 		# menu canevas #
@@ -410,12 +411,28 @@ class Main():
 	def paste(self):
 		
 		select = self.arbreAffaire.focus()
-		parent = self.arbreAffaire.parent(select)
-		position = self.arbreAffaire.index(select)+1
-		for item in self.clipboard:
-			if opb.retourneOuvrage(item) != None:
-				work = opb.retourneOuvrage(item)
-				newWork = "en attente"
+		self.recursivePaste(self.clipboard, self.arbreAffaire.parent(select), self.arbreAffaire.index(select)+1)
+	
+	
+	def recursivePaste(self, childrens, parent, position):
+		
+		if childrens != []:
+			for children in childrens:
+				work = self.affaire.retourneOuvrage(children)
+				if work == None :
+					item = self.arbreAffaire.insert(parent, position, text= self.arbreAffaire.item(children)['text'])
+					self.arbreAffaire.items.append(item)
+					self.recursivePaste(self.arbreAffaire.get_children(children), item, "end")
+				else:
+					quant = float(fonctions.evalQuantite(work.quant))
+					try:
+						prix = float(work.prix)
+					except:
+						prix = 0.0
+					item = self.arbreAffaire.insert(parent, position, text= work.name, values=(work.descId, work.unite, quant, prix, quant*prix))
+					self.arbreAffaire.items.append(item)
+					newWork = opb.Ouvrage(item, work.name, work.status, work.unite, work.quant, work.prix, work.descId, work.loc, work.tva, work.bt)
+					self.affaire.ajouterOuvrage(newWork)
 	
 
 	def emptyClipboard(self):
