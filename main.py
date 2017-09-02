@@ -25,7 +25,9 @@ import tkinter.ttk
 import tkinter.filedialog
 import tkinter.messagebox
 import xml.etree.ElementTree as ET
+import sys
 import os
+import shutil
 import opb
 import fonctions
 import constantes
@@ -811,9 +813,31 @@ class DialogDesc(tkinter.Frame):
 				self.zoneText.yview("moveto", 1)
 	
 	def openCCTP(self):
-		chemin = os.path.dirname(self.affaire.url) + "/bibli/essai.odt" #attention, ne fonctionne pour le moment que si une afaire est créé
-		print(chemin)
-		cctp = os.system('soffice %s' %(chemin))
+		if self.textVarId.get() == "":
+			tkinter.messagebox.showwarning("Attention", "Veuillez saisir un identifiant pour l'ouvrage")
+		else:
+			try:
+				os.mkdir(os.getcwd() + "/temp/ref")
+			except:
+				pass
+			files = os.listdir(os.getcwd() + "/temp/ref")
+			test= False
+			for file in files:
+				split = file.split("/")
+				fileOdt = split[-1]
+				if fileOdt[0:-4] == self.textVarId.get():
+					if sys.platform == 'win32':
+						description = os.system('start ' + constantes.SOFFICEPATH + " " + os.getcwd() + "\\temp\\ref\\"+ fileOdt)
+					else:
+						description = os.system('soffice %s' %(os.getcwd() + "/temp/ref/"+ fileOdt))
+					test= True
+					break
+			if test == False:
+				shutil.copy(os.getcwd() + "/templates/workTemplate.odt", os.getcwd() + "/temp/ref/"+ self.textVarId.get() + ".odt")
+				if sys.platform == 'win32':
+					description = os.system('start ' + constantes.SOFFICEPATH + " " + os.getcwd() + "\\temp\\ref\\"+ self.textVarId.get() + ".odt")
+				else:
+					description = os.system('soffice %s' %(os.getcwd() + "/temp/ref/"+ self.textVarId.get() + ".odt"))
 		
 		
 
