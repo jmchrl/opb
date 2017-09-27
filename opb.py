@@ -20,6 +20,7 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.  
 
+
 import tkinter
 import tkinter.ttk
 import tkinter.filedialog
@@ -32,6 +33,7 @@ import shutil
 from lib.project import Project, Work 
 import lib.fonctions
 import lib.constantes
+
 
 class Main():
 	"""Main window class"""
@@ -114,127 +116,117 @@ class Main():
 		# adding tools bar #
 		####################
 		
-		# ajout d un cadre conteneur des boutons
+		# adding a frame container buttons
+		toolsFrame = tkinter.Frame(self.root)
+		toolsFrame.grid(row=1, column=0, sticky='WN', padx=5, pady=5)
 		
-		cadreOutils = tkinter.Frame(self.root)
-		cadreOutils.grid(row=1, column=0, sticky='WN', padx=5, pady=5)
+		# adding buttons
+		self.image_down_arrow = tkinter.PhotoImage(file = "./img/fleche_bas_24x24.png")
+		down_arrow_button = tkinter.Button(toolsFrame, image = self.image_down_arrow, height=25, width=25, relief='flat', command = self.descendreItem)
+		down_arrow_button.pack(side='left')
 		
-		# ajout des boutons
+		self.image_up_arrow = tkinter.PhotoImage(file = "./img/fleche_haut_24x24.png")
+		up_arrow_button = tkinter.Button(toolsFrame, image = self.image_up_arrow, height=25, width=25, relief='flat', command = self.monterItem)
+		up_arrow_button.pack(side='left')
 		
-		self.imagePng_fleche_bas = tkinter.PhotoImage(file = "./img/fleche_bas_24x24.png")
-		bouton_fleche_bas = tkinter.Button(cadreOutils, image = self.imagePng_fleche_bas, height=25, width=25, relief='flat', command = self.descendreItem)
-		bouton_fleche_bas.pack(side='left')
+		self.image_right_arrow = tkinter.PhotoImage(file = "./img/fleche_droite_24x24.png")
+		right_arrow_button = tkinter.Button(toolsFrame, image = self.image_right_arrow, height=25, width=25, relief='flat', command = self.indenterItem)
+		right_arrow_button.pack(side='left')
 		
-		self.imagePng_fleche_haut = tkinter.PhotoImage(file = "./img/fleche_haut_24x24.png")
-		bouton_fleche_haut = tkinter.Button(cadreOutils, image = self.imagePng_fleche_haut, height=25, width=25, relief='flat', command = self.monterItem)
-		bouton_fleche_haut.pack(side='left')
+		self.image_left_arrow = tkinter.PhotoImage(file = "./img/fleche_gauche_24x24.png")
+		left_arrow_button = tkinter.Button(toolsFrame, image = self.image_left_arrow, height=25, width=25, relief='flat', command = self.desindenterItem)
+		left_arrow_button.pack(side='left')
 		
-		self.imagePng_fleche_droite = tkinter.PhotoImage(file = "./img/fleche_droite_24x24.png")
-		bouton_fleche_droite = tkinter.Button(cadreOutils, image = self.imagePng_fleche_droite, height=25, width=25, relief='flat', command = self.indenterItem)
-		bouton_fleche_droite.pack(side='left')
-		
-		self.imagePng_fleche_gauche = tkinter.PhotoImage(file = "./img/fleche_gauche_24x24.png")
-		bouton_fleche_gauche = tkinter.Button(cadreOutils, image = self.imagePng_fleche_gauche, height=25, width=25, relief='flat', command = self.desindenterItem)
-		bouton_fleche_gauche.pack(side='left')
-		
-		self.imagePng_infos = tkinter.PhotoImage(file = "./img/infos_24x24.png")
-		bouton_infos = tkinter.Button(cadreOutils, image = self.imagePng_infos, height=25, width=25, relief='flat', command = self.infos)
-		bouton_infos.pack(side='left')
+		self.image_infos = tkinter.PhotoImage(file = "./img/infos_24x24.png")
+		infos_button = tkinter.Button(toolsFrame, image = self.image_infos, height=25, width=25, relief='flat', command = self.infos)
+		infos_button.pack(side='left')
 		
 		####################
 		# treeview affaire #
 		####################
 		
-		#ajout d'un cadre conteneur du treeview
-		#self.cadreTreeview = tkinter.Frame(self.root, height=700, width=1200)
-		self.cadreTreeview = tkinter.Frame(self.root)
-		self.cadreTreeview.grid(row=2, column=0, sticky='WENS', padx=5, pady=5)
-		#self.cadreTreeview.grid_propagate(0)
-		self.cadreTreeview.rowconfigure(0, weight=1)
-		self.cadreTreeview.columnconfigure(0, weight=1)
+		#adding a frame container treeview
+		self.treeviewFrame = tkinter.Frame(self.root)
+		self.treeviewFrame.grid(row=2, column=0, sticky='WENS', padx=5, pady=5)
+		self.treeviewFrame.rowconfigure(0, weight=1)
+		self.treeviewFrame.columnconfigure(0, weight=1)
 		
-		#ajout de l'arbre de l'affaire
-		self.arbreAffaire = ArbreAffaire(self.cadreTreeview)
-		#pour rendre le treeview etirable sur l'ensemble de la fenêtre
-		self.arbreAffaire.grid(row=0, column=0, sticky='WENS')
+		#adding treeview project
+		self.treeProject = ArbreAffaire(self.treeviewFrame)
+		#to make the treeview stretchable on the entire window
+		self.treeProject.grid(row=0, column=0, sticky='WENS')
 		
-		self.arbreAffaire.bind("<Double-Button-1>", self.widgetPourModification)
-		self.arbreAffaire.bind("<Control-KeyPress-KP_8>", self.monterItemEvent)
-		self.arbreAffaire.bind("<Control-KeyPress-KP_2>", self.descendreItemEvent)
-		self.arbreAffaire.bind("<Control-KeyPress-KP_6>", self.indenterItemEvent)
-		self.arbreAffaire.bind("<Control-KeyPress-KP_4>", self.desindenterItemEvent)
+		self.treeProject.bind("<Double-Button-1>", self.widgetPourModification)
+		self.treeProject.bind("<Control-KeyPress-KP_8>", self.monterItemEvent)
+		self.treeProject.bind("<Control-KeyPress-KP_2>", self.descendreItemEvent)
+		self.treeProject.bind("<Control-KeyPress-KP_6>", self.indenterItemEvent)
+		self.treeProject.bind("<Control-KeyPress-KP_4>", self.desindenterItemEvent)
 		
 		#################
 		# treeview base #
 		#################
 		
-		#ajout de l'arbre de l'affaire
-		self.arbreBase = ArbreBase(self.cadreTreeview)
-		#pour rendre le treeview etirable sur l'ensemble de la fenêtre
-		self.arbreBase.grid(row=0, column=1, sticky='WENS')
+		#adding treeview for database
+		self.treeBase = ArbreBase(self.treeviewFrame)
+		#to make the treeview stretchable on the entire window
+		self.treeBase.grid(row=0, column=1, sticky='WENS')
 		
-		#self.arbreAffaire.bind("<Double-Button-1>", self.widgetPourModification)
-		#self.arbreAffaire.bind("<Control-KeyPress-KP_8>", self.monterItemEvent)
-		#self.arbreAffaire.bind("<Control-KeyPress-KP_2>", self.descendreItemEvent)
-		#self.arbreAffaire.bind("<Control-KeyPress-KP_6>", self.indenterItemEvent)
-		#self.arbreAffaire.bind("<Control-KeyPress-KP_4>", self.desindenterItemEvent)
+		#self.treeProject.bind("<Double-Button-1>", self.widgetPourModification)
+		#self.treeProject.bind("<Control-KeyPress-KP_8>", self.monterItemEvent)
+		#self.treeProject.bind("<Control-KeyPress-KP_2>", self.descendreItemEvent)
+		#self.treeProject.bind("<Control-KeyPress-KP_6>", self.indenterItemEvent)
+		#self.treeProject.bind("<Control-KeyPress-KP_4>", self.desindenterItemEvent)
 		
 		###################
 		# barre de status #
 		###################
 		
-		# ajout d un cadre conteneur des notifications de status
-		
-		cadreStatus = tkinter.Frame(self.root)
-		cadreStatus.grid(row=3, column=0, sticky='WN', padx=5, pady=5)
-		
-		texteStatus = tkinter.Label(cadreStatus, text="Status")
-		texteStatus.grid(row=0, column=0, sticky='WENS')
+		#adding a frame for status bar
+		statusFrame = tkinter.Frame(self.root)
+		statusFrame.grid(row=3, column=0, sticky='WN', padx=5, pady=5)
+		statusText = tkinter.Label(statusFrame, text="R.A.S.")
+		statusText.grid(row=0, column=0, sticky='WENS')
 	
 	def new_project(self):
-		"""Lancement de la methode nouvelleAffaire de la classe ArbreAffaire"""
+		"""Create a new project instance and set the main windows title"""
 		self.project = Project(None)
 		self.project.xml.getroot()
-		self.arbreAffaire.remiseZeroTreeview()
+		self.treeProject.remiseZeroTreeview()
 		self.root.title("opb - sans nom")
 	
 	def open_project(self):
-		"""Ouverture d'un fichier zip et retranscription du fichier data.xml dans le treeview"""
-				
+		"""Open zip file and transcript data.xml file in the treeview"""
 		url = tkinter.filedialog.askopenfilename(filetypes=[('Fichier zip','*.zip')], title="Fichier de sauvegarde ...")
-		self.arbreAffaire.remiseZeroTreeview()
+		self.treeProject.remiseZeroTreeview()
 		self.root.title("opb - %s" %(url))
-		
-		# Creation d une nouvelle instance affaire du module project
+		#Creating a new project instance of the project module
 		self.project = Project(url)
 		root = self.project.xml.getroot()
-		
-		# Creation d une liste d items (verifier l utilite)
-		self.arbreAffaire.items = []
-		
-		# Parcours du fichier xml pour representation dans le treeview
-		self.browseXmlBranch(root.findall("element"), "")
+		#Creating a list of items (checking the utility)
+		self.treeProject.items = []
+		#xml file path for representation in the treeview
+		self.browse_xml_branch(root.findall("element"), "")
 	
-	def browseXmlBranch(self, childrensXML, parentTreeview):
-		
+	def browse_xml_branch(self, childrensXML, parentTreeview):
+		"""browse xml file branch, when the node have childrens this fonction is recursive"""
 		if childrensXML != []:
 			for children in childrensXML:
 				if children.get("id") == "lot":
-					item = self.arbreAffaire.insert(parentTreeview,"end", text= children.get("name"))
-					self.arbreAffaire.items.append(item)
-					self.browseXmlBranch(children.findall("element"), item)
+					item = self.treeProject.insert(parentTreeview,"end", text= children.get("name"))
+					self.treeProject.items.append(item)
+					self.browse_xml_branch(children.findall("element"), item)
 				if children.get("id") == "chapitre":
-					item = self.arbreAffaire.insert(parentTreeview,"end", text= children.get("name"))
-					self.arbreAffaire.items.append(item)
-					self.browseXmlBranch(children.findall("element"), item)
+					item = self.treeProject.insert(parentTreeview,"end", text= children.get("name"))
+					self.treeProject.items.append(item)
+					self.browse_xml_branch(children.findall("element"), item)
 				if children.get("id") == "ouvrage":
 					quant = float(lib.fonctions.evalQuantite(children.get('quant')))
 					try:
 						prix = float(children.get('prix'))
 					except:
 						prix = 0.0
-					item = self.arbreAffaire.insert(parentTreeview,"end", text= children.get('name'), values=(children.get('descId'), children.get('unite'), quant, prix, quant*prix))
-					self.arbreAffaire.items.append(item)
+					item = self.treeProject.insert(parentTreeview,"end", text= children.get('name'), values=(children.get('descId'), children.get('unite'), quant, prix, quant*prix))
+					self.treeProject.items.append(item)
 					ouvrage = Work(item, children.get('name'), children.get('status'), children.get('unite'), children.get('quant'), prix, children.get('descId'), children.get('loc'), children.get('tva'), children.get('bt'))
 					self.project.ajouterOuvrage(ouvrage)
 	
@@ -257,7 +249,7 @@ class Main():
 		
 		xml = ET.ElementTree(ET.fromstring(lib.constantes.XMLTEMPLATE)) #to do : try to built an xml object with an addition of some another xml object
 		root = xml.getroot()
-		self.browseTreeviewBranch(self.arbreAffaire.get_children(), root)
+		self.browseTreeviewBranch(self.treeProject.get_children(), root)
 		lib.fonctions.indent(root)
 		return xml
 	
@@ -268,11 +260,11 @@ class Main():
 			for children in childrens:
 				work = self.project.retourneOuvrage(children)
 				if work == None :
-					if len(self.arbreAffaire.parentsItem(children)) != 0:
-						node = ET.SubElement(parent, "element", id = "chapitre", name=self.arbreAffaire.item(children)['text'])
+					if len(self.treeProject.parentsItem(children)) != 0:
+						node = ET.SubElement(parent, "element", id = "chapitre", name=self.treeProject.item(children)['text'])
 					else:
-						node = ET.SubElement(parent, "element", id = "lot", name=self.arbreAffaire.item(children)['text'])
-					self.browseTreeviewBranch(self.arbreAffaire.get_children(children), node)
+						node = ET.SubElement(parent, "element", id = "lot", name=self.treeProject.item(children)['text'])
+					self.browseTreeviewBranch(self.treeProject.get_children(children), node)
 				else:
 					node = ET.SubElement(parent, "element", id = "ouvrage", name=work.name, status=work.status, unite=work.unite, prix=str(work.prix), descId=work.descId, loc=work.loc, bt=work.bt, quant=work.quant, tva=work.tva)
 	
@@ -287,21 +279,21 @@ class Main():
 	def ajouterTitre(self):
 		"""Ajoute un nouveau titre sous l item qui a le focus"""
 		
-		select = self.arbreAffaire.focus()
-		parent = self.arbreAffaire.parent(select)
-		position = self.arbreAffaire.index(select)+1
-		item = self.arbreAffaire.insert(parent, position, text= "_Titre_")
-		self.arbreAffaire.items.append(item)
+		select = self.treeProject.focus()
+		parent = self.treeProject.parent(select)
+		position = self.treeProject.index(select)+1
+		item = self.treeProject.insert(parent, position, text= "_Titre_")
+		self.treeProject.items.append(item)
 		
 
 	def ajouterOuvrage(self):
 		"""Ajoute un nouvel ouvrage sous l item qui a le focus"""
 		
-		select = self.arbreAffaire.focus()
-		parent = self.arbreAffaire.parent(select)
-		position = self.arbreAffaire.index(select)+1
-		item = self.arbreAffaire.insert(parent, position, text= "_Ouvrage_", values=("", "", 0.0, 0.0, ""))
-		self.arbreAffaire.items.append(item)
+		select = self.treeProject.focus()
+		parent = self.treeProject.parent(select)
+		position = self.treeProject.index(select)+1
+		item = self.treeProject.insert(parent, position, text= "_Ouvrage_", values=("", "", 0.0, 0.0, ""))
+		self.treeProject.items.append(item)
 		ouvrage = Work(item)
 		self.project.ajouterOuvrage(ouvrage)
 	
@@ -309,10 +301,10 @@ class Main():
 	def descendreItem(self):
 		"""Descendre l item qui a le focus lors de l action du bouton dans la barre d outils"""
 		
-		select = self.arbreAffaire.focus()
-		parent = self.arbreAffaire.parent(select)
-		position = self.arbreAffaire.index(select)
-		self.arbreAffaire.move(select, parent, position+1)
+		select = self.treeProject.focus()
+		parent = self.treeProject.parent(select)
+		position = self.treeProject.index(select)
+		self.treeProject.move(select, parent, position+1)
 	
 
 	def descendreItemEvent(self, event):
@@ -324,10 +316,10 @@ class Main():
 	def monterItem(self):
 		"""Monter l item qui a le focus lors de l action du bouton dans la barre d outils"""
 		
-		select = self.arbreAffaire.focus()
-		parent = self.arbreAffaire.parent(select)
-		position = self.arbreAffaire.index(select)
-		self.arbreAffaire.move(select, parent, position-1)
+		select = self.treeProject.focus()
+		parent = self.treeProject.parent(select)
+		position = self.treeProject.index(select)
+		self.treeProject.move(select, parent, position-1)
 	
 
 	def monterItemEvent(self, event):
@@ -339,19 +331,19 @@ class Main():
 	def indenterItem(self):
 		"""Indenter l item qui a le focus lors de l action du bouton dans la barre d outils"""
 		
-		select = self.arbreAffaire.focus()
+		select = self.treeProject.focus()
 		# si l'item est un ouvrage, indentation maxi = 5
 		if self.project.retourneOuvrage(select) == None:
-			if len(self.arbreAffaire.parentsItem()) < 4:
-				precedent = self.arbreAffaire.prev(select)
-				enfants_precedents = self.arbreAffaire.get_children(precedent)
-				self.arbreAffaire.move(select, precedent, len(enfants_precedents))
+			if len(self.treeProject.parentsItem()) < 4:
+				precedent = self.treeProject.prev(select)
+				enfants_precedents = self.treeProject.get_children(precedent)
+				self.treeProject.move(select, precedent, len(enfants_precedents))
 		# sinon c'est un chapitre, donc indentation maxi = 4
 		else :
-			if len(self.arbreAffaire.parentsItem()) < 3:
-				precedent = self.arbreAffaire.prev(select)
-				enfants_precedents = self.arbreAffaire.get_children(precedent)
-				self.arbreAffaire.move(select, precedent, len(enfants_precedents))
+			if len(self.treeProject.parentsItem()) < 3:
+				precedent = self.treeProject.prev(select)
+				enfants_precedents = self.treeProject.get_children(precedent)
+				self.treeProject.move(select, precedent, len(enfants_precedents))
 	
 
 	def indenterItemEvent(self, event):
@@ -363,11 +355,11 @@ class Main():
 	def desindenterItem(self):
 		"""Desindenter l item qui a le focus lors de l action du bouton dans la barre d outils"""
 		
-		select = self.arbreAffaire.focus()
-		parent = self.arbreAffaire.parent(select)
-		grand_parent = self.arbreAffaire.parent(parent)
-		position = self.arbreAffaire.index(parent)
-		self.arbreAffaire.move(select, grand_parent, position+1)
+		select = self.treeProject.focus()
+		parent = self.treeProject.parent(select)
+		grand_parent = self.treeProject.parent(parent)
+		position = self.treeProject.index(parent)
+		self.treeProject.move(select, grand_parent, position+1)
 		
 
 	def desindenterItemEvent(self, event):
@@ -379,9 +371,9 @@ class Main():
 	def supprimerItem(self):
 		"""Supprime l item qui a le focus"""
 		
-		select = self.arbreAffaire.focus()
-		self.arbreAffaire.delete(select)
-		self.arbreAffaire.items.remove(select)
+		select = self.treeProject.focus()
+		self.treeProject.delete(select)
+		self.treeProject.items.remove(select)
 
 
 	def annuler(self):
@@ -399,15 +391,15 @@ class Main():
 	def copy(self):
 		
 		self.emptyClipboard()
-		selection = self.arbreAffaire.selection()
+		selection = self.treeProject.selection()
 		for item in selection:
 			self.clipboard.append(item)
 	
 
 	def paste(self):
 		
-		select = self.arbreAffaire.focus()
-		self.recursivePaste(self.clipboard, self.arbreAffaire.parent(select), self.arbreAffaire.index(select)+1)
+		select = self.treeProject.focus()
+		self.recursivePaste(self.clipboard, self.treeProject.parent(select), self.treeProject.index(select)+1)
 	
 	
 	def recursivePaste(self, childrens, parent, position):
@@ -416,17 +408,17 @@ class Main():
 			for children in childrens:
 				work = self.project.retourneOuvrage(children)
 				if work == None :
-					item = self.arbreAffaire.insert(parent, position, text= self.arbreAffaire.item(children)['text'])
-					self.arbreAffaire.items.append(item)
-					self.recursivePaste(self.arbreAffaire.get_children(children), item, "end")
+					item = self.treeProject.insert(parent, position, text= self.treeProject.item(children)['text'])
+					self.treeProject.items.append(item)
+					self.recursivePaste(self.treeProject.get_children(children), item, "end")
 				else:
 					quant = float(lib.fonctions.evalQuantite(work.quant))
 					try:
 						prix = float(work.prix)
 					except:
 						prix = 0.0
-					item = self.arbreAffaire.insert(parent, position, text= work.name, values=(work.descId, work.unite, quant, prix, quant*prix))
-					self.arbreAffaire.items.append(item)
+					item = self.treeProject.insert(parent, position, text= work.name, values=(work.descId, work.unite, quant, prix, quant*prix))
+					self.treeProject.items.append(item)
 					newWork = Work(item, work.name, work.status, work.unite, work.quant, work.prix, work.descId, work.loc, work.tva, work.bt)
 					self.project.ajouterOuvrage(newWork)
 	
@@ -439,48 +431,48 @@ class Main():
 
 	def infos(self):
 		
-		select = self.arbreAffaire.focus()
+		select = self.treeProject.focus()
 		ouvrage = self.project.retourneOuvrage(select)
 		if ouvrage == None :
 			pass
 		else :
-			dialog = DialogWorkInfos(self.arbreAffaire, select, self.project, ouvrage)
+			dialog = DialogWorkInfos(self.treeProject, select, self.project, ouvrage)
 	
 
 	def widgetPourModification(self, event):
 		"""Positionnement d un entry sur le treeview pour modifier une valeur ou creation d un dialogue pour modifier la colonne quantite"""
 		
-		if self.arbreAffaire.winfo_children() == []:
+		if self.treeProject.winfo_children() == []:
 			pass
 		else : # suppression des widgets enfant pour qu un seul soit actif
-			for widget in self.arbreAffaire.winfo_children():
+			for widget in self.treeProject.winfo_children():
 				widget.destroy()
-		select = self.arbreAffaire.focus()
-		item = self.arbreAffaire.item(select)
-		colonne = self.arbreAffaire.identify_column(event.x)
-		position = self.arbreAffaire.bbox(select, column=colonne)
+		select = self.treeProject.focus()
+		item = self.treeProject.item(select)
+		colonne = self.treeProject.identify_column(event.x)
+		position = self.treeProject.bbox(select, column=colonne)
 		ouvrage = self.project.retourneOuvrage(select)
 		if colonne == "#0":
 			texte = item["text"]
-			entry = EntryTreeview(self.arbreAffaire, position, texte, colonne, select, ouvrage)
-			self.arbreAffaire.enfants.append(entry)
+			entry = EntryTreeview(self.treeProject, position, texte, colonne, select, ouvrage)
+			self.treeProject.enfants.append(entry)
 		else:
 			if colonne == "#1":
 				texte = item["values"][0]
-				entry = EntryTreeview(self.arbreAffaire, position, texte, colonne, select, ouvrage)
-				self.arbreAffaire.enfants.append(entry)
+				entry = EntryTreeview(self.treeProject, position, texte, colonne, select, ouvrage)
+				self.treeProject.enfants.append(entry)
 			if colonne == "#2":
 				texte = item["values"][1]
-				entry = EntryTreeview(self.arbreAffaire, position, texte, colonne, select, ouvrage)
-				self.arbreAffaire.enfants.append(entry)
+				entry = EntryTreeview(self.treeProject, position, texte, colonne, select, ouvrage)
+				self.treeProject.enfants.append(entry)
 			if colonne == "#3":
 				texte = item["values"][2]
-				entry = EntryTreeview(self.arbreAffaire, position, texte, colonne, select, ouvrage)
-				self.arbreAffaire.enfants.append(entry)
+				entry = EntryTreeview(self.treeProject, position, texte, colonne, select, ouvrage)
+				self.treeProject.enfants.append(entry)
 			if colonne == "#4":
 				texte = item["values"][3]
-				entry = EntryTreeview(self.arbreAffaire, position, texte, colonne, select, ouvrage)
-				self.arbreAffaire.enfants.append(entry)
+				entry = EntryTreeview(self.treeProject, position, texte, colonne, select, ouvrage)
+				self.treeProject.enfants.append(entry)
 
 
 
