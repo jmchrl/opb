@@ -55,11 +55,11 @@ class Project():
 		self.lots = []
 		self.ouvrages = []
 	
-	def ajouterOuvrage(self, ouvrage):
+	def add_work(self, ouvrage):
 		"""Creation d un dictionnaire pour chaque ouvrage et ajout a la liste des ouvrages"""
 		self.ouvrages.append(ouvrage)
 	
-	def retourneOuvrage(self, iid):
+	def return_work(self, iid):
 		"""Verifie si l index donne en argument correspond a un ouvrage. Retourne l ouvrage ou None si il n a pas ete trouve"""
 		ouv = None
 		for ouvrage in self.ouvrages:
