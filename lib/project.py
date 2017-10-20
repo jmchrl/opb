@@ -109,7 +109,7 @@ class Project():
 class Work():
 	"""Classe définissant un ouvrage"""
 	
-	def __init__(self, iid, name="_Ouvrage_", status="", unite="", quant="", prix="0.0", descId="", loc="", tva="", bt=""):
+	def __init__(self, iid, name="_Ouvrage_", status="", unite="", quant="", prix="0.0", desc_id="", loc="", tva="", bt=""):
 		
 		self.iid = iid
 		self.name = name
@@ -117,7 +117,7 @@ class Work():
 		self.unite = unite
 		self.quant = quant
 		self.prix = prix
-		self.descId = descId
+		self.desc_id = desc_id
 		self.loc = loc
 		self.tva = tva
 		self.bt = bt
