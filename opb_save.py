@@ -57,12 +57,129 @@ class Main():
         #initilize clipboard
         self.clipboard = []
 
-        # adding menu
-        MenuBar(self, self.root)
+        ###############
+        # adding menu #
+        ###############
 
-        # adding tools bar
-        ToolBar(self, self.root)
+        menu = tkinter.Frame(self.root, borderwidth=2)
+        menu.grid(row=0, column=0, sticky="WE", padx=5, pady=5)
 
+        #file menu
+        file_menu = tkinter.Menubutton(menu, text="Fichier")
+        file_menu.pack(side="left")
+
+        #drop down file menu
+        drop_down_file_menu = tkinter.Menu(file_menu)
+
+        #menu integration
+        file_menu.configure(menu=drop_down_file_menu)
+
+        #adding commands
+        drop_down_file_menu.add_command(label="Nouveau",\
+                                     underline=0,\
+                                     command=self.new_project)
+        drop_down_file_menu.add_command(label="Ouvrir",\
+                                     underline=0,\
+                                     command=self.open_project)
+        drop_down_file_menu.add_command(label="Enregister",\
+                                      underline=0,\
+                                      command=self.save_project)
+        drop_down_file_menu.add_command(label="Enregister Sous",\
+                                     underline=0,\
+                                     command=self.save_project_as)
+
+        #edit menu
+        edit_menu = tkinter.Menubutton(menu, text="Edition")
+        edit_menu.pack(side="left")
+
+        #drop down edit menu
+        drop_down_edit_menu = tkinter.Menu(edit_menu)
+
+        #menu integration
+        edit_menu.configure(menu=drop_down_edit_menu)
+
+        #adding commands
+        drop_down_edit_menu.add_command(label="Annuler", underline=0,\
+                                     command=self.undo)
+        drop_down_edit_menu.add_command(label="Rétablir", underline=0,\
+                                     command=self.redo)
+        drop_down_edit_menu.add_command(label="Copier", underline=0,\
+                                     command=self.copy)
+        drop_down_edit_menu.add_command(label="Coller", underline=0,\
+                                     command=self.paste)
+
+        #groundwork menu
+        groundwork_menu = tkinter.Menubutton(menu, text="Canevas")
+        groundwork_menu.pack(side="left")
+
+        #drop down groundwork menu
+        drop_down_groundwork_menu = tkinter.Menu(groundwork_menu)
+
+        #menu integration
+        groundwork_menu.configure(menu=drop_down_groundwork_menu)
+
+        #adding commands
+        drop_down_groundwork_menu.add_command(label="Ajouter un titre",\
+                                           underline=0,\
+                                           command=self.add_title)
+        drop_down_groundwork_menu.add_command(label="Ajouter un ouvrage",\
+                                           underline=0,\
+                                           command=self.add_work)
+        drop_down_groundwork_menu.add_command(label="Supprimer un item",\
+                                           underline=0,\
+                                           command=self.remove_item)
+        drop_down_groundwork_menu.add_command(label="Détail de l'ouvrage",\
+                                           underline=0,\
+                                           command=self.infos)
+
+        ####################
+        # adding tools bar #
+        ####################
+
+        # adding a frame container buttons
+        tools_frame = tkinter.Frame(self.root)
+        tools_frame.grid(row=1, column=0, sticky='WN', padx=5, pady=5)
+
+        # adding buttons
+        self.image_down_arrow = tkinter.PhotoImage(file="./img/fleche_bas_24x24.png")
+        down_arrow_button = tkinter.Button(tools_frame,\
+                                           image=self.image_down_arrow,\
+                                           height=25, width=25,\
+                                           relief='flat',\
+                                           command=self.go_down_item)
+        down_arrow_button.pack(side='left')
+
+        self.image_up_arrow = tkinter.PhotoImage(file="./img/fleche_haut_24x24.png")
+        up_arrow_button = tkinter.Button(tools_frame,\
+                                         image=self.image_up_arrow,\
+                                         height=25, width=25,\
+                                         relief='flat',\
+                                         command=self.go_up_item)
+        up_arrow_button.pack(side='left')
+
+        self.image_right_arrow = tkinter.PhotoImage(file="./img/fleche_droite_24x24.png")
+        right_arrow_button = tkinter.Button(tools_frame,\
+                                            image=self.image_right_arrow,\
+                                            height=25, width=25,\
+                                            relief='flat',\
+                                            command=self.indenting_item)
+        right_arrow_button.pack(side='left')
+
+        self.image_left_arrow = tkinter.PhotoImage(file="./img/fleche_gauche_24x24.png")
+        left_arrow_button = tkinter.Button(tools_frame,\
+                                           image=self.image_left_arrow,\
+                                           height=25, width=25,\
+                                           relief='flat',\
+                                           command=self.unindent_intem)
+        left_arrow_button.pack(side='left')
+
+        self.image_infos = tkinter.PhotoImage(file="./img/infos_24x24.png")
+        infos_button = tkinter.Button(tools_frame,\
+                                      image=self.image_infos,\
+                                      height=25, width=25,\
+                                      relief='flat',\
+                                      command=self.infos)
+        infos_button.pack(side='left')
 
         ####################
         # project treeview #
@@ -85,7 +202,7 @@ class Main():
         self.tree_project.bind("<Control-KeyPress-KP_8>", self.go_up_item_event)
         self.tree_project.bind("<Control-KeyPress-KP_2>", self.go_down_item_event)
         self.tree_project.bind("<Control-KeyPress-KP_6>", self.indenting_item_event)
-        self.tree_project.bind("<Control-KeyPress-KP_4>", self.unindent_item_event)
+        self.tree_project.bind("<Control-KeyPress-KP_4>", self.unindent_intem_event)
 
         #####################
         # database treeview #
@@ -312,7 +429,7 @@ class Main():
 
         self.indenting_item()
 
-    def unindent_item(self):
+    def unindent_intem(self):
         """Unindent the item that has the focus when the button is
            pressed on the toolbar"""
 
@@ -322,7 +439,7 @@ class Main():
         position = self.tree_project.index(parent)
         self.tree_project.move(select, grand_parent, position+1)
 
-    def unindent_item_event(self, event):
+    def unindent_intem_event(self, event):
         """Unindent the item that has the focus when the Ctrl+4 is
            pressed"""
 
@@ -452,138 +569,6 @@ class Main():
                                       position, text, column, select, work)
                 self.tree_project.enfants.append(entry)
 
-class MenuBar():
-    """Creating the menu bar at the top of main window"""
-
-    def __init__(self, application, parent_gui):
-        """Creating menu bar"""
-
-        self.menu = tkinter.Frame(parent_gui, borderwidth=2)
-        self.menu.grid(row=0, column=0, sticky="WE", padx=5, pady=5)
-        self.application = application
-        self.__add_file_menu()
-        self.__add_edit_menu()
-        self.__add_groundwork_menu()
-
-    def __add_file_menu(self):
-        """Adding file menu in the menu bar"""
-
-        file_menu = tkinter.Menubutton(self.menu, text="Fichier")
-        file_menu.pack(side="left")
-
-        #drop down file menu
-        drop_down_file_menu = tkinter.Menu(file_menu)
-
-        #menu integration
-        file_menu.configure(menu=drop_down_file_menu)
-
-        #adding commands
-        drop_down_file_menu.add_command(label="Nouveau",\
-                                     underline=0,\
-                                     command=self.application.new_project)
-        drop_down_file_menu.add_command(label="Ouvrir",\
-                                     underline=0,\
-                                     command=self.application.open_project)
-        drop_down_file_menu.add_command(label="Enregister",\
-                                      underline=0,\
-                                      command=self.application.save_project)
-        drop_down_file_menu.add_command(label="Enregister Sous",\
-                                     underline=0,\
-                                     command=self.application.save_project_as)
-
-    def __add_edit_menu(self):
-        """Adding edit menu in the menu bar"""
-
-        edit_menu = tkinter.Menubutton(self.menu, text="Edition")
-        edit_menu.pack(side="left")
-
-        #drop down edit menu
-        drop_down_edit_menu = tkinter.Menu(edit_menu)
-
-        #menu integration
-        edit_menu.configure(menu=drop_down_edit_menu)
-
-        #adding commands
-        drop_down_edit_menu.add_command(label="Annuler", underline=0,\
-                                     command=self.application.undo)
-        drop_down_edit_menu.add_command(label="Rétablir", underline=0,\
-                                     command=self.application.redo)
-        drop_down_edit_menu.add_command(label="Copier", underline=0,\
-                                     command=self.application.copy)
-        drop_down_edit_menu.add_command(label="Coller", underline=0,\
-                                     command=self.application.paste)
-
-    def __add_groundwork_menu(self):
-        """Adding groundwork menu in the menu bar"""
-
-        groundwork_menu = tkinter.Menubutton(self.menu, text="Canevas")
-        groundwork_menu.pack(side="left")
-
-        #drop down groundwork menu
-        drop_down_groundwork_menu = tkinter.Menu(groundwork_menu)
-
-        #menu integration
-        groundwork_menu.configure(menu=drop_down_groundwork_menu)
-
-        #adding commands
-        drop_down_groundwork_menu.add_command(label="Ajouter un titre",\
-                                           underline=0,\
-                                           command=self.application.add_title)
-        drop_down_groundwork_menu.add_command(label="Ajouter un ouvrage",\
-                                           underline=0,\
-                                           command=self.application.add_work)
-        drop_down_groundwork_menu.add_command(label="Supprimer un item",\
-                                           underline=0,\
-                                           command=self.application.remove_item)
-        drop_down_groundwork_menu.add_command(label="Détail de l'ouvrage",\
-                                           underline=0,\
-                                           command=self.application.infos)
-
-class ToolBar():
-    """Creating the tool bar at the top of main window"""
-
-    def __init__(self, application, parent_gui):
-        """Creating tool bar"""
-
-        self.tools_frame = tkinter.Frame(parent_gui)
-        self.tools_frame.grid(row=1, column=0, sticky='WN', padx=5, pady=5)
-        self.application = application
-
-        self.application.image_down_arrow = tkinter.PhotoImage(file="./img/fleche_bas_24x24.png")
-        down_arrow_button = self.__add_button(self.application.image_down_arrow,\
-                                              self.application.go_down_item)
-        down_arrow_button = self.__add_button(self.application.image_down_arrow,\
-                                              self.application.go_down_item)
-        self.application.image_up_arrow = tkinter.PhotoImage(file="./img/fleche_haut_24x24.png")
-        up_arrow_button = self.__add_button(self.application.image_up_arrow,\
-                                            self.application.go_up_item)
-        self.application.image_right_arrow = tkinter.PhotoImage(file="./img/fleche_droite_24x24.png")
-        right_arrow_button = self.__add_button(self.application.image_right_arrow,\
-                                               self.application.indenting_item)
-        self.application.image_left_arrow = tkinter.PhotoImage(file="./img/fleche_gauche_24x24.png")
-        left_arrow_button = self.__add_button(self.application.image_left_arrow,\
-                                               self.application.unindent_item)
-        self.application.image_infos = tkinter.PhotoImage(file="./img/infos_24x24.png")
-        infos_button = self.__add_button(self.application.image_infos,\
-                                         self.application.infos)
-
-
-    def __add_button(self, img, comm):
-        """Adding down arrow button in the tool bar"""
-        button = tkinter.Button(self.tools_frame,\
-                                           image=img,\
-                                           height=25, width=25,\
-                                           relief='flat',\
-                                           command=comm)
-        button.pack(side='left')
-
-    def hide(self):
-        """Hide toolbar"""
-        pass
-
-    def show(self):
-        """Show toolbar"""
-        pass
 
 class ProjectTreeview(tkinter.ttk.Treeview):
     """Treeview of the project and associated methods"""
@@ -1083,9 +1068,9 @@ if __name__ == '__main__':
 # documenter et nettoyer le code
 # implementer la lecture des fichiers dxf dans l evaluation des quantites
 # voir pour creation d une pile undo/redo
-# ajouter une fonction pour connaitre l etat d enregistrement afin de proposer l enregistrement
+# ajouter une fonction pour connaitre l etat d enregistrement afin de proposer l enregistrement 
 #   avant de quitter, creer un nouveau document ou ouvrir un autre document
-# bug : lorsque qu'un nouveau fichier est créé puis enregistré sous, lors des enregistrements
+# bug : lorsque qu'un nouveau fichier est créé puis enregistré sous, lors des enregistrements 
 #   suivants c'est la fenêtre enregistrer sous qui s'ouvre, le programme ne dois pas savoir
 #   quel est le nom de fichier à enregistrer, à voir...
 # voir pour ajouter dans data.xml la possibilite d ajouter des varaintes par lot
