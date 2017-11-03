@@ -125,49 +125,52 @@ class Main():
         #Creating a new project instance of the project module
         self.project = Project(url)
         root = self.project.xml.getroot()
+        
+        #Get groundwork in xml objetc
+        groundwork = root.find("groundwork")
 
         #Creating a list of items (checking the utility)
         self.tree_project.items = []
 
         #xml file path for representation in the treeview
-        self.browse_xml_branch(root.findall("element"), "")
+        self.__browse_xml_branch(groundwork.findall("element"), "")
 
-    def browse_xml_branch(self, childrens_xml, parent_tree):
+    def __browse_xml_branch(self, childrens_xml, parent_tree):
         """browse xml file branch, when the node have childrens this
            fonction is recursive"""
 
         if childrens_xml != []:
             for children in childrens_xml:
-                if children.get("id") == "lot":
+                if children.get("id") == "batch":
                     item = self.tree_project.insert(parent_tree, "end",\
-                                                   text=children.get("name"))
+                                                   text=children.find("name").text)
                     self.tree_project.items.append(item)
-                    self.browse_xml_branch(children.findall("element"), item)
-                if children.get("id") == "chapitre":
+                    self.__browse_xml_branch(children.findall("element"), item)
+                if children.get("id") == "chapter":
                     item = self.tree_project.insert(parent_tree, "end",\
-                                                   text=children.get("name"))
+                                                   text=children.find("name").text)
                     self.tree_project.items.append(item)
-                    self.browse_xml_branch(children.findall("element"), item)
-                if children.get("id") == "ouvrage":
-                    quant = float(lib.fonctions.evalQuantite(children.get('quant')))
+                    self.__browse_xml_branch(children.findall("element"), item)
+                if children.get("id") == "work":
+                    quant = float(lib.fonctions.evalQuantite(children.find('quantity').text))
                     try:
-                        prix = float(children.get('prix'))
+                        prix = float(children.find('price').text)
                     except:
                         prix = 0.0
                     item = self.tree_project.insert(parent_tree, "end",\
-                                                   text=children.get('name'),\
-                                                   values=(children.get('descId'),\
-                                                   children.get('unite'),\
+                                                   text=children.find('name').text,\
+                                                   values=(children.find('code').text,\
+                                                   children.find('unit').text,\
                                                    quant, prix, quant*prix))
                     self.tree_project.items.append(item)
-                    work = Work(item, children.get('name'),\
-                                   children.get('status'),\
-                                   children.get('unite'),\
-                                   children.get('quant'),\
-                                   prix, children.get('descId'),\
-                                   children.get('loc'),\
-                                   children.get('tva'),\
-                                   children.get('bt'))
+                    work = Work(item, children.find('name').text,\
+                                   children.find('status').text,\
+                                   children.find('unit').text,\
+                                   children.find('quantity').text,\
+                                   prix, children.find('code').text,\
+                                   children.find('localisation').text,\
+                                   children.find('vat').text,\
+                                   children.find('index').text)
                     self.project.add_work(work)
 
     def save_project(self):
@@ -199,11 +202,12 @@ class Main():
         xml = ET.ElementTree(ET.fromstring(lib.constantes.XMLTEMPLATE))
         #to do : try to built an xml object with an addition of some another xml object
         root = xml.getroot()
-        self.browse_treeview_branch(self.tree_project.get_children(), root)
+        groundwork = root.find("groundwork")
+        self.__browse_treeview_branch(self.tree_project.get_children(), groundwork)
         lib.fonctions.indent(root)
         return xml
 
-    def browse_treeview_branch(self, childrens, parent):
+    def __browse_treeview_branch(self, childrens, parent):
         """browse treeview branch, when the node have childrens this
            fonction is recursive"""
 
@@ -212,26 +216,35 @@ class Main():
                 work = self.project.return_work(children)
                 if work is None:
                     if len(self.tree_project.parents_item(children)) != 0:
-                        node = ET.SubElement(parent, "element",\
-                                            id="chapitre",\
-                                            name=self.tree_project.item(children)['text'])
+                        node = ET.SubElement(parent, "element", id="chapter")
+                        name = ET.SubElement(node, "name")
+                        name.text = self.tree_project.item(children)['text']
                     else:
-                        node = ET.SubElement(parent, "element",\
-                                             id="lot",\
-                                             name=self.tree_project.item(children)['text'])
-                    self.browse_treeview_branch(self.tree_project.get_children(children), node)
+                        node = ET.SubElement(parent, "element", id="batch")
+                        name = ET.SubElement(node, "name")
+                        name.text = self.tree_project.item(children)['text']
+                    self.__browse_treeview_branch(self.tree_project.get_children(children), node)
                 else:
-                    node = ET.SubElement(parent, "element",\
-                                         id="ouvrage",\
-                                         name=work.name,\
-                                         status=work.status,\
-                                         unite=work.unite,\
-                                         prix=str(work.prix),\
-                                         desc_id=work.desc_id,\
-                                         loc=work.loc,\
-                                         bt=work.bt,\
-                                         quant=work.quant,\
-                                         tva=work.tva)
+                    node = ET.SubElement(parent, "element", id="work")
+                    name = ET.SubElement(node, "name")
+                    name.text = work.name
+                    code = ET.SubElement(node, "code")
+                    code.text = work.desc_id
+                    description = ET.SubElement(node, "description") # not useful at the moment
+                    localisation = ET.SubElement(node, "localisation")
+                    localisation.text = work.loc
+                    index = ET.SubElement(node, "index")
+                    index.text = work.bt
+                    price = ET.SubElement(node, "price")
+                    price.text = str(work.prix)
+                    quantity = ET.SubElement(node, "quantity")
+                    quantity.text = work.quant
+                    status = ET.SubElement(node, "status")
+                    status.text = work.status
+                    vat = ET.SubElement(node, "vat")
+                    vat.text = work.tva
+                    unit = ET.SubElement(node, "unit")
+                    unit.text = work.unite
 
     def add_title(self):
         """Adds a new title under the item that has the focus"""
@@ -427,7 +440,7 @@ class Main():
             text = item["text"]
             entry = EntryTreeview(self.tree_project,\
                                   position, text, column, select, work)
-            self.tree_project.enfants.append(entry)
+            self.tree_project.childs.append(entry)
         else:
             if column == "#1":
                 text = item["values"][0]
