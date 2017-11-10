@@ -52,8 +52,12 @@ class Main():
         self.project = Project(None)
         self.project.xml.getroot()
 
-        #initilize clipboard
+        #initialize clipboard
         self.clipboard = []
+        
+        #initialize undo/redo list
+        self.undo_list = []
+        self.redo_list = []
 
         # adding menu
         MenuBar(self, self.root)
@@ -133,31 +137,35 @@ class Main():
         self.tree_project.items = []
 
         #xml file path for representation in the treeview
-        self.__browse_xml_branch(groundwork.findall("element"), "")
+        self.__browse_xml_branch(groundwork.findall("element"), "", "end")
 
-    def __browse_xml_branch(self, childrens_xml, parent_tree):
+    def __browse_xml_branch(self, childrens_xml, parent_tree, position):
         """browse xml file branch, when the node have childrens this
            fonction is recursive"""
 
         if childrens_xml != []:
             for children in childrens_xml:
+                if position == "end":
+                    pass
+                else:
+                    position = position+1
                 if children.get("id") == "batch":
-                    item = self.tree_project.insert(parent_tree, "end",\
+                    item = self.tree_project.insert(parent_tree, position,\
                                                    text=children.find("name").text)
                     self.tree_project.items.append(item)
-                    self.__browse_xml_branch(children.findall("element"), item)
+                    self.__browse_xml_branch(children.findall("element"), item, position)
                 if children.get("id") == "chapter":
-                    item = self.tree_project.insert(parent_tree, "end",\
+                    item = self.tree_project.insert(parent_tree, position,\
                                                    text=children.find("name").text)
                     self.tree_project.items.append(item)
-                    self.__browse_xml_branch(children.findall("element"), item)
+                    self.__browse_xml_branch(children.findall("element"), item, position)
                 if children.get("id") == "work":
                     quant = float(lib.fonctions.evalQuantite(children.find('quantity').text))
                     try:
                         prix = float(children.find('price').text)
                     except:
                         prix = 0.0
-                    item = self.tree_project.insert(parent_tree, "end",\
+                    item = self.tree_project.insert(parent_tree, position,\
                                                    text=children.find('name').text,\
                                                    values=(children.find('code').text,\
                                                    children.find('unit').text,\
@@ -189,6 +197,8 @@ class Main():
 
         # update the main window title
         self.root.title("opb - %s" %(self.project.url))
+        
+        # add function for empty the undo and redo list
 
     def save_project_as(self):
         """Save project in a new zip file"""
@@ -254,6 +264,7 @@ class Main():
         position = self.tree_project.index(select)+1
         item = self.tree_project.insert(parent, position, text="_Titre_")
         self.tree_project.items.append(item)
+        self.__add_modification()
 
     def add_work(self):
         """Adds a new work under the item that has the focus"""
@@ -266,6 +277,7 @@ class Main():
         self.tree_project.items.append(item)
         work = Work(item)
         self.project.add_work(work)
+        self.__add_modification()
 
     def go_down_item(self):
         """Move down the item that has the focus when the button is
@@ -275,6 +287,7 @@ class Main():
         parent = self.tree_project.parent(select)
         position = self.tree_project.index(select)
         self.tree_project.move(select, parent, position+1)
+        self.__add_modification()
 
     def go_down_item_event(self, event):
         """Move down the item that has the focus when the Ctrl+2 is
@@ -290,6 +303,7 @@ class Main():
         parent = self.tree_project.parent(select)
         position = self.tree_project.index(select)
         self.tree_project.move(select, parent, position-1)
+        self.__add_modification()
 
     def go_up_item_event(self, event):
         """Move down the item that has the focus when the Ctrl+8 is
@@ -316,6 +330,7 @@ class Main():
                 previous = self.tree_project.prev(select)
                 previous_childrens = self.tree_project.get_children(previous)
                 self.tree_project.move(select, previous, len(previous_childrens))
+        self.__add_modification()
 
     def indenting_item_event(self, event):
         """Indenting the item that has the focus when the Ctrl+6 is
@@ -332,6 +347,7 @@ class Main():
         grand_parent = self.tree_project.parent(parent)
         position = self.tree_project.index(parent)
         self.tree_project.move(select, grand_parent, position+1)
+        self.__add_modification()
 
     def unindent_item_event(self, event):
         """Unindent the item that has the focus when the Ctrl+4 is
@@ -345,6 +361,14 @@ class Main():
         select = self.tree_project.focus()
         self.tree_project.delete(select)
         self.tree_project.items.remove(select)
+        self.__add_modification()
+    
+    def __add_modification(self):
+        """adding item in undo list and adding "*" before the root title name"""
+        
+        xml = self.groundwork_to_xml_object()
+        self.undo_list.append(xml)
+        self.root.title("*opb - %s" % (self.project.url))
 
     def undo(self):
         """To do"""
@@ -363,48 +387,19 @@ class Main():
 
         self.empty_clipboard()
         selection = self.tree_project.selection()
-        for item in selection:
-            self.clipboard.append(item)
+        xml = ET.ElementTree(ET.fromstring(lib.constantes.XMLSELECTION))
+        root = xml.getroot()
+        self.__browse_treeview_branch(self.tree_project.selection(), root)
+        self.clipboard.append(xml)
 
     def paste(self):
         """Paste the selection under the item that has the focus"""
 
         select = self.tree_project.focus()
-        self.__recursive_paste(self.clipboard, self.tree_project.parent(select),\
-                            self.tree_project.index(select)+1)
-
-    def __recursive_paste(self, childrens, parent, position):
-        """It's a recursive used to paste selection"""
-
-        if childrens != []:
-            for children in childrens:
-                work = self.project.return_work(children)
-                if work is None:
-                    item = self.tree_project.insert(parent, position,\
-                                                   text=self.tree_project.item(children)['text'])
-                    self.tree_project.items.append(item)
-                    self.__recursive_paste(self.tree_project.get_children(children), item, "end")
-                else:
-                    quant = float(lib.fonctions.evalQuantite(work.quant))
-                    try:
-                        prix = float(work.prix)
-                    except:
-                        prix = 0.0
-                    item = self.tree_project.insert(parent, position, text=work.name,\
-                                                   values=(work.desc_id,\
-                                                           work.unite,\
-                                                           quant, prix, quant*prix))
-                    self.tree_project.items.append(item)
-                    new_work = Work(item, work.name,\
-                                         work.status,\
-                                         work.unite,\
-                                         work.quant,\
-                                         work.prix,\
-                                         work.desc_id,\
-                                         work.loc,\
-                                         work.tva,\
-                                         work.bt)
-                    self.project.add_work(new_work)
+        xml = self.clipboard[0]
+        self.__browse_xml_branch(xml.findall("element"), self.tree_project.parent(select),\
+                            self.tree_project.index(select))
+        self.__add_modification()
 
     def empty_clipboard(self):
         """Empty the clipboard, it's used before adding a new selection"""
@@ -756,6 +751,7 @@ class EntryTreeview(tkinter.Entry):
                 except:
                     tkinter.messagebox.showwarning("Erreur de saisie",\
                                                    "La valeur saisie doit être un nombre")
+        self.__add_modification()
         self.destroy()
 
 if __name__ == '__main__':
