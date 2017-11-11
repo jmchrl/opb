@@ -359,16 +359,20 @@ class DialogSaveBeforeClose(tkinter.Toplevel):
         self.parent_gui = parent_gui
         
         tkinter.Toplevel.__init__(self, self.parent_gui)
+        print(self.parent_gui.winfo_width)
         self.resizable(width=False, height=False)
+        self.transient(self.master) # for not creating a new icon in the loading bar
+        self.title("Sauvegarde du projet...")
 
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
 
-        label = tkinter.Label(self, text="Voulez-vous sauvegarder les modifications apportées au projet avant de quitter l'application ?",\
+        label = tkinter.Label(self, text="Voulez-vous sauvegarder les modifications apportées \nau projet avant de quitter l'application ?",\
                               justify="center")
-        label.grid(row=0, column=0, sticky="WNES", padx=5, pady=5)
+        label.grid(row=0, column=0, sticky="WNES", padx=10, pady=10)
+        label.configure(font="TkHeadingFont")
 
-        bottom_frame = tkinter.Frame(self, padx=2, pady=2)
+        bottom_frame = tkinter.Frame(self, padx=10, pady=10)
         bottom_frame.grid(row=1, column=0, sticky="EW")
 
         button_yes = tkinter.Button(bottom_frame, text="Oui",\

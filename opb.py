@@ -44,7 +44,8 @@ class Main():
         self.root.wm_iconphoto(True, tkinter.PhotoImage(file="./img/icone.png"))
 
         #to make the window stretchable
-        self.root.geometry("1500x900+20+20")
+        self.root.geometry("1500x800+100+100")
+        self.root.minsize(width=1500, height=800)
         self.root.rowconfigure(2, weight=1)
         self.root.columnconfigure(0, weight=1)
 
@@ -478,9 +479,13 @@ class MenuBar():
     def __init__(self, application, parent_gui):
         """Creating menu bar"""
 
-        self.menu = tkinter.Frame(parent_gui, borderwidth=2)
-        self.menu.grid(row=0, column=0, sticky="WE", padx=5, pady=5)
+        #self.menu = tkinter.Frame(parent_gui, borderwidth=2)
+        #self.menu.grid(row=0, column=0, sticky="WE", padx=5, pady=5)
+        self.parent_gui = parent_gui
         self.application = application
+        self.menu_bar = tkinter.Menu(self.parent_gui)
+        self.menu_bar.configure(relief="flat")
+        self.parent_gui.config(menu=self.menu_bar)
         self.__add_file_menu()
         self.__add_edit_menu()
         self.__add_groundwork_menu()
@@ -488,14 +493,8 @@ class MenuBar():
     def __add_file_menu(self):
         """Adding file menu in the menu bar"""
 
-        file_menu = tkinter.Menubutton(self.menu, text="Fichier")
-        file_menu.pack(side="left")
-
         #drop down file menu
-        drop_down_file_menu = tkinter.Menu(file_menu)
-
-        #menu integration
-        file_menu.configure(menu=drop_down_file_menu)
+        drop_down_file_menu = tkinter.Menu(self.menu_bar)
 
         #adding commands
         drop_down_file_menu.add_command(label="Nouveau",\
@@ -504,49 +503,46 @@ class MenuBar():
         drop_down_file_menu.add_command(label="Ouvrir",\
                                      underline=0,\
                                      command=self.application.open_project)
+        drop_down_file_menu.add_separator()
         drop_down_file_menu.add_command(label="Enregister",\
                                       underline=0,\
                                       command=self.application.save_project)
         drop_down_file_menu.add_command(label="Enregister Sous",\
                                      underline=0,\
                                      command=self.application.save_project_as)
+        drop_down_file_menu.add_separator()
         drop_down_file_menu.add_command(label="Quitter",\
                                      underline=0,\
                                      command=self.application.close)
 
+        #adding the drop_down_file_menu to the menu bar
+        self.menu_bar.add_cascade(label="Fichier", menu=drop_down_file_menu)
+
     def __add_edit_menu(self):
         """Adding edit menu in the menu bar"""
 
-        edit_menu = tkinter.Menubutton(self.menu, text="Edition")
-        edit_menu.pack(side="left")
-
         #drop down edit menu
-        drop_down_edit_menu = tkinter.Menu(edit_menu)
-
-        #menu integration
-        edit_menu.configure(menu=drop_down_edit_menu)
+        drop_down_edit_menu = tkinter.Menu(self.menu_bar)
 
         #adding commands
         drop_down_edit_menu.add_command(label="Annuler", underline=0,\
                                      command=self.application.undo)
         drop_down_edit_menu.add_command(label="Rétablir", underline=0,\
                                      command=self.application.redo)
+        drop_down_edit_menu.add_separator()
         drop_down_edit_menu.add_command(label="Copier", underline=0,\
                                      command=self.application.copy)
         drop_down_edit_menu.add_command(label="Coller", underline=0,\
                                      command=self.application.paste)
 
+        #adding the drop_down_edit_menu to the menu bar
+        self.menu_bar.add_cascade(label="Edition", menu=drop_down_edit_menu)
+
     def __add_groundwork_menu(self):
         """Adding groundwork menu in the menu bar"""
 
-        groundwork_menu = tkinter.Menubutton(self.menu, text="Canevas")
-        groundwork_menu.pack(side="left")
-
         #drop down groundwork menu
-        drop_down_groundwork_menu = tkinter.Menu(groundwork_menu)
-
-        #menu integration
-        groundwork_menu.configure(menu=drop_down_groundwork_menu)
+        drop_down_groundwork_menu = tkinter.Menu(self.menu_bar)
 
         #adding commands
         drop_down_groundwork_menu.add_command(label="Ajouter un titre",\
@@ -561,6 +557,9 @@ class MenuBar():
         drop_down_groundwork_menu.add_command(label="Détail de l'ouvrage",\
                                            underline=0,\
                                            command=self.application.infos)
+
+        #adding the drop_down_groundwork_menu to the menu bar
+        self.menu_bar.add_cascade(label="Canevas", menu=drop_down_groundwork_menu)
 
 class ToolBar():
     """Creating the tool bar at the top of main window"""
