@@ -30,7 +30,7 @@ import tkinter.messagebox
 from lib.project import Project, Work
 import lib.fonctions
 import lib.constantes
-import gui.work_info_dialog
+import gui.main_dialogs
 
 
 class Main():
@@ -58,6 +58,9 @@ class Main():
         #initialize undo/redo list
         self.undo_list = []
         self.redo_list = []
+        
+        # initialize flag modification
+        self.modification_flag = False
 
         # adding menu
         MenuBar(self, self.root)
@@ -199,12 +202,21 @@ class Main():
         self.root.title("opb - %s" %(self.project.url))
         
         # add function for empty the undo and redo list
+        self.modification_flag = False
 
     def save_project_as(self):
         """Save project in a new zip file"""
 
         self.project.url = None
         self.save_project()
+    
+    def close(self):
+        """Close the application and propose to save the changes"""
+        
+        if self.modification_flag == True:
+            gui.main_dialogs.DialogSaveBeforeClose(self, self.root)
+        else:
+            self.root.destroy()
 
     def groundwork_to_xml_object(self):
         """Create an image of the treeview to an xml object"""
@@ -368,7 +380,9 @@ class Main():
         
         xml = self.groundwork_to_xml_object()
         self.undo_list.append(xml)
-        self.root.title("*opb - %s" % (self.project.url))
+        if self.modification_flag == False:
+            self.modification_flag = True
+            self.root.title("*opb - %s" % (self.project.url))
 
     def undo(self):
         """To do"""
@@ -415,7 +429,7 @@ class Main():
         if work is None:
             pass
         else:
-            gui.work_info_dialog.DialogWorkInfos(self.tree_project, select, self.project, work)
+            gui.main_dialogs.DialogWorkInfos(self.tree_project, select, self.project, work)
 
     def widget_for_editing_treeview(self, event):
         """Positioning an entry on the treeview to modify a value or
@@ -496,6 +510,9 @@ class MenuBar():
         drop_down_file_menu.add_command(label="Enregister Sous",\
                                      underline=0,\
                                      command=self.application.save_project_as)
+        drop_down_file_menu.add_command(label="Quitter",\
+                                     underline=0,\
+                                     command=self.application.close)
 
     def __add_edit_menu(self):
         """Adding edit menu in the menu bar"""

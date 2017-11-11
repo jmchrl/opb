@@ -144,7 +144,6 @@ class DialogWorkInfos(tkinter.Toplevel):
 
         self.destroy()
 
-
 class DescDialog(tkinter.Frame):
     """Class to edit description and infos of work"""
 
@@ -293,8 +292,6 @@ class DescDialog(tkinter.Frame):
                               +self.text_var_id.get()\
                               +".odt"))
 
-
-
 class DialogQt(tkinter.Frame):
     """Class for editing quantity of work"""
 
@@ -351,3 +348,48 @@ class DialogQt(tkinter.Frame):
             quantite = quantite + "%s$" %(line)
         total = lib.fonctions.evalQuantite(quantite)
         self.text_var.set("Total = %s %s" % (total, self.work.unite))
+
+class DialogSaveBeforeClose(tkinter.Toplevel):
+    """Dialog for propose to save the project before closing application"""
+
+    def __init__(self, application, parent_gui):
+        """Initialize dialog"""
+
+        self.application = application # It's the application
+        self.parent_gui = parent_gui
+        
+        tkinter.Toplevel.__init__(self, self.parent_gui)
+        self.resizable(width=False, height=False)
+
+        self.rowconfigure(0, weight=1)
+        self.columnconfigure(0, weight=1)
+
+        label = tkinter.Label(self, text="Voulez-vous sauvegarder les modifications apportées au projet avant de quitter l'application ?",\
+                              justify="center")
+        label.grid(row=0, column=0, sticky="WNES", padx=5, pady=5)
+
+        bottom_frame = tkinter.Frame(self, padx=2, pady=2)
+        bottom_frame.grid(row=1, column=0, sticky="EW")
+
+        button_yes = tkinter.Button(bottom_frame, text="Oui",\
+                                        height=1, width=10,\
+                                        command=self.yes)
+        button_yes.pack(side="right")
+
+        button_no = tkinter.Button(bottom_frame, text="Non",\
+                                      height=1, width=10,\
+                                      command=self.no)
+        button_no.pack(side="right")
+
+    def yes(self):
+        """Save application and destroy fenêtre"""
+
+        self.application.save_project()
+        self.destroy()
+        self.parent_gui.destroy()
+
+    def no(self):
+        """Close the dialog"""
+
+        self.destroy()
+        self.parent_gui.destroy()
