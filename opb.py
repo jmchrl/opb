@@ -124,7 +124,7 @@ class Main():
         self.project.xml.getroot()
         self.tree_project.reset_treeview()
         self.root.title("opb - sans nom")
-        self.__add_modification()
+        self.add_modification()
 
     def open_project(self):
         """Open zip file, create a new project instance and transcript
@@ -140,7 +140,7 @@ class Main():
         root = self.project.xml.getroot()
         #Refreshing treeview
         self.__refreshing_treeview(root)
-        self.__add_modification()
+        self.add_modification()
 
     def __refreshing_treeview(self, xml):
         """Refreshing the treevieew when open_project or undo/redo methods are used"""
@@ -238,7 +238,7 @@ class Main():
         """Close the application and propose to save the changes"""
 
         if self.modifications_dictionary['flag'] is True:
-            gui.main_dialogs.DialogSaveBeforeClose(self, self.root)
+            gui.main_dialogs.DialogSaveBeforeClose(self)
         else:
             self.root.destroy()
 
@@ -306,7 +306,7 @@ class Main():
         position = self.tree_project.index(select)+1
         item = self.tree_project.insert(parent, position, text="_Titre_")
         self.tree_project.items.append(item)
-        self.__add_modification()
+        self.add_modification()
 
     def add_work(self):
         """Adds a new work under the item that has the focus"""
@@ -319,7 +319,7 @@ class Main():
         self.tree_project.items.append(item)
         work = Work(item)
         self.project.add_work(work)
-        self.__add_modification()
+        self.add_modification()
 
     def go_down_item(self):
         """Move down the item that has the focus when the button is
@@ -329,7 +329,7 @@ class Main():
         parent = self.tree_project.parent(select)
         position = self.tree_project.index(select)
         self.tree_project.move(select, parent, position+1)
-        self.__add_modification()
+        self.add_modification()
 
     def go_down_item_event(self, event):
         """Move down the item that has the focus when the Ctrl+2 is
@@ -345,7 +345,7 @@ class Main():
         parent = self.tree_project.parent(select)
         position = self.tree_project.index(select)
         self.tree_project.move(select, parent, position-1)
-        self.__add_modification()
+        self.add_modification()
 
     def go_up_item_event(self, event):
         """Move down the item that has the focus when the Ctrl+8 is
@@ -372,7 +372,7 @@ class Main():
                 previous = self.tree_project.prev(select)
                 previous_childrens = self.tree_project.get_children(previous)
                 self.tree_project.move(select, previous, len(previous_childrens))
-        self.__add_modification()
+        self.add_modification()
 
     def indenting_item_event(self, event):
         """Indenting the item that has the focus when the Ctrl+6 is
@@ -389,7 +389,7 @@ class Main():
         grand_parent = self.tree_project.parent(parent)
         position = self.tree_project.index(parent)
         self.tree_project.move(select, grand_parent, position+1)
-        self.__add_modification()
+        self.add_modification()
 
     def unindent_item_event(self, event):
         """Unindent the item that has the focus when the Ctrl+4 is
@@ -403,9 +403,9 @@ class Main():
         select = self.tree_project.focus()
         self.tree_project.delete(select)
         self.tree_project.items.remove(select)
-        self.__add_modification()
+        self.add_modification()
 
-    def __add_modification(self):
+    def add_modification(self):
         """adding item in undo list and adding "*" before the root title name"""
 
         xml = self.groundwork_to_xml_object()
@@ -452,7 +452,7 @@ class Main():
         xml = self.clipboard[0]
         self.__browse_xml_branch(xml.findall("element"), self.tree_project.parent(select),\
                             self.tree_project.index(select))
-        self.__add_modification()
+        self.add_modification()
 
     def empty_clipboard(self):
         """Empty the clipboard, it's used before adding a new selection"""
@@ -476,7 +476,7 @@ class Main():
         if work is None:
             pass
         else:
-            gui.main_dialogs.DialogWorkInfos(self.tree_project, select, self.project, work)
+            gui.main_dialogs.DialogWorkInfos(self, select, self.project, work)
 
     def widget_for_editing_treeview(self, event):
         """Positioning an entry on the treeview to modify a value or
@@ -494,32 +494,27 @@ class Main():
         work = self.project.return_work(select)
         if column == "#0":
             text = item["text"]
-            entry = EntryTreeview(self.tree_project,\
-                                  position, text, column, select, work)
+            entry = EntryTreeview(self, text, column)
             self.tree_project.childs.append(entry)
         else:
             if column == "#1":
                 text = item["values"][0]
-                entry = EntryTreeview(self.tree_project,\
-                                      position, text, column, select, work)
+                entry = EntryTreeview(self, text, column)
                 self.tree_project.childs.append(entry)
             if column == "#2":
                 text = item["values"][1]
-                entry = EntryTreeview(self.tree_project,\
-                                      position, text, column, select, work)
+                entry = EntryTreeview(self, text, column)
                 self.tree_project.childs.append(entry)
             if column == "#3":
                 text = item["values"][2]
-                entry = EntryTreeview(self.tree_project,\
-                                      position, text, column, select, work)
+                entry = EntryTreeview(self, text, column)
                 self.tree_project.childs.append(entry)
             if column == "#4":
                 text = item["values"][3]
-                entry = EntryTreeview(self.tree_project,\
-                                      position, text, column, select, work)
+                entry = EntryTreeview(self, text, column)
                 self.tree_project.childs.append(entry)
 
-class MenuBar():
+class MenuBar(object):
     """Creating the menu bar at the top of main window"""
 
     def __init__(self, application, parent_gui):
@@ -741,20 +736,21 @@ class DataBaseTreeview(tkinter.ttk.Treeview):
 class EntryTreeview(tkinter.Entry):
     """Creating entry in a treeview line for editing"""
 
-    def __init__(self, parent, position, text, column, select, work):
+    def __init__(self, application, text, column):
         """Initialize treeview"""
 
-        self.parent = parent
+        self.application = application
         self.column = column
-        self.select = select
+        self.select = application.tree_project.focus()
+        self.position = application.tree_project.bbox(self.select, column=self.column)
+        self.work = application.project.return_work(self.select)
         self.text_var = tkinter.StringVar()
         self.text_var.set(text)
-        self.work = work
 
-        tkinter.Entry.__init__(self, self.parent,\
+        tkinter.Entry.__init__(self, self.application.tree_project,\
                                textvariable=self.text_var, selectborderwidth=2)
-        self.place(x=position[0], y=position[1],\
-                   width=position[2], height=position[3])
+        self.place(x=self.position[0], y=self.position[1],\
+                   width=self.position[2], height=self.position[3])
 
         self.bind("<Return>", self.update_item)
         self.bind("<KP_Enter>", self.update_item)
@@ -764,46 +760,51 @@ class EntryTreeview(tkinter.Entry):
 
         value = self.text_var.get()
         if self.column == "#0":
-            self.parent.item(self.select, text=value)
+            self.application.tree_project.item(self.select, text=value)
             if self.work != None:
                 self.work.name = value
         else:
             if self.column == "#1":
-                self.parent.set(self.select,\
-                                column=self.column, value=value)
+                self.application.tree_project.set(self.select,\
+                                                  column=self.column, value=value)
                 if self.work != None:
                     self.work.desc_id = value
             if self.column == "#2":
-                self.parent.set(self.select,\
-                                column=self.column, value=value)
+                self.application.tree_project.set(self.select,\
+                                                  column=self.column, value=value)
                 if self.work != None:
                     self.work.unite = value
             if self.column == "#3":
                 try:
                     value = float(value)
-                    self.parent.set(self.select,\
-                                    column=self.column, value=value)
+                    self.application.tree_project.set(self.select,\
+                                                      column=self.column, value=value)
                     if self.work != None:
                         self.work.quant = str(value)
-                    self.parent.set(self.select,\
-                                    column="#5",\
-                                    value=value * float(self.parent.item(self.select)['values'][3]))
+                    self.application.tree_project.set(self.select,\
+                                                      column="#5",\
+                                                      value=\
+                                                      value *\
+                                                      float(self.parent.item(self.select)['values'][3]))
                 except:
                     tkinter.messagebox.showwarning("Erreur de saisie",\
                                                    "La valeur saisie doit être un nombre")
             if self.column == "#4":
                 try:
                     value = float(value)
-                    self.parent.set(self.select,\
-                                    column=self.column, value=value)
+                    self.application.tree_project.set(self.select,\
+                                                      column=self.column, value=value)
                     if self.work != None:
                         self.work.prix = value
-                    self.parent.set(self.select,\
-                                    column="#5",\
-                                    value=value * float(self.parent.item(self.select)['values'][2]))
+                    self.application.tree_project.set(self.select,\
+                                                      column="#5",\
+                                                      value=\
+                                                      value *\
+                                                      float(self.parent.item(self.select)['values'][2]))
                 except ValueError:
                     tkinter.messagebox.showwarning("Erreur de saisie",\
                                                    "La valeur saisie doit être un nombre")
+        self.application.add_modification()
         self.destroy()
 
 if __name__ == '__main__':
@@ -825,7 +826,6 @@ if __name__ == '__main__':
 # voir pour ajouter dans data.xml le coefficient de marge pour les estimations
 # voir pour fichier base de donnee configuration de l application
 # rendre impossible l'indentation d'un titre après un ouvrage
-# voir pour annulation des modifications dans entry treeview
 # voir pour modification d'items multiples
 
 

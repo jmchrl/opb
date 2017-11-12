@@ -33,12 +33,12 @@ import lib.constantes
 class DialogWorkInfos(tkinter.Toplevel):
     """Dialog for edit and update work"""
 
-    def __init__(self, parent, index_item, project, work):
+    def __init__(self, app, index_item, project, work):
         """Initialize dialog"""
 
         self.project = project
         self.work = work
-        self.parent = parent # It's the treeview
+        self.parent = app.tree_project # It's the treeview
         self.index_item = index_item #It's the index of the item selected in the treeview
 
         tkinter.Toplevel.__init__(self, self.parent)
@@ -352,14 +352,12 @@ class DialogQt(tkinter.Frame):
 class DialogSaveBeforeClose(tkinter.Toplevel):
     """Dialog for propose to save the project before closing application"""
 
-    def __init__(self, application, parent_gui):
+    def __init__(self, application):
         """Initialize dialog"""
 
         self.application = application # It's the application
-        self.parent_gui = parent_gui
         
-        tkinter.Toplevel.__init__(self, self.parent_gui)
-        print(self.parent_gui.winfo_width)
+        tkinter.Toplevel.__init__(self, self.application.root)
         self.resizable(width=False, height=False)
         self.transient(self.master) # for not creating a new icon in the loading bar
         self.title("Sauvegarde du projet...")
@@ -390,10 +388,10 @@ class DialogSaveBeforeClose(tkinter.Toplevel):
 
         self.application.save_project()
         self.destroy()
-        self.parent_gui.destroy()
+        self.application.root.destroy()
 
     def no(self):
         """Close the dialog"""
 
         self.destroy()
-        self.parent_gui.destroy()
+        self.application.root.destroy()
