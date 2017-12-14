@@ -24,17 +24,18 @@
 This is the main module of the application.
 """
 
+import os
+import shutil
+import zipfile
 import xml.etree.ElementTree as ET
 import tkinter
 import tkinter.ttk
 import tkinter.filedialog
 import tkinter.messagebox
 
-from lib.project import Project, Work
 import lib.fonctions
 import lib.constantes
 import gui.main_dialogs
-
 
 class Main():
     """Main window class"""
@@ -54,7 +55,7 @@ class Main():
 
         #by default creating a new project
         self.project = Project(None)
-        self.project.xml.getroot()
+        self.project.data.getroot()
 
         #initialize clipboard
         self.clipboard = []
@@ -83,17 +84,17 @@ class Main():
         tree_frame.columnconfigure(0, weight=1)
 
         #adding treeview project
-        self.tree_project = ProjectTreeview(tree_frame)
+        self.tree_project = ProjectTreeview(self, tree_frame)
 
         #to make the treeview stretchable on the entire window
         self.tree_project.grid(row=0, column=0, sticky='WENS')
 
         #connect functions to events
-        self.tree_project.bind("<Double-Button-1>", self.widget_for_editing_treeview)
-        self.tree_project.bind("<Control-KeyPress-KP_8>", self.go_up_item_event)
-        self.tree_project.bind("<Control-KeyPress-KP_2>", self.go_down_item_event)
-        self.tree_project.bind("<Control-KeyPress-KP_6>", self.indenting_item_event)
-        self.tree_project.bind("<Control-KeyPress-KP_4>", self.unindent_item_event)
+        self.tree_project.bind("<Double-Button-1>", self.__widget_for_editing_treeview)
+        self.tree_project.bind("<Control-KeyPress-KP_8>", self.__go_up_item_event)
+        self.tree_project.bind("<Control-KeyPress-KP_2>", self.__go_down_item_event)
+        self.tree_project.bind("<Control-KeyPress-KP_6>", self.__indenting_item_event)
+        self.tree_project.bind("<Control-KeyPress-KP_4>", self.__unindent_item_event)
 
         #####################
         # database treeview #
@@ -119,39 +120,28 @@ class Main():
         """Create a new project instance and set the main windows title"""
 
         if self.modifications_dictionary['flag'] is True:
-            gui.main_dialogs.DialogSaveBeforeClose(self, self.root)
-        self.project = Project(None)
-        self.project.xml.getroot()
-        self.tree_project.reset_treeview()
-        self.root.title("opb - sans nom")
-        self.add_modification()
+            gui.main_dialogs.DialogSaveBeforeClose(self, "new_project")
+        else:
+            self.project = Project(None)
+            root = self.project.data.getroot()
+            self.tree_project.refresh(self, root)
+            self.root.title("opb - sans nom")
 
     def open_project(self):
         """Open zip file, create a new project instance and transcript
            data.xml file in the treeview"""
 
         if self.modifications_dictionary['flag'] is True:
-            gui.main_dialogs.DialogSaveBeforeClose(self, self.root)
-        url = tkinter.filedialog.askopenfilename(filetypes=[('Fichier zip', '*.zip')],\
-                                                 title="Fichier de sauvegarde ...")
-        self.root.title("opb - %s" %(url))
-        #Creating a new project instance of the project module
-        self.project = Project(url)
-        root = self.project.xml.getroot()
-        #Refreshing treeview
-        self.__refreshing_treeview(root)
-        self.add_modification()
-
-    def __refreshing_treeview(self, xml):
-        """Refreshing the treevieew when open_project or undo/redo methods are used"""
-
-        self.tree_project.reset_treeview()
-        #Get groundwork in xml objetc
-        groundwork = xml.find("groundwork")
-        #Creating a list of items (checking the utility)
-        self.tree_project.items = []
-        #xml file path for representation in the treeview
-        self.__browse_xml_branch(groundwork.findall("element"), "", "end")
+            gui.main_dialogs.DialogSaveBeforeClose(self, "open_project")
+        else:
+            url = tkinter.filedialog.askopenfilename(filetypes=[('Fichier zip', '*.zip')],\
+                                                     title="Ouvrir un fichier ...")
+            self.root.title("opb - %s" %(url))
+            #Creating a new project instance of the project module
+            self.project = Project(url)
+            root = self.project.data.getroot()
+            #Refreshing treeview
+            self.tree_project.refresh(self, root)
 
     def __browse_xml_branch(self, childrens_xml, parent_tree, position):
         """browse xml file branch, when the node have childrens this
@@ -187,10 +177,7 @@ class Main():
                     self.__browse_xml_branch(children.findall("element"), item, position)
                 if children.get("id") == "work":
                     quant = float(lib.fonctions.evalQuantite(children.find('quantity').text))
-                    try:
-                        prix = float(children.find('price').text)
-                    except:
-                        prix = 0.0
+                    prix = float(children.find('price').text)
                     item = self.tree_project.insert(parent_tree, position,\
                                                    text=children.find('name').text,\
                                                    values=(children.find('code').text,\
@@ -216,7 +203,7 @@ class Main():
                                title="Fichier de sauvegarde ...")
 
         # update project xml file
-        self.project.xml = self.groundwork_to_xml_object()
+        self.project.data = self.__groundwork_to_xml_object()
 
         # create or update the backup zip file
         self.project.saveZip()
@@ -225,7 +212,7 @@ class Main():
         self.root.title("opb - %s" %(self.project.url))
 
         # add function for empty the undo and redo list
-        self.empty_undo_redo_lists()
+        self.__empty_undo_redo_lists()
         self.modifications_dictionary['flag'] = False
 
     def save_project_as(self):
@@ -238,11 +225,11 @@ class Main():
         """Close the application and propose to save the changes"""
 
         if self.modifications_dictionary['flag'] is True:
-            gui.main_dialogs.DialogSaveBeforeClose(self)
+            gui.main_dialogs.DialogSaveBeforeClose(self, "close")
         else:
             self.root.destroy()
 
-    def groundwork_to_xml_object(self):
+    def __groundwork_to_xml_object(self):
         """Create an image of the treeview to an xml object"""
 
         xml = ET.ElementTree(ET.fromstring(lib.constantes.XMLTEMPLATE))
@@ -331,7 +318,7 @@ class Main():
         self.tree_project.move(select, parent, position+1)
         self.add_modification()
 
-    def go_down_item_event(self, event):
+    def __go_down_item_event(self, event):
         """Move down the item that has the focus when the Ctrl+2 is
            pressed"""
 
@@ -347,7 +334,7 @@ class Main():
         self.tree_project.move(select, parent, position-1)
         self.add_modification()
 
-    def go_up_item_event(self, event):
+    def __go_up_item_event(self, event):
         """Move down the item that has the focus when the Ctrl+8 is
            pressed"""
 
@@ -374,7 +361,7 @@ class Main():
                 self.tree_project.move(select, previous, len(previous_childrens))
         self.add_modification()
 
-    def indenting_item_event(self, event):
+    def __indenting_item_event(self, event):
         """Indenting the item that has the focus when the Ctrl+6 is
            pressed"""
 
@@ -391,7 +378,7 @@ class Main():
         self.tree_project.move(select, grand_parent, position+1)
         self.add_modification()
 
-    def unindent_item_event(self, event):
+    def __unindent_item_event(self, event):
         """Unindent the item that has the focus when the Ctrl+4 is
            pressed"""
 
@@ -408,7 +395,7 @@ class Main():
     def add_modification(self):
         """adding item in undo list and adding "*" before the root title name"""
 
-        xml = self.groundwork_to_xml_object()
+        xml = self.__groundwork_to_xml_object()
         self.modifications_dictionary['undo'].append(xml)
         if self.modifications_dictionary['flag'] is False:
             self.modifications_dictionary['flag'] = True
@@ -423,23 +410,23 @@ class Main():
             xml_restored = self.modifications_dictionary['undo'][_id-1]
             self.modifications_dictionary['redo'].append(xml_cancelded)
             del self.modifications_dictionary['undo'][_id]
-            self.__refreshing_treeview(xml_restored)
+            self.tree_project.refresh(self, xml_restored)
         except IndexError:
             print("Annulation not possible : the undo list is empty")
 
     def redo(self):
         """To do"""
-        
+
         _id = len(self.modifications_dictionary['redo'])-1
         xml_restored = self.modifications_dictionary['redo'][_id]
         self.modifications_dictionary['undo'].append(xml_restored)
         del self.modifications_dictionary['redo'][_id]
-        self.__refreshing_treeview(xml_restored)
+        self.tree_project.refresh(self, xml_restored)
 
     def copy(self):
         """Adding the selection in the clipboard"""
 
-        self.empty_clipboard()
+        self.__empty_clipboard()
         xml = ET.ElementTree(ET.fromstring(lib.constantes.XMLSELECTION))
         root = xml.getroot()
         self.__browse_treeview_branch(self.tree_project.selection(), root)
@@ -454,13 +441,13 @@ class Main():
                             self.tree_project.index(select))
         self.add_modification()
 
-    def empty_clipboard(self):
+    def __empty_clipboard(self):
         """Empty the clipboard, it's used before adding a new selection"""
 
         while len(self.clipboard) != 0:
             del self.clipboard[len(self.clipboard)-1]
 
-    def empty_undo_redo_lists(self):
+    def __empty_undo_redo_lists(self):
         """Empty the undo and redo list when the project was saved"""
 
         while len(self.modifications_dictionary['undo']) != 0:
@@ -478,7 +465,7 @@ class Main():
         else:
             gui.main_dialogs.DialogWorkInfos(self, select, self.project, work)
 
-    def widget_for_editing_treeview(self, event):
+    def __widget_for_editing_treeview(self, event):
         """Positioning an entry on the treeview to modify a value or
            creating a dialog to modify the quantity column"""
 
@@ -490,8 +477,6 @@ class Main():
         select = self.tree_project.focus()
         item = self.tree_project.item(select)
         column = self.tree_project.identify_column(event.x)
-        position = self.tree_project.bbox(select, column=column)
-        work = self.project.return_work(select)
         if column == "#0":
             text = item["text"]
             entry = EntryTreeview(self, text, column)
@@ -642,13 +627,14 @@ class ToolBar():
 class ProjectTreeview(tkinter.ttk.Treeview):
     """Treeview of the project and associated methods"""
 
-    def __init__(self, parent_gui):
+    def __init__(self, application, parent_gui):
         """Initialize treeview"""
 
         tkinter.ttk.Treeview.__init__(self, parent_gui)
 
         self.childs = []
         self.items = []
+        self.application = application
 
         self["columns"] = ("IdCCTP", "U", "Q", "PU", "PT")
         self.column("#1", width=150, stretch=False)
@@ -662,16 +648,69 @@ class ProjectTreeview(tkinter.ttk.Treeview):
         self.heading("#3", text="Q")
         self.heading("#4", text="PU")
         self.heading("#5", text="PT")
+    
+    def refresh(self, application, xml):
+        """Refreshing treeview before loading a new project or  undo/redo instance"""
+        
+        for item in self.get_children():
+            self.delete(item)
+        #Get groundwork in xml object
+        #xml = application.project.xml.getroot()
+        groundwork = xml.find("groundwork")
+        #xml file path for representation in the treeview
+        self.__browse_xml_branch(groundwork.findall("element"), "", "end")
+        
+    
+    def __browse_xml_branch(self, childrens_xml, parent_node, position):
+        """browse xml file branch, when the node have childrens this
+           fonction is recursive"""
 
-    def reset_treeview(self):
-        """Reset treeview before loading a new project"""
-
-        if self.items is not []:
-            for item in self.items:
-                try:
-                    self.delete(item)
-                except:
+        if childrens_xml != []:
+            for children in childrens_xml:
+                if position == "end":
                     pass
+                else:
+                    position = position+1
+                if children.get("id") == "batch":
+                    if children.get("open") == "true":
+                        item = self.application.tree_project.insert(parent_node, position,\
+                                                        text=children.find("name").text,\
+                                                        open=True)
+                    else:
+                        item = self.application.tree_project.insert(parent_node, position,\
+                                                        text=children.find("name").text,\
+                                                        open=False)
+                    self.application.tree_project.items.append(item)
+                    self.__browse_xml_branch(children.findall("element"), item, position)
+                if children.get("id") == "chapter":
+                    if children.get("open") == "true":
+                        item = self.application.tree_project.insert(parent_node, position,\
+                                                        text=children.find("name").text,\
+                                                        open=True)
+                    else:
+                        item = self.application.tree_project.insert(parent_node, position,\
+                                                        text=children.find("name").text,\
+                                                        open=False)
+                    self.application.tree_project.items.append(item)
+                    self.__browse_xml_branch(children.findall("element"), item, position)
+                if children.get("id") == "work":
+                    quant = float(lib.fonctions.evalQuantite(children.find('quantity').text))
+                    prix = float(children.find('price').text)
+                    item = self.application.tree_project.insert(parent_node, position,\
+                                                   text=children.find('name').text,\
+                                                   values=(children.find('code').text,\
+                                                   children.find('unit').text,\
+                                                   quant, prix, quant*prix))
+                    work = Work(item, children.find('name').text,\
+                                   children.find('status').text,\
+                                   children.find('unit').text,\
+                                   children.find('quantity').text,\
+                                   prix, children.find('code').text,\
+                                   children.find('localisation').text,\
+                                   children.find('vat').text,\
+                                   children.find('index').text)
+                    self.application.project.add_work(work)
+        
 
     def parents_item(self, select=None):
         """Returns the parent list of a selected item"""
@@ -763,49 +802,140 @@ class EntryTreeview(tkinter.Entry):
             self.application.tree_project.item(self.select, text=value)
             if self.work != None:
                 self.work.name = value
-        else:
-            if self.column == "#1":
+        if self.column == "#1":
+            self.application.tree_project.set(self.select,\
+                                              column=self.column, value=value)
+            if self.work != None:
+                self.work.desc_id = value
+        if self.column == "#2":
+            self.application.tree_project.set(self.select,\
+                                              column=self.column, value=value)
+            if self.work != None:
+                self.work.unite = value
+        if self.column == "#3":
+            try:
+                value = float(value)
                 self.application.tree_project.set(self.select,\
                                                   column=self.column, value=value)
                 if self.work != None:
-                    self.work.desc_id = value
-            if self.column == "#2":
+                    self.work.quant = str(value)
+                self.application.tree_project.set(self.select,\
+                                                  column="#5",\
+                                                  value=\
+                                                  value *\
+                                                  float(self.application.tree_project.item(self.select)['values'][3]))
+            except ValueError:
+                tkinter.messagebox.showwarning("Erreur de saisie",\
+                                               "La valeur saisie doit être un nombre")
+        if self.column == "#4":
+            try:
+                value = float(value)
                 self.application.tree_project.set(self.select,\
                                                   column=self.column, value=value)
                 if self.work != None:
-                    self.work.unite = value
-            if self.column == "#3":
-                try:
-                    value = float(value)
-                    self.application.tree_project.set(self.select,\
-                                                      column=self.column, value=value)
-                    if self.work != None:
-                        self.work.quant = str(value)
-                    self.application.tree_project.set(self.select,\
-                                                      column="#5",\
-                                                      value=\
-                                                      value *\
-                                                      float(self.parent.item(self.select)['values'][3]))
-                except:
-                    tkinter.messagebox.showwarning("Erreur de saisie",\
-                                                   "La valeur saisie doit être un nombre")
-            if self.column == "#4":
-                try:
-                    value = float(value)
-                    self.application.tree_project.set(self.select,\
-                                                      column=self.column, value=value)
-                    if self.work != None:
-                        self.work.prix = value
-                    self.application.tree_project.set(self.select,\
-                                                      column="#5",\
-                                                      value=\
-                                                      value *\
-                                                      float(self.parent.item(self.select)['values'][2]))
-                except ValueError:
-                    tkinter.messagebox.showwarning("Erreur de saisie",\
-                                                   "La valeur saisie doit être un nombre")
+                    self.work.prix = value
+                self.application.tree_project.set(self.select,\
+                                                  column="#5",\
+                                                  value=\
+                                                  value *\
+                                                  float(self.application.tree_project.item(self.select)['values'][2]))
+            except ValueError:
+                tkinter.messagebox.showwarning("Erreur de saisie",\
+                                               "La valeur saisie doit être un nombre")
         self.application.add_modification()
         self.destroy()
+
+class Project():
+	"""class defining the project"""
+	
+	def __init__(self, url= None):
+		
+		self.url = url
+		
+		if self.url == None:
+			self.data = ET.ElementTree(ET.fromstring(lib.constantes.XMLTEMPLATE))
+		else :
+			# nettoyage du dossier temp
+			self.cleanDirTemp()
+			# extraction de l'archive dans le dossier temp
+			fichierZip = zipfile.ZipFile(self.url,"r")
+			fichierZip.extractall("./temp")
+			fichierZip.close()
+			self.data = ET.parse("./temp/data.xml")
+			
+		self.lots = []
+		self.ouvrages = []
+	
+	def add_work(self, ouvrage):
+		"""Creation d un dictionnaire pour chaque ouvrage et ajout a la liste des ouvrages"""
+		self.ouvrages.append(ouvrage)
+	
+	def return_work(self, iid):
+		"""Verifie si l index donne en argument correspond a un ouvrage. Retourne l ouvrage ou None si il n a pas ete trouve"""
+		ouv = None
+		for ouvrage in self.ouvrages:
+			if ouvrage.iid == iid:
+				ouv = ouvrage				
+				break
+		return ouv
+	
+	def cleanDirTemp(self):
+		"""Clean tempory files in temp directory"""
+		try:
+			# deleting the xml file created into the temporary directory
+			os.remove(os.getcwd() + "/temp/data.xml")
+		except:
+			pass
+		try:
+			# deleting the files located into the temporary directory
+			shutil.rmtree(os.getcwd() + "/temp/ref")
+		except:
+			pass
+		
+	
+	def saveZip(self):
+		"""Create a backup file in zip format containing data.xml and ref directory"""
+		try:
+			fileZip = zipfile.ZipFile(self.url, mode='w')
+			# creating the data.xml file into the working directory
+			self.data.write("data.xml", encoding="UTF-8", xml_declaration=True)
+			# adding the file data.xml into the backup file in zip format
+			fileZip.write("data.xml")
+			# deleting the data.xml file created into the working directory
+			os.remove("data.xml")
+			try:
+				# copying the ref folder located in temporary directory to the working directory
+				shutil.copytree("./temp/ref","./ref")
+				for file in os.listdir("ref"):
+					# adding each file contained in the ref folder into the backup file in zip format
+					fileZip.write("ref/" + file)
+				shutil.rmtree(os.getcwd() + "/ref") # deleting the ref folder copied into the working directory
+			except:
+				pass
+		finally :
+			print("The backup file %s was succefully saved" %(self.url))
+			fileZip.close() # closing backup file in zip format
+
+
+class Work():
+	"""Classe définissant un ouvrage"""
+	
+	def __init__(self, iid, name="_Ouvrage_", status="", unite="", quant="", prix="0.0", desc_id="", loc="", tva="", bt=""):
+		
+		self.iid = iid
+		self.name = name
+		self.status = status
+		self.unite = unite
+		self.quant = quant
+		self.prix = prix
+		self.desc_id = desc_id
+		self.loc = loc
+		self.tva = tva
+		self.bt = bt
+	
+	def evalQuantiteOuvrage(self):
+		"""Interpretation du resultat quantite issue de la chaine de caractere"""
+		pass
 
 if __name__ == '__main__':
     APPLICATION = Main()

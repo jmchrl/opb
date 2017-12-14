@@ -352,11 +352,12 @@ class DialogQt(tkinter.Frame):
 class DialogSaveBeforeClose(tkinter.Toplevel):
     """Dialog for propose to save the project before closing application"""
 
-    def __init__(self, application):
+    def __init__(self, application, method):
         """Initialize dialog"""
 
         self.application = application # It's the application
-        
+        self.method = method # It's the method that called this class
+
         tkinter.Toplevel.__init__(self, self.application.root)
         self.resizable(width=False, height=False)
         self.transient(self.master) # for not creating a new icon in the loading bar
@@ -388,10 +389,24 @@ class DialogSaveBeforeClose(tkinter.Toplevel):
 
         self.application.save_project()
         self.destroy()
-        self.application.root.destroy()
+        if self.method == "new_project":
+            self.application.modifications_dictionary['flag'] = False
+            self.application.new_project()
+        if self.method == "open_project":
+            self.application.modifications_dictionary['flag'] = False
+            self.application.open_project()
+        #else:
+            #self.application.root.destroy()
 
     def no(self):
         """Close the dialog"""
 
         self.destroy()
-        self.application.root.destroy()
+        if self.method == "new_project":
+            self.application.modifications_dictionary['flag'] = False
+            self.application.new_project()
+        if self.method == "open_project":
+            self.application.modifications_dictionary['flag'] = False
+            self.application.open_project()
+        #else:
+            #self.application.root.destroy()
