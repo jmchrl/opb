@@ -58,11 +58,9 @@ class ProjectTreeview(tkinter.ttk.Treeview):
         
         for item in self.get_children():
             self.delete(item)
-        #Get groundwork in xml object
-        #xml = application.project.xml.getroot()
         groundwork = xml.find("groundwork")
         #xml file path for representation in the treeview
-        self.__browse_xml_branch(groundwork.findall("element"), "", "end")
+        self.browse_xml_branch(groundwork.findall("element"), "", "end")
         
     
     def browse_xml_branch(self, childrens_xml, parent_node, position):
@@ -105,14 +103,18 @@ class ProjectTreeview(tkinter.ttk.Treeview):
                                                    values=(children.find('code').text,\
                                                    children.find('unit').text,\
                                                    quant, prix, quant*prix))
-                    work = Work(item, children.find('name').text,\
-                                   children.find('status').text,\
-                                   children.find('unit').text,\
-                                   children.find('quantity').text,\
-                                   prix, children.find('code').text,\
-                                   children.find('localisation').text,\
-                                   children.find('vat').text,\
-                                   children.find('index').text)
+                    work = {}
+                    work['iid'] = item
+                    work['name'] = children.find('name').text
+                    work['code'] = children.find('code').text
+                    work['description'] = ""
+                    work['localisation'] = children.find('localisation').text
+                    work['index'] = children.find('index').text
+                    work['price'] = children.find('price').text
+                    work['quantity'] = children.find('quantity').text
+                    work['status'] = children.find('status').text
+                    work['vat'] = children.find('vat').text
+                    work['unit'] = children.find('unit').text
                     self.application.project.add_work(work)
         
 
@@ -205,24 +207,24 @@ class EntryTreeview(tkinter.Entry):
         if self.column == "#0":
             self.application.tree_project.item(self.select, text=value)
             if self.work != None:
-                self.work.name = value
+                self.work['name'] = value
         if self.column == "#1":
             self.application.tree_project.set(self.select,\
                                               column=self.column, value=value)
             if self.work != None:
-                self.work.desc_id = value
+                self.work['code'] = value
         if self.column == "#2":
             self.application.tree_project.set(self.select,\
                                               column=self.column, value=value)
             if self.work != None:
-                self.work.unite = value
+                self.work['unit'] = value
         if self.column == "#3":
             try:
                 value = float(value)
                 self.application.tree_project.set(self.select,\
                                                   column=self.column, value=value)
                 if self.work != None:
-                    self.work.quant = str(value)
+                    self.work['quantity'] = str(value)
                 self.application.tree_project.set(self.select,\
                                                   column="#5",\
                                                   value=\
@@ -237,7 +239,7 @@ class EntryTreeview(tkinter.Entry):
                 self.application.tree_project.set(self.select,\
                                                   column=self.column, value=value)
                 if self.work != None:
-                    self.work.prix = value
+                    self.work['price'] = str(value)
                 self.application.tree_project.set(self.select,\
                                                   column="#5",\
                                                   value=\
@@ -246,5 +248,4 @@ class EntryTreeview(tkinter.Entry):
             except ValueError:
                 tkinter.messagebox.showwarning("Erreur de saisie",\
                                                "La valeur saisie doit être un nombre")
-        self.application.add_modification()
         self.destroy()

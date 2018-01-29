@@ -198,42 +198,43 @@ class Main():
             for children in childrens:
                 work = self.project.return_work(children)
                 if work is None:
+                    if self.tree_project.item(children)['open'] is True\
+                    or self.tree_project.item(children)['open'] == 1:
+                        displayed = "true"
+                        print(self.tree_project.item(children)['text'] + " est " + str(self.tree_project.item(children)['open']))
+                    else:
+                        displayed = "false"
+                        print(self.tree_project.item(children)['text'] + " est " + str(self.tree_project.item(children)['open']))
                     if len(self.tree_project.parents_item(children)) != 0:
-                        if self.tree_project.item(children)['open'] is True:
-                            node = ET.SubElement(parent, "element", id="chapter", open="true")
-                        else:
-                            node = ET.SubElement(parent, "element", id="chapter", open="false")
+                        node = ET.SubElement(parent, "element", id="chapter", open=displayed)
                         name = ET.SubElement(node, "name")
                         name.text = self.tree_project.item(children)['text']
                     else:
-                        if self.tree_project.item(children)['open'] is True:
-                            node = ET.SubElement(parent, "element", id="batch", open="true")
-                        else:
-                            node = ET.SubElement(parent, "element", id="batch", open="false")
+                        node = ET.SubElement(parent, "element", id="batch", open=displayed)
                         name = ET.SubElement(node, "name")
                         name.text = self.tree_project.item(children)['text']
                     self.__browse_treeview_branch(self.tree_project.get_children(children), node)
                 else:
                     node = ET.SubElement(parent, "element", id="work")
                     name = ET.SubElement(node, "name")
-                    name.text = work.name
+                    name.text = work['name']
                     code = ET.SubElement(node, "code")
-                    code.text = work.desc_id
+                    code.text = work['code']
                     description = ET.SubElement(node, "description") # not useful at the moment
                     localisation = ET.SubElement(node, "localisation")
-                    localisation.text = work.loc
+                    localisation.text = work['localisation']
                     index = ET.SubElement(node, "index")
-                    index.text = work.bt
+                    index.text = work['index']
                     price = ET.SubElement(node, "price")
-                    price.text = str(work.prix)
+                    price.text = str(work['price'])
                     quantity = ET.SubElement(node, "quantity")
-                    quantity.text = work.quant
+                    quantity.text = work['quantity']
                     status = ET.SubElement(node, "status")
-                    status.text = work.status
+                    status.text = work['status']
                     vat = ET.SubElement(node, "vat")
-                    vat.text = work.tva
+                    vat.text = work['vat']
                     unit = ET.SubElement(node, "unit")
-                    unit.text = work.unite
+                    unit.text = work['unit']
 
     def add_title(self):
         """Adds a new title under the item that has the focus"""
@@ -243,7 +244,7 @@ class Main():
         position = self.tree_project.index(select)+1
         item = self.tree_project.insert(parent, position, text="_Titre_")
         self.tree_project.items.append(item)
-        self.add_modification()
+        self.__add_modification()
 
     def add_work(self):
         """Adds a new work under the item that has the focus"""
@@ -254,9 +255,20 @@ class Main():
         item = self.tree_project.insert(parent, position, text="_Ouvrage_",\
                                        values=("", "", 0.0, 0.0, ""))
         self.tree_project.items.append(item)
-        work = Work(item)
+        work = {}
+        work['iid'] = item
+        work['name'] = "_Ouvrage_"
+        work['code'] = ""
+        work['description'] = ""
+        work['localisation'] = ""
+        work['index'] = ""
+        work['price'] = ""
+        work['quantity'] = ""
+        work['status'] = ""
+        work['vat'] = ""
+        work['unit'] = ""
         self.project.add_work(work)
-        self.add_modification()
+        self.__add_modification()
 
     def go_down_item(self):
         """Move down the item that has the focus when the button is
@@ -266,7 +278,7 @@ class Main():
         parent = self.tree_project.parent(select)
         position = self.tree_project.index(select)
         self.tree_project.move(select, parent, position+1)
-        self.add_modification()
+        self.__add_modification()
 
     def __go_down_item_event(self, event):
         """Move down the item that has the focus when the Ctrl+2 is
@@ -282,7 +294,7 @@ class Main():
         parent = self.tree_project.parent(select)
         position = self.tree_project.index(select)
         self.tree_project.move(select, parent, position-1)
-        self.add_modification()
+        self.__add_modification()
 
     def __go_up_item_event(self, event):
         """Move down the item that has the focus when the Ctrl+8 is
@@ -309,7 +321,7 @@ class Main():
                 previous = self.tree_project.prev(select)
                 previous_childrens = self.tree_project.get_children(previous)
                 self.tree_project.move(select, previous, len(previous_childrens))
-        self.add_modification()
+        self.__add_modification()
 
     def __indenting_item_event(self, event):
         """Indenting the item that has the focus when the Ctrl+6 is
@@ -326,7 +338,7 @@ class Main():
         grand_parent = self.tree_project.parent(parent)
         position = self.tree_project.index(parent)
         self.tree_project.move(select, grand_parent, position+1)
-        self.add_modification()
+        self.__add_modification()
 
     def __unindent_item_event(self, event):
         """Unindent the item that has the focus when the Ctrl+4 is
@@ -340,9 +352,9 @@ class Main():
         select = self.tree_project.focus()
         self.tree_project.delete(select)
         self.tree_project.items.remove(select)
-        self.add_modification()
+        self.__add_modification()
 
-    def add_modification(self):
+    def __add_modification(self):
         """adding item in undo list and adding "*" before the root title name"""
 
         xml = self.__groundwork_to_xml_object()
@@ -389,7 +401,7 @@ class Main():
         xml = self.clipboard[0]
         self.tree_project.browse_xml_branch(xml.findall("element"), self.tree_project.parent(select),\
                             self.tree_project.index(select))
-        self.add_modification()
+        self.__add_modification()
 
     def __empty_clipboard(self):
         """Empty the clipboard, it's used before adding a new selection"""
@@ -414,6 +426,7 @@ class Main():
             pass
         else:
             gui.main_dialogs.DialogWorkInfos(self, select, self.project, work)
+            self.__add_modification()
 
     def __widget_for_editing_treeview(self, event):
         """Positioning an entry on the treeview to modify a value or
@@ -429,24 +442,24 @@ class Main():
         column = self.tree_project.identify_column(event.x)
         if column == "#0":
             text = item["text"]
-            entry = EntryTreeview(self, text, column)
+            entry = gui.treeview.EntryTreeview(self, text, column)
             self.tree_project.childs.append(entry)
         else:
             if column == "#1":
                 text = item["values"][0]
-                entry = EntryTreeview(self, text, column)
+                entry = gui.treeview.EntryTreeview(self, text, column)
                 self.tree_project.childs.append(entry)
             if column == "#2":
                 text = item["values"][1]
-                entry = EntryTreeview(self, text, column)
+                entry = gui.treeview.EntryTreeview(self, text, column)
                 self.tree_project.childs.append(entry)
             if column == "#3":
                 text = item["values"][2]
-                entry = EntryTreeview(self, text, column)
+                entry = gui.treeview.EntryTreeview(self, text, column)
                 self.tree_project.childs.append(entry)
             if column == "#4":
                 text = item["values"][3]
-                entry = EntryTreeview(self, text, column)
+                entry = gui.treeview.EntryTreeview(self, text, column)
                 self.tree_project.childs.append(entry)
 
 class MenuBar(object):
@@ -575,96 +588,75 @@ class ToolBar():
         pass
 
 class Project():
-	"""class defining the project"""
-	
-	def __init__(self, url= None):
-		
-		self.url = url
-		
-		if self.url == None:
-			self.data = ET.ElementTree(ET.fromstring(lib.constantes.XMLTEMPLATE))
-		else :
-			# nettoyage du dossier temp
-			self.cleanDirTemp()
-			# extraction de l'archive dans le dossier temp
-			fichierZip = zipfile.ZipFile(self.url,"r")
-			fichierZip.extractall("./temp")
-			fichierZip.close()
-			self.data = ET.parse("./temp/data.xml")
-			
-		self.lots = []
-		self.ouvrages = []
-	
-	def add_work(self, ouvrage):
-		"""Creation d un dictionnaire pour chaque ouvrage et ajout a la liste des ouvrages"""
-		self.ouvrages.append(ouvrage)
-	
-	def return_work(self, iid):
-		"""Verifie si l index donne en argument correspond a un ouvrage. Retourne l ouvrage ou None si il n a pas ete trouve"""
-		ouv = None
-		for ouvrage in self.ouvrages:
-			if ouvrage.iid == iid:
-				ouv = ouvrage				
-				break
-		return ouv
-	
-	def cleanDirTemp(self):
-		"""Clean tempory files in temp directory"""
-		try:
-			# deleting the xml file created into the temporary directory
-			os.remove(os.getcwd() + "/temp/data.xml")
-		except:
-			pass
-		try:
-			# deleting the files located into the temporary directory
-			shutil.rmtree(os.getcwd() + "/temp/ref")
-		except:
-			pass
-		
-	
-	def saveZip(self):
-		"""Create a backup file in zip format containing data.xml and ref directory"""
-		try:
-			fileZip = zipfile.ZipFile(self.url, mode='w')
-			# creating the data.xml file into the working directory
-			self.data.write("data.xml", encoding="UTF-8", xml_declaration=True)
-			# adding the file data.xml into the backup file in zip format
-			fileZip.write("data.xml")
-			# deleting the data.xml file created into the working directory
-			os.remove("data.xml")
-			try:
-				# copying the ref folder located in temporary directory to the working directory
-				shutil.copytree("./temp/ref","./ref")
-				for file in os.listdir("ref"):
-					# adding each file contained in the ref folder into the backup file in zip format
-					fileZip.write("ref/" + file)
-				shutil.rmtree(os.getcwd() + "/ref") # deleting the ref folder copied into the working directory
-			except:
-				pass
-		finally :
-			print("The backup file %s was succefully saved" %(self.url))
-			fileZip.close() # closing backup file in zip format
-
-
-class Work():
-	"""Classe définissant un ouvrage"""
-	
-	def __init__(self, iid, name="_Ouvrage_", status="", unite="", quant="", prix="0.0", desc_id="", loc="", tva="", bt=""):
-		
-		self.iid = iid
-		self.name = name
-		self.status = status
-		self.unite = unite
-		self.quant = quant
-		self.prix = prix
-		self.desc_id = desc_id
-		self.loc = loc
-		self.tva = tva
-		self.bt = bt
-	
-	def evalQuantiteOuvrage(self):
-		"""Interpretation du resultat quantite issue de la chaine de caractere"""
-		pass
+    """class defining the project"""
+    
+    def __init__(self, url= None):
+        
+        self.url = url
+        
+        if self.url == None:
+            self.data = ET.ElementTree(ET.fromstring(lib.constantes.XMLTEMPLATE))
+        else :
+            # nettoyage du dossier temp
+            self.cleanDirTemp()
+            # extraction de l'archive dans le dossier temp
+            fichierZip = zipfile.ZipFile(self.url,"r")
+            fichierZip.extractall("./temp")
+            fichierZip.close()
+            self.data = ET.parse("./temp/data.xml")
+            
+        self.lots = []
+        self.works = []
+    
+    def add_work(self, work):
+        """Adding dictionary work in works list"""
+        self.works.append(work)
+    
+    def return_work(self, iid):
+        """Returns the dictionary of the work if the index given in argument was found in the list of works"""
+        test = None
+        for work in self.works:
+            if work['iid'] == iid:
+                test = work             
+                break
+        return test
+    
+    def cleanDirTemp(self):
+        """Clean tempory files in temp directory"""
+        try:
+            # deleting the xml file created into the temporary directory
+            os.remove(os.getcwd() + "/temp/data.xml")
+        except:
+            pass
+        try:
+            # deleting the files located into the temporary directory
+            shutil.rmtree(os.getcwd() + "/temp/ref")
+        except:
+            pass
+        
+    
+    def saveZip(self):
+        """Create a backup file in zip format containing data.xml and ref directory"""
+        try:
+            fileZip = zipfile.ZipFile(self.url, mode='w')
+            # creating the data.xml file into the working directory
+            self.data.write("data.xml", encoding="UTF-8", xml_declaration=True)
+            # adding the file data.xml into the backup file in zip format
+            fileZip.write("data.xml")
+            # deleting the data.xml file created into the working directory
+            os.remove("data.xml")
+            try:
+                # copying the ref folder located in temporary directory to the working directory
+                shutil.copytree("./temp/ref","./ref")
+                for file in os.listdir("ref"):
+                    # adding each file contained in the ref folder into the backup file in zip format
+                    fileZip.write("ref/" + file)
+                shutil.rmtree(os.getcwd() + "/ref") # deleting the ref folder copied into the working directory
+            except:
+                pass
+        finally :
+            print("The backup file %s was succefully saved" %(self.url))
+            fileZip.close() # closing backup file in zip format
 
 if __name__ == '__main__':
     APPLICATION = Main()
