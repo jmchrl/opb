@@ -248,4 +248,5 @@ class EntryTreeview(tkinter.Entry):
             except ValueError:
                 tkinter.messagebox.showwarning("Erreur de saisie",\
                                                "La valeur saisie doit être un nombre")
+        self.application.add_modification()
         self.destroy()

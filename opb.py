@@ -143,6 +143,8 @@ class Main():
             root = self.project.data.getroot()
             #Refreshing treeview
             self.tree_project.refresh(self, root)
+        xml = self.__groundwork_to_xml_object()
+        self.modifications_dictionary['undo'].append(xml)
 
     def save_project(self):
         """save project in zip file"""
@@ -201,10 +203,8 @@ class Main():
                     if self.tree_project.item(children)['open'] is True\
                     or self.tree_project.item(children)['open'] == 1:
                         displayed = "true"
-                        print(self.tree_project.item(children)['text'] + " est " + str(self.tree_project.item(children)['open']))
                     else:
                         displayed = "false"
-                        print(self.tree_project.item(children)['text'] + " est " + str(self.tree_project.item(children)['open']))
                     if len(self.tree_project.parents_item(children)) != 0:
                         node = ET.SubElement(parent, "element", id="chapter", open=displayed)
                         name = ET.SubElement(node, "name")
@@ -244,7 +244,7 @@ class Main():
         position = self.tree_project.index(select)+1
         item = self.tree_project.insert(parent, position, text="_Titre_")
         self.tree_project.items.append(item)
-        self.__add_modification()
+        self.add_modification()
 
     def add_work(self):
         """Adds a new work under the item that has the focus"""
@@ -268,7 +268,7 @@ class Main():
         work['vat'] = ""
         work['unit'] = ""
         self.project.add_work(work)
-        self.__add_modification()
+        self.add_modification()
 
     def go_down_item(self):
         """Move down the item that has the focus when the button is
@@ -278,7 +278,7 @@ class Main():
         parent = self.tree_project.parent(select)
         position = self.tree_project.index(select)
         self.tree_project.move(select, parent, position+1)
-        self.__add_modification()
+        self.add_modification()
 
     def __go_down_item_event(self, event):
         """Move down the item that has the focus when the Ctrl+2 is
@@ -294,7 +294,7 @@ class Main():
         parent = self.tree_project.parent(select)
         position = self.tree_project.index(select)
         self.tree_project.move(select, parent, position-1)
-        self.__add_modification()
+        self.add_modification()
 
     def __go_up_item_event(self, event):
         """Move down the item that has the focus when the Ctrl+8 is
@@ -321,7 +321,7 @@ class Main():
                 previous = self.tree_project.prev(select)
                 previous_childrens = self.tree_project.get_children(previous)
                 self.tree_project.move(select, previous, len(previous_childrens))
-        self.__add_modification()
+        self.add_modification()
 
     def __indenting_item_event(self, event):
         """Indenting the item that has the focus when the Ctrl+6 is
@@ -338,7 +338,7 @@ class Main():
         grand_parent = self.tree_project.parent(parent)
         position = self.tree_project.index(parent)
         self.tree_project.move(select, grand_parent, position+1)
-        self.__add_modification()
+        self.add_modification()
 
     def __unindent_item_event(self, event):
         """Unindent the item that has the focus when the Ctrl+4 is
@@ -352,9 +352,9 @@ class Main():
         select = self.tree_project.focus()
         self.tree_project.delete(select)
         self.tree_project.items.remove(select)
-        self.__add_modification()
+        self.add_modification()
 
-    def __add_modification(self):
+    def add_modification(self):
         """adding item in undo list and adding "*" before the root title name"""
 
         xml = self.__groundwork_to_xml_object()
@@ -379,11 +379,14 @@ class Main():
     def redo(self):
         """To do"""
 
-        _id = len(self.modifications_dictionary['redo'])-1
-        xml_restored = self.modifications_dictionary['redo'][_id]
-        self.modifications_dictionary['undo'].append(xml_restored)
-        del self.modifications_dictionary['redo'][_id]
-        self.tree_project.refresh(self, xml_restored)
+        try:
+            _id = len(self.modifications_dictionary['redo'])-1
+            xml_restored = self.modifications_dictionary['redo'][_id]
+            self.modifications_dictionary['undo'].append(xml_restored)
+            del self.modifications_dictionary['redo'][_id]
+            self.tree_project.refresh(self, xml_restored)
+        except IndexError:
+            print("Recovery not possible : the redo list is empty")
 
     def copy(self):
         """Adding the selection in the clipboard"""
@@ -401,7 +404,7 @@ class Main():
         xml = self.clipboard[0]
         self.tree_project.browse_xml_branch(xml.findall("element"), self.tree_project.parent(select),\
                             self.tree_project.index(select))
-        self.__add_modification()
+        self.add_modification()
 
     def __empty_clipboard(self):
         """Empty the clipboard, it's used before adding a new selection"""
@@ -426,7 +429,7 @@ class Main():
             pass
         else:
             gui.main_dialogs.DialogWorkInfos(self, select, self.project, work)
-            self.__add_modification()
+            self.add_modification()
 
     def __widget_for_editing_treeview(self, event):
         """Positioning an entry on the treeview to modify a value or
@@ -667,12 +670,8 @@ if __name__ == '__main__':
 # to do
 # couper/coller
 # implementer la lecture des fichiers dxf dans l evaluation des quantites
-# voir pour creation d une pile undo/redo
 # ajouter une fonction pour connaitre l etat d enregistrement afin de proposer l enregistrement
 #   avant de quitter, creer un nouveau document ou ouvrir un autre document
-# bug : lorsque qu'un nouveau fichier est créé puis enregistré sous, lors des enregistrements
-#   suivants c'est la fenêtre enregistrer sous qui s'ouvre, le programme ne dois pas savoir
-#   quel est le nom de fichier à enregistrer, à voir...
 # voir pour ajouter dans data.xml la possibilite d ajouter des varaintes par lot
 # voir pour ajouter dans data.xml le coefficient de marge pour les estimations
 # voir pour fichier base de donnee configuration de l application
