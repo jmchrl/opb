@@ -349,9 +349,9 @@ class Main():
     def remove_item(self):
         """Remove the item that has the focus"""
 
-        select = self.tree_project.focus()
-        self.tree_project.delete(select)
-        self.tree_project.items.remove(select)
+        for item in self.tree_project.selection():
+            self.tree_project.delete(item)
+            self.tree_project.items.remove(item)
         self.add_modification()
 
     def add_modification(self):
@@ -388,6 +388,19 @@ class Main():
         except IndexError:
             print("Recovery not possible : the redo list is empty")
 
+    def cut(self):
+        """Adding selection in the clipboard and deleting items in the treeview"""
+        
+        self.__empty_clipboard()
+        xml = ET.ElementTree(ET.fromstring(lib.constantes.XMLSELECTION))
+        root = xml.getroot()
+        self.__browse_treeview_branch(self.tree_project.selection(), root)
+        self.clipboard.append(xml)
+        for item in self.tree_project.selection():
+            self.tree_project.delete(item)
+            self.tree_project.items.remove(item)
+        self.clipboard.append(xml)
+    
     def copy(self):
         """Adding the selection in the clipboard"""
 
@@ -520,6 +533,8 @@ class MenuBar(object):
         drop_down_edit_menu.add_command(label="Rétablir", underline=0,\
                                      command=self.application.redo)
         drop_down_edit_menu.add_separator()
+        drop_down_edit_menu.add_command(label="Couper", underline=0,\
+                                     command=self.application.cut)
         drop_down_edit_menu.add_command(label="Copier", underline=0,\
                                      command=self.application.copy)
         drop_down_edit_menu.add_command(label="Coller", underline=0,\
@@ -668,7 +683,6 @@ if __name__ == '__main__':
 
 
 # to do
-# couper/coller
 # implementer la lecture des fichiers dxf dans l evaluation des quantites
 # ajouter une fonction pour connaitre l etat d enregistrement afin de proposer l enregistrement
 #   avant de quitter, creer un nouveau document ou ouvrir un autre document

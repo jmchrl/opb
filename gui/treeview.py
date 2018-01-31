@@ -75,34 +75,34 @@ class ProjectTreeview(tkinter.ttk.Treeview):
                     position = position+1
                 if children.get("id") == "batch":
                     if children.get("open") == "true":
-                        item = self.application.tree_project.insert(parent_node, position,\
-                                                        text=children.find("name").text,\
-                                                        open=True)
+                        item = self.insert(parent_node, position,\
+                                           text=children.find("name").text,\
+                                           open=True)
                     else:
-                        item = self.application.tree_project.insert(parent_node, position,\
-                                                        text=children.find("name").text,\
-                                                        open=False)
-                    self.application.tree_project.items.append(item)
+                        item = self.insert(parent_node, position,\
+                                           text=children.find("name").text,\
+                                           open=False)
+                    self.items.append(item)
                     self.browse_xml_branch(children.findall("element"), item, position)
                 if children.get("id") == "chapter":
                     if children.get("open") == "true":
-                        item = self.application.tree_project.insert(parent_node, position,\
-                                                        text=children.find("name").text,\
-                                                        open=True)
+                        item = self.insert(parent_node, position,\
+                                           text=children.find("name").text,\
+                                           open=True)
                     else:
-                        item = self.application.tree_project.insert(parent_node, position,\
-                                                        text=children.find("name").text,\
-                                                        open=False)
-                    self.application.tree_project.items.append(item)
+                        item = self.insert(parent_node, position,\
+                                           text=children.find("name").text,\
+                                           open=False)
+                    self.items.append(item)
                     self.browse_xml_branch(children.findall("element"), item, position)
                 if children.get("id") == "work":
                     quant = float(lib.fonctions.evalQuantite(children.find('quantity').text))
                     prix = float(children.find('price').text)
-                    item = self.application.tree_project.insert(parent_node, position,\
-                                                   text=children.find('name').text,\
-                                                   values=(children.find('code').text,\
-                                                   children.find('unit').text,\
-                                                   quant, prix, quant*prix))
+                    item = self.insert(parent_node, position,\
+                                       text=children.find('name').text,\
+                                       values=(children.find('code').text,\
+                                       children.find('unit').text,\
+                                       quant, prix, quant*prix))
                     work = {}
                     work['iid'] = item
                     work['name'] = children.find('name').text
@@ -115,6 +115,7 @@ class ProjectTreeview(tkinter.ttk.Treeview):
                     work['status'] = children.find('status').text
                     work['vat'] = children.find('vat').text
                     work['unit'] = children.find('unit').text
+                    self.items.append(item)
                     self.application.project.add_work(work)
         
 
