@@ -684,9 +684,7 @@ if __name__ == '__main__':
 
 # to do
 # implementer la lecture des fichiers dxf dans l evaluation des quantites
-# ajouter une fonction pour connaitre l etat d enregistrement afin de proposer l enregistrement
-#   avant de quitter, creer un nouveau document ou ouvrir un autre document
-# voir pour ajouter dans data.xml la possibilite d ajouter des varaintes par lot
+# voir pour ajouter dans data.xml la possibilite d ajouter des variantes par lot
 # voir pour ajouter dans data.xml le coefficient de marge pour les estimations
 # voir pour fichier base de donnee configuration de l application
 # rendre impossible l'indentation d'un titre après un ouvrage

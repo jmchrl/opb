@@ -392,8 +392,8 @@ class DialogSaveBeforeClose(tkinter.Toplevel):
         if self.method == "open_project":
             self.application.modifications_dictionary['flag'] = False
             self.application.open_project()
-        #else:
-            #self.application.root.destroy()
+        else:
+            self.application.root.destroy()
 
     def no(self):
         """Close the dialog"""

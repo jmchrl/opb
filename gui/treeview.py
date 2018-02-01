@@ -97,7 +97,10 @@ class ProjectTreeview(tkinter.ttk.Treeview):
                     self.browse_xml_branch(children.findall("element"), item, position)
                 if children.get("id") == "work":
                     quant = float(lib.fonctions.evalQuantite(children.find('quantity').text))
-                    prix = float(children.find('price').text)
+                    try:
+                        prix = float(children.find('price').text)
+                    except TypeError:
+                        prix = 0.0
                     item = self.insert(parent_node, position,\
                                        text=children.find('name').text,\
                                        values=(children.find('code').text,\
