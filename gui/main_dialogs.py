@@ -23,6 +23,7 @@
 import sys
 import os
 import shutil
+import xml.etree.ElementTree as ET
 
 import tkinter
 import tkinter.ttk
@@ -54,9 +55,11 @@ class DialogWorkInfos(tkinter.Toplevel):
 
         self.page_work_infos = DescDialog(self, self.index_item, self.project, self.work)
         self.page_work_quantity = DialogQt(self, self.index_item, self.work)
+        self.page_work_description = DialogDescription(self, self.index_item, self.work)
 
-        notebook.add(self.page_work_infos, text='Description')
+        notebook.add(self.page_work_infos, text='Infos')
         notebook.add(self.page_work_quantity, text='Quantité')
+        notebook.add(self.page_work_description, text='Description')
 
         bottom_frame = tkinter.Frame(self, padx=2, pady=2)
         bottom_frame.grid(row=1, column=0, columnspan=2, sticky="EW")
@@ -93,6 +96,21 @@ class DialogWorkInfos(tkinter.Toplevel):
         self.parent.set(self.index_item,\
                         column="#5",\
                         value=float(result) * float(self.parent.item(self.index_item)['values'][3]))
+    
+    def __update_work_description(self):
+        """Update the work description, work description is an xml element object"""
+
+        text = self.page_work_description.text_zone.get('0.0', 'end')
+        list_paragraph = text.split("\n")
+        description = ET.Element("description")
+        for paragraph in list_paragraph:
+            if paragraph == "":
+                pass
+            else:
+                paragraph_text = ET.Element("p")
+                paragraph_text.text = paragraph
+                description.append(paragraph_text)
+        self.work['description'] = description
 
     def __update_work_infos(self):
         """Update the work infos"""
@@ -137,6 +155,7 @@ class DialogWorkInfos(tkinter.Toplevel):
 
         self.__update_work_quantity()
         self.__update_work_infos()
+        self.__update_work_description()
         self.destroy()
 
     def cancel(self):
@@ -245,7 +264,7 @@ class DescDialog(tkinter.Frame):
 
     def open_cctp(self):
         """Opening the description file in .odt format of the work"""
-        if self.text_var_id.get() == "":
+        if self.text_var_id.get() == "" or self.text_var_id.get() == "None":
             tkinter.messagebox.showwarning("Attention",\
                                            "Veuillez saisir un identifiant pour l'ouvrage")
         else:
@@ -345,6 +364,33 @@ class DialogQt(tkinter.Frame):
             quantite = quantite + "%s$" %(line)
         total = lib.fonctions.evalQuantite(quantite)
         self.text_var.set("Total = %s %s" % (total, self.work['unit']))
+
+class DialogDescription(tkinter.Frame):
+    """Class for editing quantity of work"""
+
+    def __init__(self, parent, select, work):
+
+        self.parent = parent
+        self.select = select
+        self.work = work
+        self.text_var = tkinter.StringVar()
+
+        tkinter.Frame.__init__(self, self.parent, padx=2, pady=2)
+        self.grid(row=0, column=0, sticky="WNES", padx=5, pady=5)
+
+        self.text_zone = tkinter.Text(self, padx=2, pady=2, relief="flat", highlightthickness=0)
+        self.text_zone_scroll = tkinter.Scrollbar(self, command=self.text_zone.yview, relief="flat")
+        self.text_zone.configure(yscrollcommand=self.text_zone_scroll.set)
+        self.text_zone.grid(row=0, column=0, sticky="WNES")
+        self.text_zone_scroll.grid(row=0, column=1, sticky="NS")
+
+        if self.work['description'] is None:
+            pass
+        else:
+            for paragraph in self.work['description']:
+                self.text_zone.insert("end", "%s\n" %(paragraph.text))
+                self.text_zone.yview("moveto", 1)
+            pass
 
 class DialogSaveBeforeClose(tkinter.Toplevel):
     """Dialog for propose to save the project before closing application"""

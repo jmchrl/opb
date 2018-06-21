@@ -67,13 +67,6 @@ class Main():
         self.modifications_dictionary['redo'] = []
         self.modifications_dictionary['flag'] = False
 
-        # adding menu
-        MenuBar(self, self.root)
-
-        # adding tools bar
-        ToolBar(self, self.root)
-
-
         ####################
         # project treeview #
         ####################
@@ -92,8 +85,8 @@ class Main():
 
         #connect functions to events
         self.tree_project.bind("<Double-Button-1>", self.__widget_for_editing_treeview)
-        self.tree_project.bind("<Control-KeyPress-KP_8>", self.__go_up_item_event)
-        self.tree_project.bind("<Control-KeyPress-KP_2>", self.__go_down_item_event)
+        self.tree_project.bind("<Control-KeyPress-KP_8>", self.tree_project.go_up_item_event)
+        self.tree_project.bind("<Control-KeyPress-KP_2>", self.tree_project.go_down_item_event)
         self.tree_project.bind("<Control-KeyPress-KP_6>", self.__indenting_item_event)
         self.tree_project.bind("<Control-KeyPress-KP_4>", self.__unindent_item_event)
 
@@ -116,6 +109,16 @@ class Main():
         status_frame.grid(row=3, column=0, sticky='WN', padx=5, pady=5)
         status_text = tkinter.Label(status_frame, text="R.A.S.")
         status_text.grid(row=0, column=0, sticky='WENS')
+
+        ########
+        # menu #
+        ########
+
+        # adding menu
+        MenuBar(self, self.root)
+
+        # adding tools bar
+        ToolBar(self, self.root)
 
     def new_project(self):
         """Create a new project instance and set the main windows title"""
@@ -220,7 +223,12 @@ class Main():
                     name.text = work['name']
                     code = ET.SubElement(node, "code")
                     code.text = work['code']
-                    description = ET.SubElement(node, "description") # not useful at the moment
+                    node.append(work['description'])
+                    #description = ET.SubElement(node, "description") # not useful at the moment
+                    #if work['description'] == "":
+                        #pass
+                    #else:
+                        #description_text = ET.SubElement(description, ET.Element.fromstring(work['description']))
                     localisation = ET.SubElement(node, "localisation")
                     localisation.text = work['localisation']
                     index = ET.SubElement(node, "index")
@@ -390,7 +398,7 @@ class Main():
 
     def cut(self):
         """Adding selection in the clipboard and deleting items in the treeview"""
-        
+
         self.__empty_clipboard()
         xml = ET.ElementTree(ET.fromstring(lib.constantes.XMLSELECTION))
         root = xml.getroot()
@@ -400,7 +408,7 @@ class Main():
             self.tree_project.delete(item)
             self.tree_project.items.remove(item)
         self.clipboard.append(xml)
-    
+
     def copy(self):
         """Adding the selection in the clipboard"""
 
@@ -577,10 +585,9 @@ class ToolBar():
         self.application = application
 
         self.application.image_down_arrow = tkinter.PhotoImage(file="./img/fleche_bas_24x24.png")
-        self.__add_button(self.application.image_down_arrow, self.application.go_down_item)
-        self.__add_button(self.application.image_down_arrow, self.application.go_down_item)
+        self.__add_button(self.application.image_down_arrow, self.application.tree_project.go_down_item)
         self.application.image_up_arrow = tkinter.PhotoImage(file="./img/fleche_haut_24x24.png")
-        self.__add_button(self.application.image_up_arrow, self.application.go_up_item)
+        self.__add_button(self.application.image_up_arrow, self.application.tree_project.go_up_item)
         self.application.image_right_arrow = tkinter.PhotoImage(file="./img/fleche_droite_24x24.png")
         self.__add_button(self.application.image_right_arrow, self.application.indenting_item)
         self.application.image_left_arrow = tkinter.PhotoImage(file="./img/fleche_gauche_24x24.png")
@@ -607,11 +614,11 @@ class ToolBar():
 
 class Project():
     """class defining the project"""
-    
+
     def __init__(self, url= None):
-        
+
         self.url = url
-        
+
         if self.url == None:
             self.data = ET.ElementTree(ET.fromstring(lib.constantes.XMLTEMPLATE))
         else :
@@ -622,23 +629,23 @@ class Project():
             fichierZip.extractall("./temp")
             fichierZip.close()
             self.data = ET.parse("./temp/data.xml")
-            
+
         self.lots = []
         self.works = []
-    
+
     def add_work(self, work):
         """Adding dictionary work in works list"""
         self.works.append(work)
-    
+
     def return_work(self, iid):
         """Returns the dictionary of the work if the index given in argument was found in the list of works"""
         test = None
         for work in self.works:
             if work['iid'] == iid:
-                test = work             
+                test = work
                 break
         return test
-    
+
     def cleanDirTemp(self):
         """Clean tempory files in temp directory"""
         try:
@@ -651,8 +658,8 @@ class Project():
             shutil.rmtree(os.getcwd() + "/temp/ref")
         except:
             pass
-        
-    
+
+
     def saveZip(self):
         """Create a backup file in zip format containing data.xml and ref directory"""
         try:
@@ -686,8 +693,9 @@ if __name__ == '__main__':
 # implementer la lecture des fichiers dxf dans l evaluation des quantites
 # voir pour ajouter dans data.xml la possibilite d ajouter des variantes par lot
 # voir pour ajouter dans data.xml le coefficient de marge pour les estimations
-# voir pour fichier base de donnee configuration de l application
 # rendre impossible l'indentation d'un titre après un ouvrage
-# voir pour modification d'items multiples
+# lors de l'enregistrement du quantitatif, ajouter chaque ligne avec une balise xml <line/> par exemple
+# sur le treeview, prévoir contrôle pour vérifier qu'une description et une localisation sont bien associées à un ouvrage
+# ajouter un onglet description pour le détail des ouvrages et gérer son enregistrement
 
 

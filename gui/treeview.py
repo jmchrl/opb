@@ -28,13 +28,53 @@ import tkinter
 import tkinter.ttk
 import lib.fonctions
 
-class ProjectTreeview(tkinter.ttk.Treeview):
+class OpbTreeview(tkinter.ttk.Treeview):
+    """Main class for treeview in opb"""
+
+    def __init__(self, application, parent_gui):
+        """Initilise tkinter.ttk.Treeview"""
+
+        tkinter.ttk.Treeview.__init__(self, parent_gui)
+
+    def go_down_item(self):
+        """Move down the item that has the focus when the button is
+           pressed on the toolbar"""
+
+        select = self.focus()
+        parent = self.parent(select)
+        position = self.index(select)
+        self.move(select, parent, position+1)
+        self.application.add_modification()
+
+    def go_down_item_event(self, event):
+        """Move down the item that has the focus when the Ctrl+2 is
+           pressed"""
+
+        self.go_down_item()
+
+    def go_up_item(self):
+        """Move up the item that has the focus when the button is
+           pressed on the toolbar"""
+
+        select = self.focus()
+        parent = self.parent(select)
+        position = self.index(select)
+        self.move(select, parent, position-1)
+        self.application.add_modification()
+
+    def go_up_item_event(self, event):
+        """Move down the item that has the focus when the Ctrl+8 is
+           pressed"""
+
+        self.go_up_item()
+
+class ProjectTreeview(OpbTreeview):
     """Treeview of the project and associated methods"""
 
     def __init__(self, application, parent_gui):
         """Initialize treeview"""
 
-        tkinter.ttk.Treeview.__init__(self, parent_gui)
+        OpbTreeview.__init__(self, application, parent_gui)
 
         self.childs = []
         self.items = []
@@ -52,17 +92,17 @@ class ProjectTreeview(tkinter.ttk.Treeview):
         self.heading("#3", text="Q")
         self.heading("#4", text="PU")
         self.heading("#5", text="PT")
-    
+
     def refresh(self, application, xml):
         """Refreshing treeview before loading a new project or  undo/redo instance"""
-        
+
         for item in self.get_children():
             self.delete(item)
         groundwork = xml.find("groundwork")
         #xml file path for representation in the treeview
         self.browse_xml_branch(groundwork.findall("element"), "", "end")
-        
-    
+
+
     def browse_xml_branch(self, childrens_xml, parent_node, position):
         """browse xml file branch, when the node have childrens this
            fonction is recursive"""
@@ -98,7 +138,10 @@ class ProjectTreeview(tkinter.ttk.Treeview):
                 if children.get("id") == "work":
                     quant = float(lib.fonctions.evalQuantite(children.find('quantity').text))
                     try:
-                        prix = float(children.find('price').text)
+                        try:
+                            prix = float(children.find('price').text)
+                        except ValueError:
+                            prix = 0.0
                     except TypeError:
                         prix = 0.0
                     item = self.insert(parent_node, position,\
@@ -110,7 +153,7 @@ class ProjectTreeview(tkinter.ttk.Treeview):
                     work['iid'] = item
                     work['name'] = children.find('name').text
                     work['code'] = children.find('code').text
-                    work['description'] = ""
+                    work['description'] = children.find('description')
                     work['localisation'] = children.find('localisation').text
                     work['index'] = children.find('index').text
                     work['price'] = children.find('price').text
@@ -120,7 +163,7 @@ class ProjectTreeview(tkinter.ttk.Treeview):
                     work['unit'] = children.find('unit').text
                     self.items.append(item)
                     self.application.project.add_work(work)
-        
+
 
     def parents_item(self, select=None):
         """Returns the parent list of a selected item"""
