@@ -79,17 +79,16 @@ class DialogWorkInfos(tkinter.Toplevel):
 
         text = self.page_work_quantity.text_zone.get('0.0', 'end')
         list_quantity = text.split("\n")
-        quantity = ""
-        for line in list_quantity:
-            if line == "":
+        quantity = ET.Element("quantity")
+        for sub_measurement in list_quantity:
+            if sub_measurement == "":
                 pass
             else:
-                quantity = quantity + "%s$" %(line)
-        #deleting the last character ;
-        quantity = quantity[:len(quantity)-1]
-
-        result = lib.fonctions.evalQuantite(quantity)
+                sub_measurement_text = ET.Element("sub_measurement")
+                sub_measurement_text.text = sub_measurement
+                quantity.append(sub_measurement_text)
         self.work['quantity'] = quantity
+        result = lib.fonctions.evalQuantiteNew(quantity)
         self.parent.set(self.index_item,\
                         column="#3",\
                         value=float(result))
@@ -330,10 +329,17 @@ class DialogQt(tkinter.Frame):
         if self.work['quantity'] is None:
             pass
         else:
-            quantity_lines = self.work['quantity'].split("$")
-            for line in quantity_lines:
-                self.text_zone.insert("end", "%s\n" %(line))
-                self.text_zone.yview("moveto", 1)
+            # Traitement d'erreur à supprimer une fois tous les fichiers mis à jour
+            try :
+                for sub_measurement in self.work['quantity']:
+                    print(sub_measurement)
+                    self.text_zone.insert("end", "%s\n" %(sub_measurement.text))
+                    self.text_zone.yview("moveto", 1)
+            except:
+                quantity_lines = self.work['quantity'].split("$")
+                for line in quantity_lines:
+                    self.text_zone.insert("end", "%s\n" %(line))
+                    self.text_zone.yview("moveto", 1)
 
         bottom_frame = tkinter.Frame(self, padx=2, pady=2)
         bottom_frame.grid(row=1, column=0, columnspan=2, sticky="EW")
@@ -350,13 +356,17 @@ class DialogQt(tkinter.Frame):
             resultat = 0.0
             self.text_var.set("Total = %s %s" % (resultat, unite))
         else:
-            resultat = lib.fonctions.evalQuantite(self.work['quantity'])
+            try:
+                resultat = lib.fonctions.evalQuantiteNew(self.work['quantity'])
+            except TypeError:
+                resultat = lib.fonctions.evalQuantite(self.work['quantity'])
             self.text_var.set("Total = %s %s" % (resultat, unite))
 
         self.parent.bind("<KeyPress-F9>", self.__update_quantity)
         self.parent.bind("<Return>", self.__update_quantity)
 
     def __update_quantity(self, event):
+        # A revoir pour utiliser evalQuantiteNew
         texte = self.text_zone.get('0.0', 'end')
         quantity_lines = texte.split("\n")
         quantite = ""
@@ -390,7 +400,6 @@ class DialogDescription(tkinter.Frame):
             for paragraph in self.work['description']:
                 self.text_zone.insert("end", "%s\n" %(paragraph.text))
                 self.text_zone.yview("moveto", 1)
-            pass
 
 class DialogSaveBeforeClose(tkinter.Toplevel):
     """Dialog for propose to save the project before closing application"""

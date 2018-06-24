@@ -24,4 +24,4 @@ XMLTEMPLATE = """<opb><infoproj></infoproj><groundwork></groundwork></opb>"""
 XMLSELECTION = """<selection></selection>"""
 SOFFICEPATH = """\"C:\Program Files(x86)\LibreOffice 5\program\soffice.exe\""""
 INDEXBT = ('BT01', 'BT02', 'BT03', 'BT06', 'BT07', 'BT08', 'BT09', 'BT10', 'BT11', 'BT12', 'BT14', 'BT16B', 'BT18A', 'BT19B', 'BT26', 'BT27', 'BT28', 'BT30', 'BT32', 'BT33', 'BT34', 'BT35', 'BT38', 'BT40', 'BT41', 'BT42', 'BT43', 'BT45', 'BT46', 'BT47', 'BT48', 'BT49', 'BT50', 'BT51', 'BT52', 'BT53', 'BT54')
-TVA = (5.5, 10, 20)
+TVA = ('5.5', '10.0', '20.0')

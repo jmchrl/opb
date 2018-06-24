@@ -223,7 +223,10 @@ class Main():
                     name.text = work['name']
                     code = ET.SubElement(node, "code")
                     code.text = work['code']
-                    node.append(work['description'])
+                    try :
+                        node.append(work['description'])
+                    except TypeError:
+                        description = ET.SubElement(node, "description")
                     #description = ET.SubElement(node, "description") # not useful at the moment
                     #if work['description'] == "":
                         #pass
@@ -235,8 +238,11 @@ class Main():
                     index.text = work['index']
                     price = ET.SubElement(node, "price")
                     price.text = str(work['price'])
-                    quantity = ET.SubElement(node, "quantity")
-                    quantity.text = work['quantity']
+                    try :
+                        node.append(work['quantity'])
+                    except:
+                        quantity = ET.SubElement(node, "quantity")
+                        quantity.text = work['quantity']
                     status = ET.SubElement(node, "status")
                     status.text = work['status']
                     vat = ET.SubElement(node, "vat")
@@ -267,13 +273,13 @@ class Main():
         work['iid'] = item
         work['name'] = "_Ouvrage_"
         work['code'] = ""
-        work['description'] = ""
+        work['description'] = None
         work['localisation'] = ""
-        work['index'] = ""
-        work['price'] = ""
-        work['quantity'] = ""
-        work['status'] = ""
-        work['vat'] = ""
+        work['index'] = "BT01"
+        work['price'] = "0.00"
+        work['quantity'] = None
+        work['status'] = "base"
+        work['vat'] = "20.0"
         work['unit'] = ""
         self.project.add_work(work)
         self.add_modification()

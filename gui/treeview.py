@@ -136,7 +136,11 @@ class ProjectTreeview(OpbTreeview):
                     self.items.append(item)
                     self.browse_xml_branch(children.findall("element"), item, position)
                 if children.get("id") == "work":
-                    quant = float(lib.fonctions.evalQuantite(children.find('quantity').text))
+                    # Traitement d'erreur à supprimer un fois que les fichiers seront mis à jour
+                    try:
+                        quant = float(lib.fonctions.evalQuantiteNew(children.find('quantity')))
+                    except TypeError:
+                        quant = float(lib.fonctions.evalQuantite(children.find('quantity').text))
                     try:
                         try:
                             prix = float(children.find('price').text)
@@ -157,7 +161,11 @@ class ProjectTreeview(OpbTreeview):
                     work['localisation'] = children.find('localisation').text
                     work['index'] = children.find('index').text
                     work['price'] = children.find('price').text
-                    work['quantity'] = children.find('quantity').text
+                    # Traitement d'erreur à supprimer un fois que les fichiers seront mis à jour
+                    try:
+                        work['quantity'] = children.find('quantity')
+                    except:
+                        work['quantity'] = children.find('quantity').text
                     work['status'] = children.find('status').text
                     work['vat'] = children.find('vat').text
                     work['unit'] = children.find('unit').text

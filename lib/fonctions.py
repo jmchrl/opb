@@ -24,25 +24,46 @@ import math
 import decimal
 
 def evalQuantite(texte):
-	# definition des variables mathematiques pour interpretation par eval
-	pi = math.pi
-	# calcul de la quantite
-	try:
-		s = texte.split("$")
-		total = 0.0
-		for ligne in s:
-			if ligne == "":
-				pass
-			else:
-				if ligne[0] == "#":
-					pass
-				else:
-					st=eval(ligne)
-					total = total + st
-		totalArrondi = decimal.Decimal(str(total)).quantize(decimal.Decimal('0.001'), rounding = 'ROUND_HALF_UP')
-		return totalArrondi
-	except:
-		return str(0.0)
+    # definition des variables mathematiques pour interpretation par eval
+    pi = math.pi
+    # calcul de la quantite
+    try:
+        s = texte.split("$")
+        total = 0.0
+        for ligne in s:
+            if ligne == "":
+                pass
+            else:
+                if ligne[0] == "#":
+                    pass
+                else:
+                    st=eval(ligne)
+                    total = total + st
+        totalArrondi = decimal.Decimal(str(total)).quantize(decimal.Decimal('0.001'), rounding = 'ROUND_HALF_UP')
+        return totalArrondi
+    except:
+        return str(0.0)
+
+def evalQuantiteNew(xml_node):
+    # definition des variables mathematiques pour interpretation par eval
+    pi = math.pi
+    # calcul de la quantite
+    try:
+        s = texte.split("$")
+        total = 0.0
+        for sub_node in xml_node:
+            if sub_node.text == "":
+                pass
+            else:
+                if sub_node.text[0] == "#":
+                    pass
+                else:
+                    st=eval(sub_node.text)
+                    total = total + st
+        totalArrondi = decimal.Decimal(str(total)).quantize(decimal.Decimal('0.001'), rounding = 'ROUND_HALF_UP')
+        return totalArrondi
+    except:
+        return str(0.0)
 
 def indent(elem, level=0):
     """Indentation du xml pour le module etree"""
