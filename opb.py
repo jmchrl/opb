@@ -227,11 +227,6 @@ class Main():
                         node.append(work['description'])
                     except TypeError:
                         description = ET.SubElement(node, "description")
-                    #description = ET.SubElement(node, "description") # not useful at the moment
-                    #if work['description'] == "":
-                        #pass
-                    #else:
-                        #description_text = ET.SubElement(description, ET.Element.fromstring(work['description']))
                     localisation = ET.SubElement(node, "localisation")
                     localisation.text = work['localisation']
                     index = ET.SubElement(node, "index")
