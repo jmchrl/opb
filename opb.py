@@ -695,8 +695,6 @@ if __name__ == '__main__':
 # voir pour ajouter dans data.xml la possibilite d ajouter des variantes par lot
 # voir pour ajouter dans data.xml le coefficient de marge pour les estimations
 # rendre impossible l'indentation d'un titre après un ouvrage
-# lors de l'enregistrement du quantitatif, ajouter chaque ligne avec une balise xml <line/> par exemple
 # sur le treeview, prévoir contrôle pour vérifier qu'une description et une localisation sont bien associées à un ouvrage
-# ajouter un onglet description pour le détail des ouvrages et gérer son enregistrement
 
 

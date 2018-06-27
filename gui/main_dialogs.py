@@ -366,14 +366,26 @@ class DialogQt(tkinter.Frame):
         self.parent.bind("<Return>", self.__update_quantity)
 
     def __update_quantity(self, event):
-        # A revoir pour utiliser evalQuantiteNew
-        texte = self.text_zone.get('0.0', 'end')
-        quantity_lines = texte.split("\n")
-        quantite = ""
-        for line in quantity_lines:
-            quantite = quantite + "%s$" %(line)
-        total = lib.fonctions.evalQuantite(quantite)
-        self.text_var.set("Total = %s %s" % (total, self.work['unit']))
+        #texte = self.text_zone.get('0.0', 'end')
+        #quantity_lines = texte.split("\n")
+        #quantite = ""
+        #for line in quantity_lines:
+            #quantite = quantite + "%s$" %(line)
+        #total = lib.fonctions.evalQuantite(quantite)
+        #self.text_var.set("Total = %s %s" % (total, self.work['unit']))
+        text = self.text_zone.get('0.0', 'end')
+        list_quantity = text.split("\n")
+        quantity = ET.Element("quantity")
+        for sub_measurement in list_quantity:
+            if sub_measurement == "":
+                pass
+            else:
+                sub_measurement_text = ET.Element("sub_measurement")
+                sub_measurement_text.text = sub_measurement
+                quantity.append(sub_measurement_text)
+        self.work['quantity'] = quantity
+        result = lib.fonctions.evalQuantiteNew(quantity)
+        self.text_var.set("Total = %s %s" % (result, self.work['unit']))
 
 class DialogDescription(tkinter.Frame):
     """Class for editing quantity of work"""

@@ -49,7 +49,6 @@ def evalQuantiteNew(xml_node):
     pi = math.pi
     # calcul de la quantite
     try:
-        s = texte.split("$")
         total = 0.0
         for sub_node in xml_node:
             if sub_node.text == "":
