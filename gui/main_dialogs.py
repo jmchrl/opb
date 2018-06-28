@@ -39,6 +39,7 @@ class DialogWorkInfos(tkinter.Toplevel):
 
         self.project = project
         self.work = work
+        self.app = app # It's main windows
         self.parent = app.tree_project # It's the treeview
         self.index_item = index_item #It's the index of the item selected in the treeview
 
@@ -95,6 +96,7 @@ class DialogWorkInfos(tkinter.Toplevel):
         self.parent.set(self.index_item,\
                         column="#5",\
                         value= "%.2f" % (float(result) * float(self.parent.item(self.index_item)['values'][3])))
+        self.app.total_price_project.set("Prix total du projet = %.2f Euros HT" % (self.project.total_price_project()))
     
     def __update_work_description(self):
         """Update the work description, work description is an xml element object"""

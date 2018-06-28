@@ -107,8 +107,9 @@ class Main():
         #adding a frame for status bar
         status_frame = tkinter.Frame(self.root)
         status_frame.grid(row=3, column=0, sticky='WN', padx=5, pady=5)
-        status_text = tkinter.Label(status_frame, text="R.A.S.")
-        status_text.grid(row=0, column=0, sticky='WENS')
+        self.total_price_project = tkinter.StringVar()
+        self.total_price_project_label = tkinter.Label(status_frame, textvariable=self.total_price_project)
+        self.total_price_project_label.grid(row=0, column=0, sticky='WENS')
 
         ########
         # menu #
@@ -646,6 +647,19 @@ class Project():
                 test = work
                 break
         return test
+    
+    def total_price_project(self):
+        """Calculation the total price of the project without VAT"""
+        total = 0.00
+        for work in self.works:
+            print(work['quantity'])
+            if work['quantity'] is None:
+                print('je cherche')
+                pass
+            else:
+                total = total + float(work['price'])*float(lib.fonctions.evalQuantiteNew(work['quantity']))
+                print(total)
+        return total
 
     def cleanDirTemp(self):
         """Clean tempory files in temp directory"""

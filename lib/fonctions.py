@@ -62,7 +62,7 @@ def evalQuantiteNew(xml_node):
         totalArrondi = decimal.Decimal(str(total)).quantize(decimal.Decimal('0.001'), rounding = 'ROUND_HALF_UP')
         return totalArrondi
     except:
-        return str(0.0)
+        return str(0.00)
 
 def indent(elem, level=0):
     """Indentation du xml pour le module etree"""
