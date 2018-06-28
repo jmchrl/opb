@@ -81,11 +81,11 @@ class ProjectTreeview(OpbTreeview):
         self.application = application
 
         self["columns"] = ("IdCCTP", "U", "Q", "PU", "PT")
-        self.column("#1", width=150, stretch=False)
-        self.column("#2", width=100, stretch=False)
-        self.column("#3", width=100, stretch=False)
-        self.column("#4", width=100, stretch=False)
-        self.column("#5", width=100, stretch=False)
+        self.column("#1", width=150, stretch=False, anchor='center')
+        self.column("#2", width=100, stretch=False, anchor='center')
+        self.column("#3", width=100, stretch=False, anchor='e')
+        self.column("#4", width=100, stretch=False, anchor='e')
+        self.column("#5", width=100, stretch=False, anchor='e')
 
         self.heading("#1", text="IdCCTP")
         self.heading("#2", text="U")
@@ -152,7 +152,7 @@ class ProjectTreeview(OpbTreeview):
                                        text=children.find('name').text,\
                                        values=(children.find('code').text,\
                                        children.find('unit').text,\
-                                       quant, prix, quant*prix))
+                                       "%.3f" % quant, "%.2f" % prix, "%.2f" % (quant*prix)))
                     work = {}
                     work['iid'] = item
                     work['name'] = children.find('name').text

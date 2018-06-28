@@ -91,10 +91,10 @@ class DialogWorkInfos(tkinter.Toplevel):
         result = lib.fonctions.evalQuantiteNew(quantity)
         self.parent.set(self.index_item,\
                         column="#3",\
-                        value=float(result))
+                        value= "%.3f" % float(result))
         self.parent.set(self.index_item,\
                         column="#5",\
-                        value=float(result) * float(self.parent.item(self.index_item)['values'][3]))
+                        value= "%.2f" % (float(result) * float(self.parent.item(self.index_item)['values'][3])))
     
     def __update_work_description(self):
         """Update the work description, work description is an xml element object"""
@@ -332,7 +332,6 @@ class DialogQt(tkinter.Frame):
             # Traitement d'erreur à supprimer une fois tous les fichiers mis à jour
             try :
                 for sub_measurement in self.work['quantity']:
-                    print(sub_measurement)
                     self.text_zone.insert("end", "%s\n" %(sub_measurement.text))
                     self.text_zone.yview("moveto", 1)
             except:
