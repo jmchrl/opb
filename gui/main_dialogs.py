@@ -330,18 +330,18 @@ class DialogQt(tkinter.Frame):
 
         if self.work['quantity'] is None:
             pass
-        else:
-            # Traitement d'erreur à supprimer une fois tous les fichiers mis à jour
-            try :
-                for sub_measurement in self.work['quantity']:
-                    self.text_zone.insert("end", "%s\n" %(sub_measurement.text))
-                    self.text_zone.yview("moveto", 1)
-            except:
-                quantity_lines = self.work['quantity'].split("$")
+        else :
+            sub_measurement_list = self.work['quantity'].getchildren()
+            if sub_measurement_list == []:
+                quantity_lines = self.work['quantity'].text.split("$")
                 for line in quantity_lines:
                     self.text_zone.insert("end", "%s\n" %(line))
                     self.text_zone.yview("moveto", 1)
-
+            else:
+                for sub_measurement in sub_measurement_list:
+                    self.text_zone.insert("end", "%s\n" %(sub_measurement.text))
+                    self.text_zone.yview("moveto", 1)
+        
         bottom_frame = tkinter.Frame(self, padx=2, pady=2)
         bottom_frame.grid(row=1, column=0, columnspan=2, sticky="EW")
 
@@ -361,7 +361,7 @@ class DialogQt(tkinter.Frame):
                 resultat = lib.fonctions.evalQuantiteNew(self.work['quantity'])
             except TypeError:
                 resultat = lib.fonctions.evalQuantite(self.work['quantity'])
-            self.text_var.set("Total = %s %s" % (resultat, unite))
+            self.text_var.set("Total = %.3f %s" % (resultat, unite))
 
         self.parent.bind("<KeyPress-F9>", self.__update_quantity)
         self.parent.bind("<Return>", self.__update_quantity)
@@ -386,7 +386,7 @@ class DialogQt(tkinter.Frame):
                 quantity.append(sub_measurement_text)
         self.work['quantity'] = quantity
         result = lib.fonctions.evalQuantiteNew(quantity)
-        self.text_var.set("Total = %s %s" % (result, self.work['unit']))
+        self.text_var.set("Total = %.3f %s" % (result, self.work['unit']))
 
 class DialogDescription(tkinter.Frame):
     """Class for editing quantity of work"""

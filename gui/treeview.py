@@ -27,6 +27,7 @@ This is the module for gui treeview.
 import tkinter
 import tkinter.ttk
 import lib.fonctions
+import xml.etree.ElementTree as ET
 
 class OpbTreeview(tkinter.ttk.Treeview):
     """Main class for treeview in opb"""
@@ -101,8 +102,9 @@ class ProjectTreeview(OpbTreeview):
         groundwork = xml.find("groundwork")
         #xml file path for representation in the treeview
         self.browse_xml_branch(groundwork.findall("element"), "", "end")
-
-
+        self.application.total_price_project.set("Prix total du projet = %.2f Euros HT"\
+                                                  % (self.application.project.total_price_project()))
+        
     def browse_xml_branch(self, childrens_xml, parent_node, position):
         """browse xml file branch, when the node have childrens this
            fonction is recursive"""
@@ -136,18 +138,14 @@ class ProjectTreeview(OpbTreeview):
                     self.items.append(item)
                     self.browse_xml_branch(children.findall("element"), item, position)
                 if children.get("id") == "work":
-                    # Traitement d'erreur à supprimer un fois que les fichiers seront mis à jour
-                    try:
-                        quant = float(lib.fonctions.evalQuantiteNew(children.find('quantity')))
-                    except TypeError:
-                        quant = float(lib.fonctions.evalQuantite(children.find('quantity').text))
-                    try:
+                    quant = float(lib.fonctions.evalQuantiteNew(children.find('quantity')))
+                    if children.find('price').text is None:
+                        prix = 0.0
+                    else:
                         try:
                             prix = float(children.find('price').text)
-                        except ValueError:
+                        except:
                             prix = 0.0
-                    except TypeError:
-                        prix = 0.0
                     item = self.insert(parent_node, position,\
                                        text=children.find('name').text,\
                                        values=(children.find('code').text,\
@@ -161,11 +159,7 @@ class ProjectTreeview(OpbTreeview):
                     work['localisation'] = children.find('localisation').text
                     work['index'] = children.find('index').text
                     work['price'] = children.find('price').text
-                    # Traitement d'erreur à supprimer un fois que les fichiers seront mis à jour
-                    try:
-                        work['quantity'] = children.find('quantity')
-                    except:
-                        work['quantity'] = children.find('quantity').text
+                    work['quantity'] = children.find('quantity')
                     work['status'] = children.find('status').text
                     work['vat'] = children.find('vat').text
                     work['unit'] = children.find('unit').text
@@ -277,9 +271,13 @@ class EntryTreeview(tkinter.Entry):
             try:
                 value = float(value)
                 self.application.tree_project.set(self.select,\
-                                                  column=self.column, value=value)
+                                                  column=self.column, value="%.3f" % value)
                 if self.work != None:
-                    self.work['quantity'] = str(value)
+                    sub_measurement_text = ET.Element("sub_measurement")
+                    sub_measurement_text.text = str(value)
+                    quantity = ET.Element("quantity")
+                    quantity.append(sub_measurement_text)
+                    self.work['quantity'] = quantity
                 self.application.tree_project.set(self.select,\
                                                   column="#5",\
                                                   value=\
@@ -304,4 +302,6 @@ class EntryTreeview(tkinter.Entry):
                 tkinter.messagebox.showwarning("Erreur de saisie",\
                                                "La valeur saisie doit être un nombre")
         self.application.add_modification()
+        self.application.total_price_project.set("Prix total du projet = %.2f Euros HT"\
+                                                  % (self.application.project.total_price_project()))
         self.destroy()

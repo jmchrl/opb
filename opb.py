@@ -224,21 +224,35 @@ class Main():
                     name.text = work['name']
                     code = ET.SubElement(node, "code")
                     code.text = work['code']
-                    try :
-                        node.append(work['description'])
-                    except TypeError:
+                    if work['description'] is None:
                         description = ET.SubElement(node, "description")
+                    else:
+                        node.append(work['description'])
                     localisation = ET.SubElement(node, "localisation")
                     localisation.text = work['localisation']
                     index = ET.SubElement(node, "index")
                     index.text = work['index']
                     price = ET.SubElement(node, "price")
-                    price.text = str(work['price'])
-                    try :
-                        node.append(work['quantity'])
-                    except:
+                    price.text = (work['price'])
+                    #############################################################################
+                    # A revor une fois tous les fichiers à jours
+                    if work['quantity'] is None:
                         quantity = ET.SubElement(node, "quantity")
-                        quantity.text = work['quantity']
+                    else:
+                        if work['quantity'].text:
+                            list_quantity = work['quantity'].text.split("$")
+                            quantity = ET.Element("quantity")
+                            for sub_measurement in list_quantity:
+                                if sub_measurement == "":
+                                    pass
+                                else:
+                                    sub_measurement_text = ET.Element("sub_measurement")
+                                    sub_measurement_text.text = sub_measurement
+                                    quantity.append(sub_measurement_text)
+                            node.append(quantity)
+                        else:
+                            node.append(work['quantity'])
+                    #############################################################################
                     status = ET.SubElement(node, "status")
                     status.text = work['status']
                     vat = ET.SubElement(node, "vat")
@@ -269,11 +283,11 @@ class Main():
         work['iid'] = item
         work['name'] = "_Ouvrage_"
         work['code'] = ""
-        work['description'] = None
+        work['description'] = ""
         work['localisation'] = ""
         work['index'] = "BT01"
         work['price'] = "0.00"
-        work['quantity'] = None
+        work['quantity'] = ""
         work['status'] = "base"
         work['vat'] = "20.0"
         work['unit'] = ""
@@ -652,13 +666,12 @@ class Project():
         """Calculation the total price of the project without VAT"""
         total = 0.00
         for work in self.works:
-            print(work['quantity'])
             if work['quantity'] is None:
-                print('je cherche')
+                pass
+            elif work['price'] is None:
                 pass
             else:
                 total = total + float(work['price'])*float(lib.fonctions.evalQuantiteNew(work['quantity']))
-                print(total)
         return total
 
     def cleanDirTemp(self):
