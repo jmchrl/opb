@@ -74,14 +74,14 @@ class Main():
         #adding a frame container treeview
         tree_frame = tkinter.Frame(self.root)
         tree_frame.grid(row=2, column=0, sticky='WENS', padx=5, pady=5)
-        tree_frame.rowconfigure(0, weight=1)
+        tree_frame.rowconfigure(1, weight=1)
         tree_frame.columnconfigure(0, weight=1)
 
         #adding treeview project
         self.tree_project = gui.treeview.ProjectTreeview(self, tree_frame)
 
         #to make the treeview stretchable on the entire window
-        self.tree_project.grid(row=0, column=0, sticky='WENS')
+        self.tree_project.grid(row=0, rowspan=2, column=0, sticky='WENS')
 
         #connect functions to events
         self.tree_project.bind("<Double-Button-1>", self.__widget_for_editing_treeview)
@@ -93,13 +93,13 @@ class Main():
         #####################
         # database treeview #
         #####################
-
+        
         #adding treeview for database
         self.tree_base = gui.treeview.DataBaseTreeview(tree_frame)
 
         #to make the treeview stretchable on the entire window
-        self.tree_base.grid(row=0, column=1, sticky='WENS')
-
+        #self.tree_base.grid(row=1, column=1, sticky='WENS')
+        
         ##############
         # status bar #
         ##############
@@ -515,6 +515,7 @@ class MenuBar(object):
         self.parent_gui.config(menu=self.menu_bar)
         self.__add_file_menu()
         self.__add_edit_menu()
+        self.__add_display_menu()
         self.__add_groundwork_menu()
 
     def __add_file_menu(self):
@@ -563,9 +564,24 @@ class MenuBar(object):
                                      command=self.application.copy)
         drop_down_edit_menu.add_command(label="Coller", underline=0,\
                                      command=self.application.paste)
-
+        
         #adding the drop_down_edit_menu to the menu bar
         self.menu_bar.add_cascade(label="Edition", menu=drop_down_edit_menu)
+    
+    def __add_display_menu(self):
+        """Adding display menu in the menu bar"""
+
+        #drop down edit menu
+        drop_down_display_menu = tkinter.Menu(self.menu_bar)
+
+        #adding commands
+        drop_down_display_menu.add_command(label="Masquer le panneau latéral", underline=0,\
+                                           command=self.application.tree_base.hide_treeview)
+        drop_down_display_menu.add_command(label="Afficher le panneau latéral", underline=0,\
+                                           command=self.application.tree_base.show_treeview)
+
+        #adding the drop_down_display_menu to the menu bar
+        self.menu_bar.add_cascade(label="Affichage", menu=drop_down_display_menu)
 
     def __add_groundwork_menu(self):
         """Adding groundwork menu in the menu bar"""

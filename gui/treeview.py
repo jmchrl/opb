@@ -225,6 +225,16 @@ class DataBaseTreeview(tkinter.ttk.Treeview):
                     self.delete(item)
                 except:
                     pass
+    
+    def hide_treeview(self):
+        """Hide treeview"""
+        
+        self.destroy()
+    
+    def show_treeview(self):
+        """Show treeview"""
+        
+        self.grid(row=1, column=1, sticky='WENS')
 
 
 class EntryTreeview(tkinter.Entry):
