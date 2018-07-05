@@ -333,10 +333,13 @@ class DialogQt(tkinter.Frame):
         else :
             sub_measurement_list = self.work['quantity'].getchildren()
             if sub_measurement_list == []:
-                quantity_lines = self.work['quantity'].text.split("$")
-                for line in quantity_lines:
-                    self.text_zone.insert("end", "%s\n" %(line))
-                    self.text_zone.yview("moveto", 1)
+                try:
+                    quantity_lines = self.work['quantity'].text.split("$")
+                    for line in quantity_lines:
+                        self.text_zone.insert("end", "%s\n" %(line))
+                        self.text_zone.yview("moveto", 1)
+                except AttributeError:
+                    pass
             else:
                 for sub_measurement in sub_measurement_list:
                     self.text_zone.insert("end", "%s\n" %(sub_measurement.text))
