@@ -139,16 +139,28 @@ class DialogWorkInfos(tkinter.Toplevel):
         self.work['index'] = index
 
         #update the localisation of work
+        #text = self.page_work_infos.text_zone.get('0.0', 'end')
+        #list_localisation = text.split("\n")
+        #localisation = ""
+        #for line in list_localisation:
+            #if line == "":
+                #pass
+            #else:
+                #localisation = localisation + "%s$" %(line)
+        # deleting the last character $ of the string localisation
+        #localisation = localisation[:len(localisation)-1]
+        #self.work['localisation'] = localisation
+        
         text = self.page_work_infos.text_zone.get('0.0', 'end')
-        list_localisation = text.split("\n")
-        localisation = ""
-        for line in list_localisation:
-            if line == "":
+        list_paragraph = text.split("\n")
+        localisation = ET.Element("localisation")
+        for paragraph in list_paragraph:
+            if paragraph == "":
                 pass
             else:
-                localisation = localisation + "%s$" %(line)
-        # deleting the last character $ of the string localisation
-        localisation = localisation[:len(localisation)-1]
+                paragraph_text = ET.Element("p")
+                paragraph_text.text = paragraph
+                localisation.append(paragraph_text)
         self.work['localisation'] = localisation
 
     def validate(self):
@@ -257,10 +269,14 @@ class DescDialog(tkinter.Frame):
 
         if self.work['localisation'] is None:
             pass
+        #else:
+            #localisation_lines = self.work['localisation'].split("$")
+            #for line in localisation_lines:
+                #self.text_zone.insert("end", "%s\n" %(line))
+                #self.text_zone.yview("moveto", 1)
         else:
-            localisation_lines = self.work['localisation'].split("$")
-            for line in localisation_lines:
-                self.text_zone.insert("end", "%s\n" %(line))
+            for paragraph in self.work['localisation']:
+                self.text_zone.insert("end", "%s\n" %(paragraph.text))
                 self.text_zone.yview("moveto", 1)
 
     def open_cctp(self):
