@@ -158,7 +158,8 @@ class ProjectTreeview(OpbTreeview):
                     work['description'] = children.find('description')
                     work['localisation'] = children.find('localisation').text
                     work['index'] = children.find('index').text
-                    work['price'] = children.find('price').text
+                    #work['price'] = children.find('price').text
+                    work['price'] = str(prix)
                     work['quantity'] = children.find('quantity')
                     work['status'] = children.find('status').text
                     work['vat'] = children.find('vat').text
