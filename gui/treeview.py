@@ -138,36 +138,29 @@ class ProjectTreeview(OpbTreeview):
                     self.items.append(item)
                     self.browse_xml_branch(children.findall("element"), item, position)
                 if children.get("id") == "work":
-                    quant = float(lib.fonctions.evalQuantiteNew(children.find('quantity')))
-                    if children.find('price').text is None:
-                        prix = 0.0
-                    else:
-                        try:
-                            prix = float(children.find('price').text)
-                        except:
-                            prix = 0.0
                     item = self.insert(parent_node, position,\
                                        text=children.find('name').text,\
                                        values=(children.find('code').text,\
                                        children.find('unit').text,\
-                                       "%.3f" % quant, "%.2f" % prix, "%.2f" % (quant*prix)))
+                                       "%.3f" % lib.fonctions.evalQuantiteNew(children.find('quantity')),\
+                                       "%.2f" % float(children.find('price').text),\
+                                       "%.2f" % (lib.fonctions.evalQuantiteNew(children.find('quantity'))\
+                                                 *float(children.find('price').text))))
                     work = {}
                     work['iid'] = item
                     work['name'] = children.find('name').text
                     work['code'] = children.find('code').text
                     work['description'] = children.find('description')
-                    work['localisation'] = children.find('localisation').text
+                    work['localisation'] = children.find('localisation')
                     work['index'] = children.find('index').text
-                    #work['price'] = children.find('price').text
-                    work['price'] = str(prix)
-                    work['quantity'] = children.find('quantity')
+                    work['price'] = children.find('price').text
+                    work['quantity'] = children.find('quantity') #it's xml node
                     work['status'] = children.find('status').text
                     work['vat'] = children.find('vat').text
                     work['unit'] = children.find('unit').text
                     self.items.append(item)
                     self.application.project.add_work(work)
-
-
+                    
     def parents_item(self, select=None):
         """Returns the parent list of a selected item"""
 

@@ -138,19 +138,6 @@ class DialogWorkInfos(tkinter.Toplevel):
         index = self.page_work_infos.choice_id_bt.get()
         self.work['index'] = index
 
-        #update the localisation of work
-        #text = self.page_work_infos.text_zone.get('0.0', 'end')
-        #list_localisation = text.split("\n")
-        #localisation = ""
-        #for line in list_localisation:
-            #if line == "":
-                #pass
-            #else:
-                #localisation = localisation + "%s$" %(line)
-        # deleting the last character $ of the string localisation
-        #localisation = localisation[:len(localisation)-1]
-        #self.work['localisation'] = localisation
-        
         text = self.page_work_infos.text_zone.get('0.0', 'end')
         list_paragraph = text.split("\n")
         localisation = ET.Element("localisation")

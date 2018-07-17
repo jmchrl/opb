@@ -60,7 +60,10 @@ def evalQuantiteNew(xml_node):
                 if children.text[0] == "#":
                     pass
                 else:
-                    sub_measurement = eval(children.text)
+                    try:
+                        sub_measurement = eval(children.text)
+                    except:
+                        sub_measurement = 0.0
                     quantity = quantity + sub_measurement
     return quantity
 

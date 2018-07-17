@@ -234,25 +234,10 @@ class Main():
                     index.text = work['index']
                     price = ET.SubElement(node, "price")
                     price.text = (work['price'])
-                    #############################################################################
-                    # A revor une fois tous les fichiers à jours
                     if work['quantity'] is None:
                         quantity = ET.SubElement(node, "quantity")
                     else:
-                        if work['quantity'].text:
-                            list_quantity = work['quantity'].text.split("$")
-                            quantity = ET.Element("quantity")
-                            for sub_measurement in list_quantity:
-                                if sub_measurement == "":
-                                    pass
-                                else:
-                                    sub_measurement_text = ET.Element("sub_measurement")
-                                    sub_measurement_text.text = sub_measurement
-                                    quantity.append(sub_measurement_text)
-                            node.append(quantity)
-                        else:
-                            node.append(work['quantity'])
-                    #############################################################################
+                        node.append(work['quantity'])
                     status = ET.SubElement(node, "status")
                     status.text = work['status']
                     vat = ET.SubElement(node, "vat")
