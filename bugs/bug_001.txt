@@ -1,0 +1,240 @@
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "/usr/lib/python3.5/tkinter/__init__.py", line 1553, in __call__
+    return self.func(*args)
+  File "opb.py", line 280, in add_work
+    self.add_modification()
+  File "opb.py", line 369, in add_modification
+    xml = self.__groundwork_to_xml_object()
+  File "opb.py", line 195, in __groundwork_to_xml_object
+    self.__browse_treeview_branch(self.tree_project.get_children(), groundwork)
+  File "opb.py", line 220, in __browse_treeview_branch
+    self.__browse_treeview_branch(self.tree_project.get_children(children), node)
+  File "opb.py", line 220, in __browse_treeview_branch
+    self.__browse_treeview_branch(self.tree_project.get_children(children), node)
+  File "opb.py", line 230, in __browse_treeview_branch
+    node.append(work['description'])
+TypeError: append() argument must be xml.etree.ElementTree.Element, not str
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "/usr/lib/python3.5/tkinter/__init__.py", line 1553, in __call__
+    return self.func(*args)
+  File "/home/jm/Bureau/JM/Programmes/opb/gui/treeview.py", line 64, in go_up_item
+    self.application.add_modification()
+  File "opb.py", line 369, in add_modification
+    xml = self.__groundwork_to_xml_object()
+  File "opb.py", line 195, in __groundwork_to_xml_object
+    self.__browse_treeview_branch(self.tree_project.get_children(), groundwork)
+  File "opb.py", line 220, in __browse_treeview_branch
+    self.__browse_treeview_branch(self.tree_project.get_children(children), node)
+  File "opb.py", line 220, in __browse_treeview_branch
+    self.__browse_treeview_branch(self.tree_project.get_children(children), node)
+  File "opb.py", line 230, in __browse_treeview_branch
+    node.append(work['description'])
+TypeError: append() argument must be xml.etree.ElementTree.Element, not str
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "/usr/lib/python3.5/tkinter/__init__.py", line 1553, in __call__
+    return self.func(*args)
+  File "/home/jm/Bureau/JM/Programmes/opb/gui/treeview.py", line 308, in update_item
+    self.application.add_modification()
+  File "opb.py", line 369, in add_modification
+    xml = self.__groundwork_to_xml_object()
+  File "opb.py", line 195, in __groundwork_to_xml_object
+    self.__browse_treeview_branch(self.tree_project.get_children(), groundwork)
+  File "opb.py", line 220, in __browse_treeview_branch
+    self.__browse_treeview_branch(self.tree_project.get_children(children), node)
+  File "opb.py", line 220, in __browse_treeview_branch
+    self.__browse_treeview_branch(self.tree_project.get_children(children), node)
+  File "opb.py", line 230, in __browse_treeview_branch
+    node.append(work['description'])
+TypeError: append() argument must be xml.etree.ElementTree.Element, not str
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "/usr/lib/python3.5/tkinter/__init__.py", line 1553, in __call__
+    return self.func(*args)
+  File "/home/jm/Bureau/JM/Programmes/opb/gui/treeview.py", line 308, in update_item
+    self.application.add_modification()
+  File "opb.py", line 369, in add_modification
+    xml = self.__groundwork_to_xml_object()
+  File "opb.py", line 195, in __groundwork_to_xml_object
+    self.__browse_treeview_branch(self.tree_project.get_children(), groundwork)
+  File "opb.py", line 220, in __browse_treeview_branch
+    self.__browse_treeview_branch(self.tree_project.get_children(children), node)
+  File "opb.py", line 220, in __browse_treeview_branch
+    self.__browse_treeview_branch(self.tree_project.get_children(children), node)
+  File "opb.py", line 230, in __browse_treeview_branch
+    node.append(work['description'])
+TypeError: append() argument must be xml.etree.ElementTree.Element, not str
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "/usr/lib/python3.5/tkinter/__init__.py", line 1553, in __call__
+    return self.func(*args)
+  File "/home/jm/Bureau/JM/Programmes/opb/gui/treeview.py", line 308, in update_item
+    self.application.add_modification()
+  File "opb.py", line 369, in add_modification
+    xml = self.__groundwork_to_xml_object()
+  File "opb.py", line 195, in __groundwork_to_xml_object
+    self.__browse_treeview_branch(self.tree_project.get_children(), groundwork)
+  File "opb.py", line 220, in __browse_treeview_branch
+    self.__browse_treeview_branch(self.tree_project.get_children(children), node)
+  File "opb.py", line 220, in __browse_treeview_branch
+    self.__browse_treeview_branch(self.tree_project.get_children(children), node)
+  File "opb.py", line 230, in __browse_treeview_branch
+    node.append(work['description'])
+TypeError: append() argument must be xml.etree.ElementTree.Element, not str
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "/usr/lib/python3.5/tkinter/__init__.py", line 1553, in __call__
+    return self.func(*args)
+  File "/home/jm/Bureau/JM/Programmes/opb/gui/treeview.py", line 308, in update_item
+    self.application.add_modification()
+  File "opb.py", line 369, in add_modification
+    xml = self.__groundwork_to_xml_object()
+  File "opb.py", line 195, in __groundwork_to_xml_object
+    self.__browse_treeview_branch(self.tree_project.get_children(), groundwork)
+  File "opb.py", line 220, in __browse_treeview_branch
+    self.__browse_treeview_branch(self.tree_project.get_children(children), node)
+  File "opb.py", line 220, in __browse_treeview_branch
+    self.__browse_treeview_branch(self.tree_project.get_children(children), node)
+  File "opb.py", line 230, in __browse_treeview_branch
+    node.append(work['description'])
+TypeError: append() argument must be xml.etree.ElementTree.Element, not str
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "/usr/lib/python3.5/tkinter/__init__.py", line 1553, in __call__
+    return self.func(*args)
+  File "/home/jm/Bureau/JM/Programmes/opb/gui/treeview.py", line 308, in update_item
+    self.application.add_modification()
+  File "opb.py", line 369, in add_modification
+    xml = self.__groundwork_to_xml_object()
+  File "opb.py", line 195, in __groundwork_to_xml_object
+    self.__browse_treeview_branch(self.tree_project.get_children(), groundwork)
+  File "opb.py", line 220, in __browse_treeview_branch
+    self.__browse_treeview_branch(self.tree_project.get_children(children), node)
+  File "opb.py", line 220, in __browse_treeview_branch
+    self.__browse_treeview_branch(self.tree_project.get_children(children), node)
+  File "opb.py", line 230, in __browse_treeview_branch
+    node.append(work['description'])
+TypeError: append() argument must be xml.etree.ElementTree.Element, not str
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "/usr/lib/python3.5/tkinter/__init__.py", line 1553, in __call__
+    return self.func(*args)
+  File "/home/jm/Bureau/JM/Programmes/opb/gui/treeview.py", line 308, in update_item
+    self.application.add_modification()
+  File "opb.py", line 369, in add_modification
+    xml = self.__groundwork_to_xml_object()
+  File "opb.py", line 195, in __groundwork_to_xml_object
+    self.__browse_treeview_branch(self.tree_project.get_children(), groundwork)
+  File "opb.py", line 220, in __browse_treeview_branch
+    self.__browse_treeview_branch(self.tree_project.get_children(children), node)
+  File "opb.py", line 220, in __browse_treeview_branch
+    self.__browse_treeview_branch(self.tree_project.get_children(children), node)
+  File "opb.py", line 230, in __browse_treeview_branch
+    node.append(work['description'])
+TypeError: append() argument must be xml.etree.ElementTree.Element, not str
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "/usr/lib/python3.5/tkinter/__init__.py", line 1553, in __call__
+    return self.func(*args)
+  File "/home/jm/Bureau/JM/Programmes/opb/gui/treeview.py", line 308, in update_item
+    self.application.add_modification()
+  File "opb.py", line 369, in add_modification
+    xml = self.__groundwork_to_xml_object()
+  File "opb.py", line 195, in __groundwork_to_xml_object
+    self.__browse_treeview_branch(self.tree_project.get_children(), groundwork)
+  File "opb.py", line 220, in __browse_treeview_branch
+    self.__browse_treeview_branch(self.tree_project.get_children(children), node)
+  File "opb.py", line 220, in __browse_treeview_branch
+    self.__browse_treeview_branch(self.tree_project.get_children(children), node)
+  File "opb.py", line 230, in __browse_treeview_branch
+    node.append(work['description'])
+TypeError: append() argument must be xml.etree.ElementTree.Element, not str
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "/usr/lib/python3.5/tkinter/__init__.py", line 1553, in __call__
+    return self.func(*args)
+  File "/home/jm/Bureau/JM/Programmes/opb/gui/treeview.py", line 308, in update_item
+    self.application.add_modification()
+  File "opb.py", line 369, in add_modification
+    xml = self.__groundwork_to_xml_object()
+  File "opb.py", line 195, in __groundwork_to_xml_object
+    self.__browse_treeview_branch(self.tree_project.get_children(), groundwork)
+  File "opb.py", line 220, in __browse_treeview_branch
+    self.__browse_treeview_branch(self.tree_project.get_children(children), node)
+  File "opb.py", line 220, in __browse_treeview_branch
+    self.__browse_treeview_branch(self.tree_project.get_children(children), node)
+  File "opb.py", line 230, in __browse_treeview_branch
+    node.append(work['description'])
+TypeError: append() argument must be xml.etree.ElementTree.Element, not str
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "/usr/lib/python3.5/tkinter/__init__.py", line 1553, in __call__
+    return self.func(*args)
+  File "/home/jm/Bureau/JM/Programmes/opb/gui/treeview.py", line 308, in update_item
+    self.application.add_modification()
+  File "opb.py", line 369, in add_modification
+    xml = self.__groundwork_to_xml_object()
+  File "opb.py", line 195, in __groundwork_to_xml_object
+    self.__browse_treeview_branch(self.tree_project.get_children(), groundwork)
+  File "opb.py", line 220, in __browse_treeview_branch
+    self.__browse_treeview_branch(self.tree_project.get_children(children), node)
+  File "opb.py", line 220, in __browse_treeview_branch
+    self.__browse_treeview_branch(self.tree_project.get_children(children), node)
+  File "opb.py", line 230, in __browse_treeview_branch
+    node.append(work['description'])
+TypeError: append() argument must be xml.etree.ElementTree.Element, not str
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "/usr/lib/python3.5/tkinter/__init__.py", line 1553, in __call__
+    return self.func(*args)
+  File "/home/jm/Bureau/JM/Programmes/opb/gui/treeview.py", line 308, in update_item
+    self.application.add_modification()
+  File "opb.py", line 369, in add_modification
+    xml = self.__groundwork_to_xml_object()
+  File "opb.py", line 195, in __groundwork_to_xml_object
+    self.__browse_treeview_branch(self.tree_project.get_children(), groundwork)
+  File "opb.py", line 220, in __browse_treeview_branch
+    self.__browse_treeview_branch(self.tree_project.get_children(children), node)
+  File "opb.py", line 220, in __browse_treeview_branch
+    self.__browse_treeview_branch(self.tree_project.get_children(children), node)
+  File "opb.py", line 230, in __browse_treeview_branch
+    node.append(work['description'])
+TypeError: append() argument must be xml.etree.ElementTree.Element, not str
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "/usr/lib/python3.5/tkinter/__init__.py", line 1553, in __call__
+    return self.func(*args)
+  File "/home/jm/Bureau/JM/Programmes/opb/gui/treeview.py", line 308, in update_item
+    self.application.add_modification()
+  File "opb.py", line 369, in add_modification
+    xml = self.__groundwork_to_xml_object()
+  File "opb.py", line 195, in __groundwork_to_xml_object
+    self.__browse_treeview_branch(self.tree_project.get_children(), groundwork)
+  File "opb.py", line 220, in __browse_treeview_branch
+    self.__browse_treeview_branch(self.tree_project.get_children(children), node)
+  File "opb.py", line 220, in __browse_treeview_branch
+    self.__browse_treeview_branch(self.tree_project.get_children(children), node)
+  File "opb.py", line 230, in __browse_treeview_branch
+    node.append(work['description'])
+TypeError: append() argument must be xml.etree.ElementTree.Element, not str
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "/usr/lib/python3.5/tkinter/__init__.py", line 1553, in __call__
+    return self.func(*args)
+  File "opb.py", line 454, in infos
+    self.add_modification()
+  File "opb.py", line 369, in add_modification
+    xml = self.__groundwork_to_xml_object()
+  File "opb.py", line 195, in __groundwork_to_xml_object
+    self.__browse_treeview_branch(self.tree_project.get_children(), groundwork)
+  File "opb.py", line 220, in __browse_treeview_branch
+    self.__browse_treeview_branch(self.tree_project.get_children(children), node)
+  File "opb.py", line 220, in __browse_treeview_branch
+    self.__browse_treeview_branch(self.tree_project.get_children(children), node)
+  File "opb.py", line 230, in __browse_treeview_branch
+    node.append(work['description'])
+TypeError: append() argument must be xml.etree.ElementTree.Element, not str
+The backup file /home/jm/Bureau/JM/Programmes/opb/examples/maison_003.zip was succefully saved
+

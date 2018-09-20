@@ -268,11 +268,11 @@ class Main():
         work['iid'] = item
         work['name'] = "_Ouvrage_"
         work['code'] = ""
-        work['description'] = ""
-        work['localisation'] = ""
+        work['description'] = ET.Element("description")
+        work['localisation'] = ET.Element("localisation")
         work['index'] = "BT01"
         work['price'] = "0.00"
-        work['quantity'] = ""
+        work['quantity'] = ET.Element("quantity")
         work['status'] = "base"
         work['vat'] = "20.0"
         work['unit'] = ""
