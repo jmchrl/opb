@@ -81,14 +81,14 @@ class ProjectTreeview(OpbTreeview):
         self.items = []
         self.application = application
 
-        self["columns"] = ("IdCCTP", "U", "Q", "PU", "PT")
+        self["columns"] = ("infos", "U", "Q", "PU", "PT")
         self.column("#1", width=150, stretch=False, anchor='center')
         self.column("#2", width=100, stretch=False, anchor='center')
         self.column("#3", width=100, stretch=False, anchor='e')
         self.column("#4", width=100, stretch=False, anchor='e')
         self.column("#5", width=100, stretch=False, anchor='e')
 
-        self.heading("#1", text="IdCCTP")
+        self.heading("#1", text="infos")
         self.heading("#2", text="U")
         self.heading("#3", text="Q")
         self.heading("#4", text="PU")
@@ -138,28 +138,58 @@ class ProjectTreeview(OpbTreeview):
                     self.items.append(item)
                     self.browse_xml_branch(children.findall("element"), item, position)
                 if children.get("id") == "work":
-                    item = self.insert(parent_node, position,\
-                                       text=children.find('name').text,\
-                                       values=(children.find('code').text,\
-                                       children.find('unit').text,\
-                                       "%.3f" % lib.fonctions.evalQuantiteNew(children.find('quantity')),\
-                                       "%.2f" % float(children.find('price').text),\
-                                       "%.2f" % (lib.fonctions.evalQuantiteNew(children.find('quantity'))\
-                                                 *float(children.find('price').text))))
                     work = {}
-                    work['iid'] = item
                     work['name'] = children.find('name').text
                     work['code'] = children.find('code').text
-                    work['description'] = children.find('description')
-                    work['localisation'] = children.find('localisation')
+                    work['description'] = children.find('description') #it's xml node
+                    work['localisation'] = children.find('localisation') #it's xml node
                     work['index'] = children.find('index').text
                     work['price'] = children.find('price').text
                     work['quantity'] = children.find('quantity') #it's xml node
                     work['status'] = children.find('status').text
                     work['vat'] = children.find('vat').text
                     work['unit'] = children.find('unit').text
+                    completed_field_information = self.completed_field_info(work['description'], work['localisation'])
+                    #if work['description'].getchildren() != [] and work['localisation'].getchildren() != []:
+                        #completed_field_information ="TL"
+                    #elif work['description'].getchildren() == [] and work['localisation'].getchildren() != []:
+                        #completed_field_information ="L"
+                    #elif work['description'].getchildren() != [] and work['localisation'].getchildren() == []:
+                        #completed_field_information ="T"
+                    #else:
+                        #completed_field_information =""
+                    #item = self.insert(parent_node, position,\
+                                       #text=children.find('name').text,\
+                                       #values=(children.find('code').text,\
+                                       #children.find('unit').text,\
+                                       #"%.3f" % lib.fonctions.evalQuantiteNew(children.find('quantity')),\
+                                       #"%.2f" % float(children.find('price').text),\
+                                       #"%.2f" % (lib.fonctions.evalQuantiteNew(children.find('quantity'))\
+                                                 #*float(children.find('price').text))))
+                    item = self.insert(parent_node, position,\
+                                       text=work['name'],\
+                                       values=(completed_field_information,\
+                                       work['unit'],\
+                                       "%.3f" % lib.fonctions.evalQuantiteNew(work['quantity']),\
+                                       "%.2f" % float(work['price']),\
+                                       "%.2f" % (lib.fonctions.evalQuantiteNew(work['quantity'])*float(work['price']))))
+                    work['iid'] = item
                     self.items.append(item)
                     self.application.project.add_work(work)
+    
+    def completed_field_info(self, work_description, work_localisation):
+        """Returns a string indicating status of work description and work localisation
+        work_description and work_localisation are xml nodes"""
+
+        if work_description.getchildren() != [] and work_localisation.getchildren() != []:
+            completed_field_information ="TL"
+        elif work_description.getchildren() == [] and work_localisation.getchildren() != []:
+            completed_field_information ="L"
+        elif work_description.getchildren() != [] and work_localisation.getchildren() == []:
+            completed_field_information ="T"
+        else:
+            completed_field_information =""
+        return completed_field_information
                     
     def parents_item(self, select=None):
         """Returns the parent list of a selected item"""

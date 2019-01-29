@@ -24,6 +24,7 @@
 This is the main module of the application.
 """
 
+import sys
 import os
 import shutil
 import zipfile
@@ -184,6 +185,7 @@ class Main():
             gui.main_dialogs.DialogSaveBeforeClose(self, "close")
         else:
             self.root.destroy()
+        
 
     def __groundwork_to_xml_object(self):
         """Create an image of the treeview to an xml object"""
@@ -228,8 +230,12 @@ class Main():
                         description = ET.SubElement(node, "description")
                     else:
                         node.append(work['description'])
-                    localisation = ET.SubElement(node, "localisation")
-                    localisation.text = work['localisation']
+                    if work['localisation'] is None:
+                        localisation = ET.SubElement(node, "localisation")
+                    else:
+                        node.append(work['localisation'])
+                    #localisation = ET.SubElement(node, "localisation")
+                    #localisation.text = work['localisation']
                     index = ET.SubElement(node, "index")
                     index.text = work['index']
                     price = ET.SubElement(node, "price")
@@ -453,6 +459,11 @@ class Main():
             gui.main_dialogs.DialogWorkInfos(self, select, self.project, work)
             self.add_modification()
 
+    def price_per_batch(self):
+        """Open the dialog price per batch"""
+        
+        gui.main_dialogs.DialogPricePerBatch(self)
+
     def __widget_for_editing_treeview(self, event):
         """Positioning an entry on the treeview to modify a value or
            creating a dialog to modify the quantity column"""
@@ -486,6 +497,13 @@ class Main():
                 text = item["values"][3]
                 entry = gui.treeview.EntryTreeview(self, text, column)
                 self.tree_project.childs.append(entry)
+
+    def edit_cctp(self):
+        """updating ./temp/data.xml file and open a new odt file"""
+        
+        self.project.data = self.__groundwork_to_xml_object()
+        self.project.data.write("./temp/data.xml", encoding="UTF-8", xml_declaration=True)
+        os.system('soffice %s' %(os.getcwd()+"/templates/cctp_template.ott"))
 
 class MenuBar(object):
     """Creating the menu bar at the top of main window"""
@@ -587,6 +605,12 @@ class MenuBar(object):
         drop_down_groundwork_menu.add_command(label="Détail de l'ouvrage",\
                                            underline=0,\
                                            command=self.application.infos)
+        drop_down_groundwork_menu.add_command(label="Total par lot",\
+                                           underline=0,\
+                                           command=self.application.price_per_batch)
+        drop_down_groundwork_menu.add_command(label="Edition du CCTP",\
+                                           underline=0,\
+                                           command=self.application.edit_cctp)
 
         #adding the drop_down_groundwork_menu to the menu bar
         self.menu_bar.add_cascade(label="Canevas", menu=drop_down_groundwork_menu)
@@ -650,6 +674,13 @@ class Project():
         self.lots = []
         self.works = []
 
+    def parent_folder(self):
+        """Return parent folder of url"""
+        parent_folder = ""
+        for id in range(len(self.url.split("/"))-1):
+            parent_folder = parent_folder + self.url.split("/")[id] + "/"
+        return parent_folder
+    
     def add_work(self, work):
         """Adding dictionary work in works list"""
         self.works.append(work)
@@ -709,6 +740,7 @@ class Project():
             except:
                 pass
         finally :
+            self.cleanDirTemp()
             print("The backup file %s was succefully saved" %(self.url))
             fileZip.close() # closing backup file in zip format
 

@@ -1,0 +1,12 @@
+#!/usr/bin/env xdg-open
+
+[Desktop Entry]
+Version=1.0
+Encoding=UTF-8
+Type=Application
+Name=opb
+GenericName=Raccourci vers l'application opb
+Exec=sh -c /home/jm/Bureau/JM/Programmes/opb/opb.sh
+Icon=/home/jm/Bureau/JM/Programmes/opb/img/icone.png
+Categories=Bureautique;
+Name[fr_FR]=opb

@@ -124,7 +124,7 @@ class DialogWorkInfos(tkinter.Toplevel):
         #update the description Id of work
         code = self.page_work_infos.text_var_id.get()
         self.work['code'] = code
-        self.parent.set(self.index_item, column="#1", value=code)
+        #self.parent.set(self.index_item, column="#1", value=code)
 
         #update the status of work
         status = self.page_work_infos.choice_base_or_option.get()
@@ -138,6 +138,7 @@ class DialogWorkInfos(tkinter.Toplevel):
         index = self.page_work_infos.choice_id_bt.get()
         self.work['index'] = index
 
+        #update localisation
         text = self.page_work_infos.text_zone.get('0.0', 'end')
         list_paragraph = text.split("\n")
         localisation = ET.Element("localisation")
@@ -156,6 +157,9 @@ class DialogWorkInfos(tkinter.Toplevel):
         self.__update_work_quantity()
         self.__update_work_infos()
         self.__update_work_description()
+        completed_field_information = self.parent.completed_field_info(self.work['description'],\
+                                                                       self.work['localisation'])
+        self.parent.set(self.index_item, column="#1", value=completed_field_information)
         self.destroy()
 
     def cancel(self):
@@ -481,3 +485,44 @@ class DialogSaveBeforeClose(tkinter.Toplevel):
             self.application.open_project()
         #else:
             #self.application.root.destroy()
+
+class DialogPricePerBatch(tkinter.Toplevel):
+    """Dialog for display price per batch"""
+    
+    def __init__(self, app):
+        """Initialize dialog"""
+
+        #self.project = project
+        self.app = app # It's main windows
+        self.treeview = app.tree_project # It's the treeview
+        print(self.treeview.get_children)
+        
+        for batch in self.treeview.get_children():
+            total = self.__browse_batch_for_total_price_per_batch(batch.get_children, 0.00)
+            print(self.treeview.item(batch)['text'] + "----" + total)
+        
+        #tkinter.Toplevel.__init__(self, self.parent)
+        #self.resizable(width=False, height=False)
+        #self.transient(self.master) # pour ne pas creer de nouvel icone dans la barre de lancement
+        #self.overrideredirect(1) # pour enlever le bandeau supérieur propre a l os
+    
+    def __browse_batch_for_total_price_per_batch(self, node, total):
+        """Calculate the total price of a batch, browse treeview batch, when the node have childrens this
+           fonction is recursive"""
+        
+        if node.get_children() != []:           
+            for children in node.get_children():
+                work = self.project.return_work(children)
+                if work is None:
+                    self.__browse_batch_for_total_price_per_batch(children.get_children(), total)
+                else:
+                    if work['quantity'] is None:
+                        pass
+                    elif work['price'] is None:
+                        pass
+                    else:
+                        total = total + float(work['price'])*float(lib.fonctions.evalQuantiteNew(work['quantity']))
+        return total
+            
+        
+        
