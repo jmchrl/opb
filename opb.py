@@ -28,6 +28,8 @@ import sys
 import os
 import shutil
 import zipfile
+import time
+import threading
 import xml.etree.ElementTree as ET
 import tkinter
 import tkinter.ttk
@@ -148,8 +150,11 @@ class Main():
             root = self.project.data.getroot()
             #Refreshing treeview
             self.tree_project.refresh(self, root)
-        xml = self.__groundwork_to_xml_object()
+        xml = self.groundwork_to_xml_object()
         self.modifications_dictionary['undo'].append(xml)
+        self.automatic_backup = AutomaticBackup(self, self.project)
+        self.automatic_backup.start()
+        #self.automatic_backup.run(self, self.projet)
 
     def save_project(self):
         """save project in zip file"""
@@ -160,7 +165,7 @@ class Main():
                                title="Fichier de sauvegarde ...")
 
         # update project xml file
-        self.project.data = self.__groundwork_to_xml_object()
+        self.project.data = self.groundwork_to_xml_object()
 
         # create or update the backup zip file
         self.project.saveZip()
@@ -177,7 +182,7 @@ class Main():
 
         self.project.url = None
         self.save_project()
-
+    
     def close(self):
         """Close the application and propose to save the changes"""
 
@@ -187,7 +192,7 @@ class Main():
             self.root.destroy()
         
 
-    def __groundwork_to_xml_object(self):
+    def groundwork_to_xml_object(self):
         """Create an image of the treeview to an xml object"""
 
         xml = ET.ElementTree(ET.fromstring(lib.constantes.XMLTEMPLATE))
@@ -372,7 +377,7 @@ class Main():
     def add_modification(self):
         """adding item in undo list and adding "*" before the root title name"""
 
-        xml = self.__groundwork_to_xml_object()
+        xml = self.groundwork_to_xml_object()
         self.modifications_dictionary['undo'].append(xml)
         if self.modifications_dictionary['flag'] is False:
             self.modifications_dictionary['flag'] = True
@@ -501,7 +506,7 @@ class Main():
     def edit_cctp(self):
         """updating ./temp/data.xml file and open a new odt file"""
         
-        self.project.data = self.__groundwork_to_xml_object()
+        self.project.data = self.groundwork_to_xml_object()
         self.project.data.write("./temp/data.xml", encoding="UTF-8", xml_declaration=True)
         os.system('soffice %s' %(os.getcwd()+"/templates/cctp_template.ott"))
 
@@ -715,7 +720,10 @@ class Project():
             pass
         try:
             # deleting the files located into the temporary directory
-            shutil.rmtree(os.getcwd() + "/temp/ref")
+            #shutil.rmtree(os.getcwd() + "/temp/ref")
+            #shutil.rmtree(os.getcwd() + "/temp")
+            for id in os.listdir(os.getcwd() + "/temp"):
+                os.remove(os.getcwd() + "/temp/" + id)
         except:
             pass
 
@@ -744,9 +752,47 @@ class Project():
             print("The backup file %s was succefully saved" %(self.url))
             fileZip.close() # closing backup file in zip format
 
+class AutomaticBackup(threading.Thread):
+    """Create a thread for automatic backup"""
+    
+    def __init__(self, root, project):
+        
+        threading.Thread.__init__(self)
+        self.flag = 1
+        self.root = root
+        self.project = project
+        
+    def run(self):
+        """Save data.xml in temp diretory"""
+        
+        while self.flag == 1:
+            self.project.data = self.root.groundwork_to_xml_object()
+            year = time.localtime()[0]
+            month = self.__text_formatting(time.localtime()[1])
+            day = self.__text_formatting(time.localtime()[2])
+            hour = self.__text_formatting(time.localtime()[3])
+            minute = self.__text_formatting(time.localtime()[4])
+            id = "%s%s%s%s%s" % (year,month,day,hour,minute)
+            self.project.data.write("temp/data_%s.xml" % (id), encoding="UTF-8", xml_declaration=True)
+            time.sleep(lib.constantes.AUTOMATIC_BACKUP_TIME)
+
+    def stop(self):
+        """Stop the process"""
+    
+    def __text_formatting(self, text):
+        """Adding 0 before the text argument if the text as one character"""
+        
+        if len(str(text)) == 1:
+            text = "0" + str(text)
+            return text
+        else:
+            return text
+        
+        self.flag = 0
+
 if __name__ == '__main__':
-    APPLICATION = Main()
-    APPLICATION.root.mainloop()
+    Application = Main()
+    Application.root.mainloop()
 
 
 
@@ -755,6 +801,5 @@ if __name__ == '__main__':
 # voir pour ajouter dans data.xml la possibilite d ajouter des variantes par lot
 # voir pour ajouter dans data.xml le coefficient de marge pour les estimations
 # rendre impossible l'indentation d'un titre après un ouvrage
-# sur le treeview, prévoir contrôle pour vérifier qu'une description et une localisation sont bien associées à un ouvrage
 
 
