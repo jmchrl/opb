@@ -73,7 +73,7 @@ class Main():
         ####################
         # project treeview #
         ####################
-
+        
         #adding a frame container treeview
         tree_frame = tkinter.Frame(self.root)
         tree_frame.grid(row=2, column=0, sticky='WENS', padx=5, pady=5)
@@ -96,13 +96,13 @@ class Main():
         #####################
         # database treeview #
         #####################
-        
+
         #adding treeview for database
         self.tree_base = gui.treeview.DataBaseTreeview(tree_frame)
 
         #to make the treeview stretchable on the entire window
         #self.tree_base.grid(row=1, column=1, sticky='WENS')
-        
+
         ##############
         # status bar #
         ##############
@@ -134,6 +134,8 @@ class Main():
             root = self.project.data.getroot()
             self.tree_project.refresh(self, root)
             self.root.title("opb - sans nom")
+            self.automatic_backup = AutomaticBackup(self, self.project)
+            self.automatic_backup.start()
 
     def open_project(self):
         """Open zip file, create a new project instance and transcript
@@ -154,7 +156,6 @@ class Main():
         self.modifications_dictionary['undo'].append(xml)
         self.automatic_backup = AutomaticBackup(self, self.project)
         self.automatic_backup.start()
-        #self.automatic_backup.run(self, self.projet)
 
     def save_project(self):
         """save project in zip file"""
@@ -182,7 +183,7 @@ class Main():
 
         self.project.url = None
         self.save_project()
-    
+
     def close(self):
         """Close the application and propose to save the changes"""
 
@@ -190,7 +191,7 @@ class Main():
             gui.main_dialogs.DialogSaveBeforeClose(self, "close")
         else:
             self.root.destroy()
-        
+
 
     def groundwork_to_xml_object(self):
         """Create an image of the treeview to an xml object"""
@@ -463,10 +464,15 @@ class Main():
         else:
             gui.main_dialogs.DialogWorkInfos(self, select, self.project, work)
             self.add_modification()
+    
+    def spelling_check(self):
+        """Open the dialog for spelling and grammar check"""
+        
+        gui.main_dialogs.DialogSpellingCheck(self.root)
 
     def price_per_batch(self):
         """Open the dialog price per batch"""
-        
+
         gui.main_dialogs.DialogPricePerBatch(self)
 
     def __widget_for_editing_treeview(self, event):
@@ -505,7 +511,7 @@ class Main():
 
     def edit_cctp(self):
         """updating ./temp/data.xml file and open a new odt file"""
-        
+
         self.project.data = self.groundwork_to_xml_object()
         self.project.data.write("./temp/data.xml", encoding="UTF-8", xml_declaration=True)
         os.system('soffice %s' %(os.getcwd()+"/templates/cctp_template.ott"))
@@ -572,10 +578,10 @@ class MenuBar(object):
                                      command=self.application.copy)
         drop_down_edit_menu.add_command(label="Coller", underline=0,\
                                      command=self.application.paste)
-        
+
         #adding the drop_down_edit_menu to the menu bar
         self.menu_bar.add_cascade(label="Edition", menu=drop_down_edit_menu)
-    
+
     def __add_display_menu(self):
         """Adding display menu in the menu bar"""
 
@@ -640,6 +646,8 @@ class ToolBar():
         self.__add_button(self.application.image_left_arrow, self.application.unindent_item)
         self.application.image_infos = tkinter.PhotoImage(file="./img/infos_24x24.png")
         self.__add_button(self.application.image_infos, self.application.infos)
+        self.application.image_spelling_check = tkinter.PhotoImage(file="./img/orthographe_24x24.png")
+        self.__add_button(self.application.image_spelling_check, self.application.spelling_check)
 
     def __add_button(self, img, comm):
         """Adding down arrow button in the tool bar"""
@@ -685,7 +693,7 @@ class Project():
         for id in range(len(self.url.split("/"))-1):
             parent_folder = parent_folder + self.url.split("/")[id] + "/"
         return parent_folder
-    
+
     def add_work(self, work):
         """Adding dictionary work in works list"""
         self.works.append(work)
@@ -698,7 +706,7 @@ class Project():
                 test = work
                 break
         return test
-    
+
     def total_price_project(self):
         """Calculation the total price of the project without VAT"""
         total = 0.00
@@ -714,14 +722,6 @@ class Project():
     def cleanDirTemp(self):
         """Clean tempory files in temp directory"""
         try:
-            # deleting the xml file created into the temporary directory
-            os.remove(os.getcwd() + "/temp/data.xml")
-        except:
-            pass
-        try:
-            # deleting the files located into the temporary directory
-            #shutil.rmtree(os.getcwd() + "/temp/ref")
-            #shutil.rmtree(os.getcwd() + "/temp")
             for id in os.listdir(os.getcwd() + "/temp"):
                 os.remove(os.getcwd() + "/temp/" + id)
         except:
@@ -754,17 +754,17 @@ class Project():
 
 class AutomaticBackup(threading.Thread):
     """Create a thread for automatic backup"""
-    
+
     def __init__(self, root, project):
-        
+
         threading.Thread.__init__(self)
         self.flag = 1
         self.root = root
         self.project = project
-        
+
     def run(self):
         """Save data.xml in temp diretory"""
-        
+
         while self.flag == 1:
             self.project.data = self.root.groundwork_to_xml_object()
             year = time.localtime()[0]
@@ -776,18 +776,15 @@ class AutomaticBackup(threading.Thread):
             self.project.data.write("temp/data_%s.xml" % (id), encoding="UTF-8", xml_declaration=True)
             time.sleep(lib.constantes.AUTOMATIC_BACKUP_TIME)
 
-    def stop(self):
-        """Stop the process"""
-    
     def __text_formatting(self, text):
         """Adding 0 before the text argument if the text as one character"""
-        
+
         if len(str(text)) == 1:
             text = "0" + str(text)
             return text
         else:
             return text
-        
+
         self.flag = 0
 
 if __name__ == '__main__':

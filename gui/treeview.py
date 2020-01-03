@@ -31,10 +31,16 @@ import xml.etree.ElementTree as ET
 
 class OpbTreeview(tkinter.ttk.Treeview):
     """Main class for treeview in opb"""
-
+    
     def __init__(self, application, parent_gui):
         """Initilise tkinter.ttk.Treeview"""
-
+        
+        #style = tkinter.ttk.Style()
+        #print(style.layout("Treeview"))
+        #style.configure("Treeview", background="#3D3D3D", fieldbackground="#3D3D3D", foreground="white")
+        #style.configure("Treeview", background="black", fieldbackground="black", foreground="white")
+        #style.configure("mystyle.Treeview.treearea", background='blue')
+        
         tkinter.ttk.Treeview.__init__(self, parent_gui)
 
     def go_down_item(self):
@@ -104,7 +110,7 @@ class ProjectTreeview(OpbTreeview):
         self.browse_xml_branch(groundwork.findall("element"), "", "end")
         self.application.total_price_project.set("Prix total du projet = %.2f Euros HT"\
                                                   % (self.application.project.total_price_project()))
-        
+
     def browse_xml_branch(self, childrens_xml, parent_node, position):
         """browse xml file branch, when the node have childrens this
            fonction is recursive"""
@@ -150,22 +156,6 @@ class ProjectTreeview(OpbTreeview):
                     work['vat'] = children.find('vat').text
                     work['unit'] = children.find('unit').text
                     completed_field_information = self.completed_field_info(work['description'], work['localisation'])
-                    #if work['description'].getchildren() != [] and work['localisation'].getchildren() != []:
-                        #completed_field_information ="TL"
-                    #elif work['description'].getchildren() == [] and work['localisation'].getchildren() != []:
-                        #completed_field_information ="L"
-                    #elif work['description'].getchildren() != [] and work['localisation'].getchildren() == []:
-                        #completed_field_information ="T"
-                    #else:
-                        #completed_field_information =""
-                    #item = self.insert(parent_node, position,\
-                                       #text=children.find('name').text,\
-                                       #values=(children.find('code').text,\
-                                       #children.find('unit').text,\
-                                       #"%.3f" % lib.fonctions.evalQuantiteNew(children.find('quantity')),\
-                                       #"%.2f" % float(children.find('price').text),\
-                                       #"%.2f" % (lib.fonctions.evalQuantiteNew(children.find('quantity'))\
-                                                 #*float(children.find('price').text))))
                     item = self.insert(parent_node, position,\
                                        text=work['name'],\
                                        values=(completed_field_information,\
@@ -176,7 +166,7 @@ class ProjectTreeview(OpbTreeview):
                     work['iid'] = item
                     self.items.append(item)
                     self.application.project.add_work(work)
-    
+
     def completed_field_info(self, work_description, work_localisation):
         """Returns a string indicating status of work description and work localisation
         work_description and work_localisation are xml nodes"""
@@ -190,7 +180,7 @@ class ProjectTreeview(OpbTreeview):
         else:
             completed_field_information =""
         return completed_field_information
-                    
+
     def parents_item(self, select=None):
         """Returns the parent list of a selected item"""
 
@@ -249,15 +239,15 @@ class DataBaseTreeview(tkinter.ttk.Treeview):
                     self.delete(item)
                 except:
                     pass
-    
+
     def hide_treeview(self):
         """Hide treeview"""
-        
+
         self.destroy()
-    
+
     def show_treeview(self):
         """Show treeview"""
-        
+
         self.grid(row=1, column=1, sticky='WENS')
 
 

@@ -30,6 +30,7 @@ import tkinter.ttk
 import tkinter.messagebox
 
 import lib.constantes
+import grammalecte
 
 class DialogWorkInfos(tkinter.Toplevel):
     """Dialog for edit and update work"""
@@ -97,7 +98,7 @@ class DialogWorkInfos(tkinter.Toplevel):
                         column="#5",\
                         value= "%.2f" % (float(result) * float(self.parent.item(self.index_item)['values'][3])))
         self.app.total_price_project.set("Prix total du projet = %.2f Euros HT" % (self.project.total_price_project()))
-    
+
     def __update_work_description(self):
         """Update the work description, work description is an xml element object"""
 
@@ -351,7 +352,7 @@ class DialogQt(tkinter.Frame):
                 for sub_measurement in sub_measurement_list:
                     self.text_zone.insert("end", "%s\n" %(sub_measurement.text))
                     self.text_zone.yview("moveto", 1)
-        
+
         bottom_frame = tkinter.Frame(self, padx=2, pady=2)
         bottom_frame.grid(row=1, column=0, columnspan=2, sticky="EW")
 
@@ -410,12 +411,40 @@ class DialogDescription(tkinter.Frame):
 
         tkinter.Frame.__init__(self, self.parent, padx=2, pady=2)
         self.grid(row=0, column=0, sticky="WNES", padx=5, pady=5)
+        
+        frame_tools_bar = tkinter.Frame(self, padx=2, pady=2)
+        frame_tools_bar.grid(row=0, column=0, columnspan=2, sticky="W")
+        
+        self.img_orthographe = tkinter.PhotoImage(file="./img/orthographe_24x24.png")
+        button_orthographe = tkinter.Button(frame_tools_bar,\
+                                           image=self.img_orthographe,\
+                                           height=25, width=25,\
+                                           relief='flat',\
+                                           command=self.orthographe)
+        button_orthographe.pack(side="left")
+        
+        self.img_undo = tkinter.PhotoImage(file="./img/undo_24x24.png")
+        button_undo = tkinter.Button(frame_tools_bar,\
+                                           image=self.img_undo,\
+                                           height=25, width=25,\
+                                           relief='flat',\
+                                           command=self.undo)
+        button_undo.pack(side="left")
 
-        self.text_zone = tkinter.Text(self, padx=2, pady=2, relief="flat", highlightthickness=0)
+        self.img_redo = tkinter.PhotoImage(file="./img/redo_24x24.png")
+        button_redo = tkinter.Button(frame_tools_bar,\
+                                           image=self.img_redo,\
+                                           height=25, width=25,\
+                                           relief='flat',\
+                                           command=self.redo)
+        button_redo.pack(side="left")
+
+        self.text_zone = tkinter.Text(self, padx=2, pady=2, relief="flat", highlightthickness=0,\
+                                            undo=True)
         self.text_zone_scroll = tkinter.Scrollbar(self, command=self.text_zone.yview, relief="flat")
         self.text_zone.configure(yscrollcommand=self.text_zone_scroll.set)
-        self.text_zone.grid(row=0, column=0, sticky="WNES")
-        self.text_zone_scroll.grid(row=0, column=1, sticky="NS")
+        self.text_zone.grid(row=1, column=0, sticky="WNES")
+        self.text_zone_scroll.grid(row=1, column=1, sticky="NS")
 
         if self.work['description'] is None:
             pass
@@ -423,6 +452,44 @@ class DialogDescription(tkinter.Frame):
             for paragraph in self.work['description']:
                 self.text_zone.insert("end", "%s\n" %(paragraph.text))
                 self.text_zone.yview("moveto", 1)
+
+    def orthographe(self):
+        """Mise en évidence des erreurs de grammaire et d'orthographe"""
+        tags = self.text_zone.tag_names()
+        Err_tags = []
+        for tag in tags:
+            if tag[0:3]=="Err":
+                Err_tags.append(tag)
+        self.text_zone.tag_delete(Err_tags)
+        oGrammarChecker = grammalecte.GrammarChecker("fr")
+        text = self.text_zone.get('0.0', 'end')
+        list_paragraph = text.split("\n")
+        id_error = 0
+        for paragraph in list_paragraph:
+            aGrammErrs, aSpellErrs = oGrammarChecker.getParagraphErrors(paragraph)
+            id_line = list_paragraph.index(paragraph)+1
+            for Err in aGrammErrs:
+                id_error = id_error+1
+                if Err['sRuleId'] == "apostrophe_typographique":
+                    self.text_zone.delete("%s.%s"%(id_line,Err['nEnd']-1))
+                    self.text_zone.insert("%s.%s"%(id_line,Err['nEnd']-1),"’")
+                else:
+                    self.text_zone.tag_add("Err%s"%(id_error), "%s.%s"%(id_line,Err['nStart']), "%s.%s"%(id_line,Err['nEnd']))
+                    self.text_zone.tag_config("Err%s"%(id_error), background="blue")
+                print(Err['sLineId'])
+                print(Err['sRuleId']) #Faire une fonction pour résoudre automatiquement les problèmes d'apostrophe typographiques, etc.    apostrophe_typographique
+                print(Err['sType'])
+                print(Err["aSuggestions"])
+            for Err in aSpellErrs:
+                id_error = id_error+1
+                self.text_zone.tag_add("Err%s"%(id_error), "%s.%s"%(id_line,Err['nStart']), "%s.%s"%(id_line,Err['nEnd']))
+                self.text_zone.tag_config("Err%s"%(id_error), background="red")
+
+    def undo(self):
+        self.text_zone.edit_undo()
+
+    def redo(self):
+        self.text_zone.edit_redo()
 
 class DialogSaveBeforeClose(tkinter.Toplevel):
     """Dialog for propose to save the project before closing application"""
@@ -488,7 +555,7 @@ class DialogSaveBeforeClose(tkinter.Toplevel):
 
 class DialogPricePerBatch(tkinter.Toplevel):
     """Dialog for display price per batch"""
-    
+
     def __init__(self, app):
         """Initialize dialog"""
 
@@ -496,21 +563,21 @@ class DialogPricePerBatch(tkinter.Toplevel):
         self.app = app # It's main windows
         self.treeview = app.tree_project # It's the treeview
         print(self.treeview.get_children)
-        
+
         for batch in self.treeview.get_children():
             total = self.__browse_batch_for_total_price_per_batch(batch.get_children, 0.00)
             print(self.treeview.item(batch)['text'] + "----" + total)
-        
+
         #tkinter.Toplevel.__init__(self, self.parent)
         #self.resizable(width=False, height=False)
         #self.transient(self.master) # pour ne pas creer de nouvel icone dans la barre de lancement
         #self.overrideredirect(1) # pour enlever le bandeau supérieur propre a l os
-    
+
     def __browse_batch_for_total_price_per_batch(self, node, total):
         """Calculate the total price of a batch, browse treeview batch, when the node have childrens this
            fonction is recursive"""
-        
-        if node.get_children() != []:           
+
+        if node.get_children() != []:
             for children in node.get_children():
                 work = self.project.return_work(children)
                 if work is None:
@@ -523,6 +590,79 @@ class DialogPricePerBatch(tkinter.Toplevel):
                     else:
                         total = total + float(work['price'])*float(lib.fonctions.evalQuantiteNew(work['quantity']))
         return total
-            
+
+class DialogSpellingCheck(tkinter.Toplevel):
+    """Dialog for splelling and grammar check"""
+    
+    def __init__(self, parent):
+        """Initialize dialog"""
+        
+        self.parent = parent
+        tkinter.Toplevel.__init__(self, self.parent)
+        self.resizable(width=False, height=False)
+        self.transient(self.master) # for not creating a new icon in the loading bar
+        self.title("Vérification de la grammaire et de l'orthographe...")
+        self.rowconfigure(1, weight=1)
+        self.columnconfigure(0, weight=1)
+        
+        self.text_type_of_error = tkinter.StringVar()
+        self.text_type_of_error.set("Absent du dictionnaire")
+        self.type_of_error_label = tkinter.Label(self, textvariable=self.text_type_of_error)
+        self.type_of_error_label.grid(row=0, column=0, sticky="W", padx=5, pady=10)
+        
+        self.frame_text = tkinter.Frame(self, padx=2, pady=2)
+        self.frame_text.grid(row=1, column=0, sticky="WNES", padx=5, pady=5)
+        self.frame_text.rowconfigure(0, weight=1)
+        self.frame_text.columnconfigure(0, weight=1)
+
+        self.text_zone = tkinter.Text(self.frame_text, padx=2, pady=2, relief="flat",\
+                                      highlightthickness=0, height=7, width=50)
+        self.text_zone_scroll = tkinter.Scrollbar(self.frame_text, command=self.text_zone.yview,\
+                                                  relief="flat")
+        self.text_zone.configure(yscrollcommand=self.text_zone_scroll.set)
+        self.text_zone.grid(row=0, column=0, sticky="WNES")
+        self.text_zone_scroll.grid(row=0, column=1, sticky="NS")
+        
+        button_ignore = tkinter.Button(self, text="Ignorer",\
+                                      height=1, width=10,\
+                                      command=self.ignore)
+        button_ignore.grid(row=1, column=1, sticky="N", padx=5, pady=5)
+    
+    def spelling_check(self):
+        """Mise en évidence des erreurs de grammaire et d'orthographe"""
+        tags = self.text_zone.tag_names()
+        Err_tags = []
+        for tag in tags:
+            if tag[0:3]=="Err":
+                Err_tags.append(tag)
+        self.text_zone.tag_delete(Err_tags)
+        oGrammarChecker = grammalecte.GrammarChecker("fr")
+        text = self.text_zone.get('0.0', 'end')
+        list_paragraph = text.split("\n")
+        id_error = 0
+        for paragraph in list_paragraph:
+            aGrammErrs, aSpellErrs = oGrammarChecker.getParagraphErrors(paragraph)
+            id_line = list_paragraph.index(paragraph)+1
+            for Err in aGrammErrs:
+                id_error = id_error+1
+                if Err['sRuleId'] == "apostrophe_typographique":
+                    self.text_zone.delete("%s.%s"%(id_line,Err['nEnd']-1))
+                    self.text_zone.insert("%s.%s"%(id_line,Err['nEnd']-1),"’")
+                else:
+                    self.text_zone.tag_add("Err%s"%(id_error), "%s.%s"%(id_line,Err['nStart']), "%s.%s"%(id_line,Err['nEnd']))
+                    self.text_zone.tag_config("Err%s"%(id_error), background="blue")
+                print(Err['sLineId'])
+                print(Err['sRuleId']) #Faire une fonction pour résoudre automatiquement les problèmes d'apostrophe typographiques, etc.    apostrophe_typographique
+                print(Err['sType'])
+                print(Err["aSuggestions"])
+            for Err in aSpellErrs:
+                id_error = id_error+1
+                self.text_zone.tag_add("Err%s"%(id_error), "%s.%s"%(id_line,Err['nStart']), "%s.%s"%(id_line,Err['nEnd']))
+                self.text_zone.tag_config("Err%s"%(id_error), background="red")
+
+    def ignore(self):
+        """to do"""
+        
+        pass
         
         

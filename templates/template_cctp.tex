@@ -1,0 +1,49 @@
+\documentclass[twoside]{report}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[francais]{babel}
+\usepackage{layout}
+\usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry}
+
+\title{CCTP}
+\author{Jean-Michel \bsc{Cherel}}
+\date{16 mars 2019}
+
+\pagestyle{headings}
+
+\begin{document}
+
+\sffamily
+\maketitle
+
+\renewcommand{\contentsname}{\textsf{Sommaire}}
+
+% Gestion du sommaire
+\setcounter{tocdepth}{1} % 
+\tableofcontents
+
+\renewcommand{\chaptername}{\textsf{Lot \no}}
+
+\chapter{\textsf{Terrassement}}
+
+\section{\textsf{Prescriptions générales}}
+
+\subsection{\textsf{Accessibilité PMR}}
+
+\noindent Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+
+\noindent Donec nec condimentum libero. Phasellus condimentum porttitor congue.
+Morbi eget quam sed justo egestas lobortis. Aenean et erat metus.
+Nam metus nibh, imperdiet eget gravida sed, consequat eu nulla.
+Donec massa mau ris, luctus vitae auctor non, sagittis non sapien.
+Donec interdum pretium venenatis. Pellentesque aliquam convallis convallis.
+Fusce tincidunt orci eu velit varius luctus.
+Etiam iaculis viverra enim ac varius.
+Duis pretium elit eu eros auctor vel iaculis nulla commodo.
+Aliquam interdum fermentum orci sed fringilla.
+Sed euismod condimentum dui, et pharetra ipsum dictum quis.
+
+\chapter{\textsf{Gros œuvre}}
+
+\end{document}
