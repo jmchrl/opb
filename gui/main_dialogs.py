@@ -606,18 +606,18 @@ class DialogSpellingCheck(tkinter.Toplevel):
         self.columnconfigure(0, weight=1)
         
         self.text_type_of_error = tkinter.StringVar()
-        self.text_type_of_error.set("Absent du dictionnaire")
-        self.type_of_error_label = tkinter.Label(self, textvariable=self.text_type_of_error)
-        self.type_of_error_label.grid(row=0, column=0, sticky="W", padx=5, pady=10)
+        self.text_type_of_error.set(" ")
+        type_of_error_label = tkinter.Label(self, textvariable=self.text_type_of_error)
+        type_of_error_label.grid(row=0, column=0, sticky="W", padx=5, pady=10)
         
-        self.frame_text = tkinter.Frame(self, padx=2, pady=2)
-        self.frame_text.grid(row=1, column=0, sticky="WNES", padx=5, pady=5)
-        self.frame_text.rowconfigure(0, weight=1)
-        self.frame_text.columnconfigure(0, weight=1)
+        frame_text = tkinter.Frame(self, padx=2, pady=2)
+        frame_text.grid(row=1, column=0, sticky="WNES", padx=5, pady=5)
+        frame_text.rowconfigure(0, weight=1)
+        frame_text.columnconfigure(0, weight=1)
 
-        self.text_zone = tkinter.Text(self.frame_text, padx=2, pady=2, relief="flat",\
-                                      highlightthickness=0, height=7, width=50)
-        self.text_zone_scroll = tkinter.Scrollbar(self.frame_text, command=self.text_zone.yview,\
+        self.text_zone = tkinter.Text(frame_text, padx=2, pady=2, relief="flat",\
+                                      highlightthickness=0, height=7, width=40)
+        self.text_zone_scroll = tkinter.Scrollbar(frame_text, command=self.text_zone.yview,\
                                                   relief="flat")
         self.text_zone.configure(yscrollcommand=self.text_zone_scroll.set)
         self.text_zone.grid(row=0, column=0, sticky="WNES")
@@ -627,6 +627,36 @@ class DialogSpellingCheck(tkinter.Toplevel):
                                       height=1, width=10,\
                                       command=self.ignore)
         button_ignore.grid(row=1, column=1, sticky="N", padx=5, pady=5)
+        
+        suggestions_label = tkinter.Label(self, text="Suggestions")
+        suggestions_label.grid(row=3, column=0, sticky="W", padx=5, pady=10)
+        
+        frame_list = tkinter.Frame(self, padx=2, pady=2)
+        frame_list.grid(row=4, column=0, sticky="WNES", padx=5, pady=5)
+        frame_list.rowconfigure(0, weight=1)
+        frame_list.columnconfigure(0, weight=1)
+        
+        self.suggestions_list = tkinter.StringVar()
+        #self.suggestions_list.set("Suggestion01 Suggestion02 Suggestion03")
+        self.list_zone = tkinter.Listbox(frame_list, relief="flat",\
+                                      highlightthickness=0, height=7, width=40,\
+                                      listvariable=self.suggestions_list)
+        self.list_zone_scroll = tkinter.Scrollbar(frame_list, command=self.list_zone.yview,\
+                                                  relief="flat")
+        self.list_zone.configure(yscrollcommand=self.text_zone_scroll.set)
+        self.list_zone.grid(row=0, column=0, sticky="WNES")
+        self.list_zone_scroll.grid(row=0, column=1, sticky="NS")
+        
+        button_replace = tkinter.Button(self, text="Remplacer",\
+                                      height=1, width=10,\
+                                      command=self.replace)
+        button_replace.grid(row=4, column=1, sticky="N", padx=5, pady=5)
+        
+        button_replace_all = tkinter.Button(self, text="Remplacer tout",\
+                                      height=1, width=10,\
+                                      command=self.replace_all)
+        button_replace_all.grid(row=4, column=1, sticky="N", padx=5, pady=5)
+        
     
     def spelling_check(self):
         """Mise en évidence des erreurs de grammaire et d'orthographe"""
@@ -661,6 +691,11 @@ class DialogSpellingCheck(tkinter.Toplevel):
                 self.text_zone.tag_config("Err%s"%(id_error), background="red")
 
     def ignore(self):
+        """to do"""
+        
+        pass
+
+    def replace(self):
         """to do"""
         
         pass

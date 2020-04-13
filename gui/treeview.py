@@ -215,8 +215,14 @@ class DataBaseTreeview(tkinter.ttk.Treeview):
 
     def __init__(self, parent_gui):
         """Initialize treeview"""
-
+        
+        #self.frame = tkinter.Frame(self.application.tree_frame)
+        #self.frame.grid(row=0, rowspan = 2, column=1, sticky="WENS")
+        #self.frame.rowconfigure(1, weight=1)
+        #self.frame.columnconfigure(0, weight=1)
+        
         tkinter.ttk.Treeview.__init__(self, parent_gui)
+        #self.tree_base = tkinter.ttk.Treeview(self.frame)
 
         self.childs = []
         self.items = []
@@ -229,6 +235,15 @@ class DataBaseTreeview(tkinter.ttk.Treeview):
         self.heading("#1", text="IdCCTP")
         self.heading("#2", text="U")
         self.heading("#3", text="PU")
+        
+        #self.image_show_treeview = tkinter.PhotoImage(file="./img/signe_plus_24x24.png")
+        #self.image_hide_treeview = tkinter.PhotoImage(file="./img/signe_moins_24x24.png")
+        #self.button_show_treeview = tkinter.Button(self.frame,\
+                                           #image=self.image_show_treeview,\
+                                           #height=25, width=25,\
+                                           #relief='flat',\
+                                           #command=self.show_treeview)
+        #self.button_show_treeview.grid(row=0, column=1, sticky='WN')
 
     def reset_treeview(self):
         """Reset treeview before loading a new data base"""
@@ -244,11 +259,17 @@ class DataBaseTreeview(tkinter.ttk.Treeview):
         """Hide treeview"""
 
         self.destroy()
+        #self.button_show_treeview.config(image=self.image_show_treeview,\
+                                         #command=self.show_treeview)
 
     def show_treeview(self):
         """Show treeview"""
+        
+        pass
 
-        self.grid(row=1, column=1, sticky='WENS')
+        #self.grid(row=1, column=1, sticky='WENS')
+        #self.button_show_treeview.config(image=self.image_hide_treeview,\
+                                         #command=self.hide_treeview)
 
 
 class EntryTreeview(tkinter.Entry):

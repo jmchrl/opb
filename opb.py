@@ -54,7 +54,7 @@ class Main():
         #to make the window stretchable
         self.root.geometry("1500x800+100+100")
         self.root.minsize(width=1500, height=800)
-        self.root.rowconfigure(2, weight=1)
+        self.root.rowconfigure(1, weight=1)
         self.root.columnconfigure(0, weight=1)
 
         #by default creating a new project
@@ -75,16 +75,16 @@ class Main():
         ####################
         
         #adding a frame container treeview
-        tree_frame = tkinter.Frame(self.root)
-        tree_frame.grid(row=2, column=0, sticky='WENS', padx=5, pady=5)
-        tree_frame.rowconfigure(1, weight=1)
-        tree_frame.columnconfigure(0, weight=1)
+        self.tree_frame = tkinter.Frame(self.root)
+        self.tree_frame.grid(row=1, column=0, sticky='WENS', padx=5, pady=5)
+        self.tree_frame.rowconfigure(1, weight=1)
+        self.tree_frame.columnconfigure(0, weight=1)
 
         #adding treeview project
-        self.tree_project = gui.treeview.ProjectTreeview(self, tree_frame)
+        self.tree_project = gui.treeview.ProjectTreeview(self, self.tree_frame)
 
         #to make the treeview stretchable on the entire window
-        self.tree_project.grid(row=0, rowspan=2, column=0, sticky='WENS')
+        self.tree_project.grid(row=1, column=0, sticky='WENS')
 
         #connect functions to events
         self.tree_project.bind("<Double-Button-1>", self.__widget_for_editing_treeview)
@@ -96,12 +96,23 @@ class Main():
         #####################
         # database treeview #
         #####################
-
+        
         #adding treeview for database
-        self.tree_base = gui.treeview.DataBaseTreeview(tree_frame)
+        #self.tree_base = gui.treeview.DataBaseTreeview(tree_frame)
 
         #to make the treeview stretchable on the entire window
         #self.tree_base.grid(row=1, column=1, sticky='WENS')
+        
+        #adding button for hide or show database treeview
+        
+        #self.image_show_treeview = tkinter.PhotoImage(file="./img/signe_plus_24x24.png")
+        #self.image_hide_treeview = tkinter.PhotoImage(file="./img/signe_moins_24x24.png")
+        #self.button_show_treeview = tkinter.Button(self.tree_frame,\
+                                           #image=self.image_show_treeview,\
+                                           #height=25, width=25,\
+                                           #relief='flat',\
+                                           #command=self.tree_base.show_treeview)
+        #self.button_show_treeview.grid(row=0, column=1, sticky='WN')
 
         ##############
         # status bar #
@@ -516,6 +527,17 @@ class Main():
         self.project.data.write("./temp/data.xml", encoding="UTF-8", xml_declaration=True)
         os.system('soffice %s' %(os.getcwd()+"/templates/cctp_template.ott"))
 
+    def show_database_treeview(self):
+        """create and show database treeview at right panel"""
+
+        self.tree_base = gui.treeview.DataBaseTreeview(self.tree_frame)
+        self.tree_base.grid(row=1, column=1, sticky='WENS')
+
+    def hide_database_treeview(self):
+        """destroy database treeview"""
+        
+        self.tree_base.destroy()
+
 class MenuBar(object):
     """Creating the menu bar at the top of main window"""
 
@@ -590,9 +612,9 @@ class MenuBar(object):
 
         #adding commands
         drop_down_display_menu.add_command(label="Masquer le panneau latéral", underline=0,\
-                                           command=self.application.tree_base.hide_treeview)
+                                           command=self.application.hide_database_treeview)
         drop_down_display_menu.add_command(label="Afficher le panneau latéral", underline=0,\
-                                           command=self.application.tree_base.show_treeview)
+                                           command=self.application.show_database_treeview)
 
         #adding the drop_down_display_menu to the menu bar
         self.menu_bar.add_cascade(label="Affichage", menu=drop_down_display_menu)
@@ -633,7 +655,7 @@ class ToolBar():
         """Creating tool bar"""
 
         self.tools_frame = tkinter.Frame(parent_gui)
-        self.tools_frame.grid(row=1, column=0, sticky='WN', padx=5, pady=5)
+        self.tools_frame.grid(row=0, column=0, sticky='WN', padx=5, pady=5)
         self.application = application
 
         self.application.image_down_arrow = tkinter.PhotoImage(file="./img/fleche_bas_24x24.png")
