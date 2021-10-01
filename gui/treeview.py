@@ -171,11 +171,11 @@ class ProjectTreeview(OpbTreeview):
         """Returns a string indicating status of work description and work localisation
         work_description and work_localisation are xml nodes"""
 
-        if work_description.getchildren() != [] and work_localisation.getchildren() != []:
+        if list(work_description) != [] and list(work_localisation) != []:
             completed_field_information ="TL"
-        elif work_description.getchildren() == [] and work_localisation.getchildren() != []:
+        elif list(work_description) == [] and list(work_localisation) != []:
             completed_field_information ="L"
-        elif work_description.getchildren() != [] and work_localisation.getchildren() == []:
+        elif list(work_description) != [] and list(work_localisation) == []:
             completed_field_information ="T"
         else:
             completed_field_information =""
@@ -188,7 +188,8 @@ class ProjectTreeview(OpbTreeview):
             select = self.focus()
 
         #creation of root children list
-        children_list = self.get_children()
+        #children_list = self.get_children()
+        children_list = list(self)
 
         #creation of a tree of parents
         parent_tree = []

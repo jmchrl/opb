@@ -339,7 +339,8 @@ class DialogQt(tkinter.Frame):
         if self.work['quantity'] is None:
             pass
         else :
-            sub_measurement_list = self.work['quantity'].getchildren()
+            #sub_measurement_list = self.work['quantity'].getchildren()
+            sub_measurement_list = list(self.work['quantity'])
             if sub_measurement_list == []:
                 try:
                     quantity_lines = self.work['quantity'].text.split("$")
